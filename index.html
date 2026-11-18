@@ -1,0 +1,597 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Mia 小遊戲</title>
+<meta name="description" content="每週一款療癒小遊戲，收集稱號、解鎖主題">
+<meta name="theme-color" content="#FDE6DB">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700&family=Cormorant+Garamond:wght@500;600&display=swap">
+<script>
+/* ===== Mia 小遊戲 C-1.0.0-測試版 1：設定只要改這一段 ===== */
+window.MIA_PLAY_CONFIG = {
+  PLAY_GAS_URL: '請貼上互動網站的 Apps Script 網址',   // 互動網站自己的 Apps Script 網址（部署步驟第二步拿到的）
+  LINE_LOGIN_CHANNEL_ID: '2012624805',                          // 和網站 A、B 相同
+  SITE_URL: 'https://psnw0925-creator.github.io/mia-play/',     // 這個網站（Mia 小遊戲）的網址
+  MAIN_URL: 'https://psnw0925-creator.github.io/mia-booking/',  // 網站 A（Mia 預約）
+  CARE_URL: 'https://psnw0925-creator.github.io/mia-care/',     // 網站 B（Mia 陪伴）
+  LINE_OA_ID: '@923uxnos'                                       // 官方帳號 ID
+};
+</script>
+<style>
+:root{
+  color-scheme: light;
+  --bg1:#FFF4EE; --bg2:#FDE6DB; --bg3:#F8D3C3;
+  --primary:#B5523B; --on:#FFFFFF; --ink:#3B302A; --sub:#6E6159; --card:rgba(255,255,255,.86); --line:rgba(181,82,59,.16); --soft:#FBE1D6; --accent-ink:#8A3A24;
+  --brown:#5A4632; --gold:#C9A35A;
+  --ok:#2F6B4A; --bad:#A4473B;
+  --r:16px; --r-lg:22px; --sh:0 1px 2px rgba(90,50,40,.06),0 10px 26px -14px rgba(120,60,40,.28);
+  --serif:'Noto Serif TC',serif; --sans:'Noto Sans TC',system-ui,-apple-system,sans-serif; --lat:'Cormorant Garamond',serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{font-family:var(--sans);color:var(--ink);font-size:15px;line-height:1.7;min-height:100vh;background:linear-gradient(180deg,var(--bg1) 0%,var(--bg2) 50%,var(--bg3) 100%) fixed;background-color:var(--bg2);transition:background .3s}
+body::before{content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.5;background-repeat:repeat}
+body[data-pattern="dots"]::before{background-image:radial-gradient(var(--line) 1.2px,transparent 1.6px);background-size:18px 18px}
+body[data-pattern="stars"]::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='64' height='64'%3E%3Cpath d='M16 10l1.6 3.4 3.4 1.6-3.4 1.6L16 20l-1.6-3.4L11 15l3.4-1.6z' fill='%23C9A35A' opacity='.35'/%3E%3Ccircle cx='46' cy='44' r='1.4' fill='%23C9A35A' opacity='.4'/%3E%3C/svg%3E");background-size:64px 64px}
+body[data-pattern="snow"]::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='72'%3E%3Cg stroke='%23A9C4BA' stroke-width='1.2' opacity='.55'%3E%3Cpath d='M18 10v16M10 18h16M12.5 12.5l11 11M23.5 12.5l-11 11'/%3E%3C/g%3E%3Ccircle cx='52' cy='50' r='2' fill='%23A9C4BA' opacity='.5'/%3E%3C/svg%3E");background-size:72px 72px}
+body[data-pattern="pumpkin"]::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='80' height='80'%3E%3Cg opacity='.22'%3E%3Cellipse cx='22' cy='26' rx='9' ry='7' fill='%23E08A4A'/%3E%3Cpath d='M22 19v-4' stroke='%236A8F4A' stroke-width='2'/%3E%3C/g%3E%3Ccircle cx='60' cy='58' r='1.5' fill='%23F6C89A' opacity='.5'/%3E%3C/svg%3E");background-size:80px 80px}
+body[data-pattern="petals"]::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='70' height='70'%3E%3Cg fill='%23E7A3BC' opacity='.35'%3E%3Cellipse cx='18' cy='18' rx='5' ry='3' transform='rotate(30 18 18)'/%3E%3Cellipse cx='50' cy='48' rx='4' ry='2.4' transform='rotate(-20 50 48)'/%3E%3C/g%3E%3C/svg%3E");background-size:70px 70px}
+img{max-width:100%;display:block}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+a{color:inherit}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.num{font-variant-numeric:tabular-nums}
+#app{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column}
+.wrap{width:100%;max-width:520px;margin:0 auto;padding:0 16px}
+main{flex:1;padding:14px 0 36px}
+/* header */
+.hd{position:sticky;top:0;z-index:20;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);background:color-mix(in srgb,var(--bg1) 80%,transparent);border-bottom:1px solid var(--line)}
+.hd .wrap{display:flex;align-items:center;gap:8px;height:56px}
+.logo{display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--ink)}
+.logo b{font-family:var(--lat);font-size:23px;font-weight:600;line-height:1}
+.logo small{font-size:13px;font-weight:700;letter-spacing:.06em}
+.pearl{width:26px;height:26px;border-radius:50%;flex:none;background:radial-gradient(circle at 34% 30%,#fff 0 14%,#C4DAF3 45%,#56709F 100%);box-shadow:0 0 12px rgba(196,218,243,.9),inset -2px -3px 6px rgba(31,61,120,.25)}
+.hd nav{margin-left:auto;display:flex;align-items:center;gap:4px}
+.hd nav a{display:inline-flex;align-items:center;min-height:44px;padding:0 10px;border-radius:999px;font-size:14px;text-decoration:none;color:var(--sub)}
+.hd nav a.on{color:var(--accent-ink);font-weight:700}
+.av{width:34px;height:34px;border-radius:50%;background:var(--soft);color:var(--accent-ink);display:inline-flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;overflow:hidden;flex:none}
+.av img{width:100%;height:100%;object-fit:cover}
+.demo-tag{font-size:11px;font-weight:700;background:#FFF1C9;color:#6B4A00;border-radius:999px;padding:3px 9px;white-space:nowrap}
+/* blocks */
+.stack{display:flex;flex-direction:column;gap:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r-lg);padding:16px;box-shadow:var(--sh)}
+.card h2,.sec-t{font-size:15px;font-weight:700;color:var(--ink)}
+.sec-t{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.sec-t a{font-size:13px;font-weight:500;color:var(--accent-ink);min-height:44px;display:inline-flex;align-items:center}
+.muted{color:var(--sub)}
+.small{font-size:13px}
+.notice{background:#FFF7E6;border:1px solid #EFD9A8;color:#5E4512;border-radius:14px;padding:10px 12px;font-size:13px;line-height:1.6;display:flex;gap:8px;align-items:flex-start}
+.notice button{color:#5E4512;font-weight:700;text-decoration:underline;white-space:nowrap;min-height:28px}
+.hero{background:var(--primary);color:var(--on);border-radius:var(--r-lg);padding:18px;display:flex;flex-direction:column;gap:6px;box-shadow:var(--sh)}
+.hero .meta{font-size:12.5px;opacity:.92}
+.hero h1{font-family:var(--serif);font-size:21px;line-height:1.45;font-weight:700}
+.hero p{font-size:13.5px;opacity:.95}
+.hero .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:6px}
+.hero .best{font-size:12.5px;background:rgba(255,255,255,.18);border-radius:999px;padding:4px 10px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:46px;padding:0 20px;border-radius:999px;background:var(--primary);color:var(--on);font-weight:700;font-size:15px;text-decoration:none;transition:transform .1s}
+.btn:active{transform:scale(.98)}
+.btn.inv{background:var(--on);color:var(--primary)}
+.btn.line{background:transparent;color:var(--accent-ink);border:1.5px solid var(--primary)}
+.btn.ghost{background:transparent;color:var(--accent-ink);min-height:44px;padding:0 10px}
+.btn.block{width:100%}
+.btn.lg{min-height:52px;font-size:16px}
+.btn[disabled]{opacity:.55;pointer-events:none}
+.g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.stat{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:10px 12px}
+.stat span{display:block;font-size:12.5px;color:var(--sub)}
+.stat b{font-size:24px;font-weight:700;color:var(--accent-ink);font-variant-numeric:tabular-nums}
+.stat i{font-style:normal;font-size:13px;margin-left:2px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+.chip{display:inline-flex;align-items:center;gap:4px;min-height:28px;padding:0 11px;border-radius:999px;font-size:13px;font-weight:700;background:var(--soft);color:var(--accent-ink)}
+.chip.off{background:rgba(120,110,100,.12);color:var(--sub);font-weight:500}
+.list{display:flex;flex-direction:column}
+.li{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--line);font-size:14px;text-decoration:none;color:inherit;min-height:44px}
+.li:last-child{border-bottom:0}
+.li .r{color:var(--sub);font-size:13px;text-align:right;flex:none;max-width:48%}
+.li .t{min-width:0}
+.li .t small{display:block;color:var(--sub);font-size:12px}
+.ft{padding:18px 0 calc(24px + env(safe-area-inset-bottom,0px));font-size:12px;color:var(--sub);text-align:center;line-height:1.8}
+.ft a{color:var(--accent-ink)}
+/* play */
+.prog{height:6px;border-radius:3px;background:var(--soft);overflow:hidden}
+.prog i{display:block;height:100%;background:var(--primary);border-radius:3px;transition:width .25s}
+.qhead{display:flex;justify-content:space-between;font-size:13px;color:var(--sub);margin:12px 0 6px}
+.q{font-family:var(--serif);font-size:20px;line-height:1.55;font-weight:700;margin:6px 0 14px;color:var(--ink)}
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{width:100%;text-align:left;min-height:54px;padding:12px 16px;border-radius:16px;background:var(--card);border:1.5px solid var(--line);font-size:15.5px;line-height:1.5;display:flex;gap:10px;align-items:center;transition:border-color .15s,background .15s}
+.opt .k{flex:none;width:28px;height:28px;border-radius:50%;background:var(--soft);color:var(--accent-ink);font-weight:700;font-size:13px;display:inline-flex;align-items:center;justify-content:center}
+.opt:hover{border-color:var(--primary)}
+.opt.sel{border-color:var(--primary);background:var(--soft)}
+/* result */
+.res{text-align:center;display:flex;flex-direction:column;align-items:center;gap:6px;padding:22px 16px}
+.res .big{font-family:var(--serif);font-size:40px;font-weight:700;line-height:1.25;color:var(--accent-ink)}
+.res .score{font-size:52px;font-weight:700;line-height:1.1;color:var(--accent-ink);font-variant-numeric:tabular-nums}
+.res .score small{font-size:22px;color:var(--sub);font-weight:500}
+.res .dot{width:64px;height:64px;border-radius:50%;margin-bottom:4px;box-shadow:inset 0 -6px 12px rgba(0,0,0,.12)}
+.pill{display:inline-flex;align-items:center;min-height:28px;padding:0 12px;border-radius:999px;background:var(--soft);color:var(--accent-ink);font-size:13px;font-weight:700}
+.unlock{background:#2F5E47;color:#fff;border-radius:16px;padding:12px 14px;font-size:14px;display:flex;gap:10px;align-items:center}
+.unlock b{font-weight:700}
+.bars{display:flex;flex-direction:column;gap:8px}
+.bar{font-size:13.5px}
+.bar .tr{height:10px;border-radius:5px;background:var(--soft);overflow:hidden;margin-top:3px}
+.bar .tr i{display:block;height:100%;background:var(--primary)}
+.bar.me .lbl{font-weight:700;color:var(--accent-ink)}
+.rv{font-size:13.5px;padding:8px 0;border-bottom:1px solid var(--line)}
+.rv:last-child{border-bottom:0}
+.rv .ok{color:var(--ok);font-weight:700}.rv .no{color:var(--bad);font-weight:700}
+.bd{display:grid;grid-template-columns:36px 1fr auto;gap:8px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}
+.bd:last-child{border-bottom:0}
+.bd .n{font-weight:700;color:var(--accent-ink);text-align:center}
+.bd.me{background:var(--soft);border-radius:10px;padding:8px 6px}
+/* themes */
+.tg{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.tc{border-radius:16px;border:1.5px solid var(--line);background:var(--card);padding:6px 6px 8px;display:flex;flex-direction:column;gap:6px;font-size:12.5px;text-align:center;min-height:44px;line-height:1.45}
+.tc .pv{height:64px;border-radius:12px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:8px;border:1px solid rgba(0,0,0,.05)}
+.tc .pv i{display:block;width:42px;height:12px;border-radius:999px}
+.tc.cur{border:2px solid var(--primary)}
+.tc .tn{font-weight:700;color:var(--ink)}
+.tc .how{color:var(--sub);font-size:11.5px}
+.tc.lock .pv{background:repeating-linear-gradient(135deg,rgba(120,110,100,.08) 0 6px,rgba(120,110,100,.14) 6px 12px)!important}
+.tc .mini{display:inline-flex;align-items:center;justify-content:center;min-height:32px;font-size:12px;padding:0 10px;border-radius:999px;background:var(--primary);color:var(--on);font-weight:700;margin:0 auto}
+/* titles */
+.tl{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.ti{border-radius:14px;padding:10px 12px;background:var(--soft);display:flex;flex-direction:column;gap:2px}
+.ti b{font-size:14px;color:var(--accent-ink)}
+.ti span{font-size:12px;color:var(--sub)}
+.ti.off{background:rgba(120,110,100,.1)}
+.ti.off b{color:var(--sub)}
+.stamps{display:grid;grid-template-columns:repeat(10,1fr);gap:5px;margin:8px 0 4px}
+.stamps i{aspect-ratio:1;border-radius:50%;border:1.5px dashed var(--gold)}
+.stamps i.on{background:var(--gold);border-style:solid}
+/* overlay */
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:60;background:#2B2622;color:#fff;border-radius:14px;padding:10px 16px;font-size:14px;max-width:92vw;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.toast.err{background:#8A2F25}
+.modal-bg{position:fixed;inset:0;z-index:50;background:rgba(30,20,15,.45);display:flex;align-items:flex-end;justify-content:center}
+.modal{background:#fff;color:#3B302A;width:100%;max-width:520px;border-radius:22px 22px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom,0px));max-height:90vh;overflow:auto;display:flex;flex-direction:column;gap:12px}
+.modal h3{font-size:17px}
+.modal .acts{display:flex;flex-direction:column;gap:8px}
+.demo-pick button{display:flex;gap:10px;align-items:center;width:100%;text-align:left;padding:10px;border-radius:14px;border:1px solid #EADCD2;min-height:56px}
+.demo-pick button+button{margin-top:8px}
+.demo-pick small{display:block;color:#6E6159;font-size:12px}
+.spin{display:flex;justify-content:center;padding:48px 0}
+.spin i{width:30px;height:30px;border-radius:50%;border:3px solid var(--soft);border-top-color:var(--primary);animation:sp 1s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.spin i{animation-duration:3s}}
+a:focus-visible,button:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+</style>
+</head>
+<body data-pattern="dots">
+<div id="app"><div class="spin" role="status"><i></i><span class="sr">載入中</span></div></div>
+<script>
+
+
+(function () {
+'use strict';
+const CFG = window.MIA_PLAY_CONFIG || {};
+const IS_DEMO = false;
+const SITE = CFG.SITE_URL || (location.origin + location.pathname);
+
+/* ---------- 小工具 ---------- */
+const ICO = {
+  lock: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><rect x="5" y="11" width="14" height="10" rx="2.5"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>',
+  gift: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="4" y="9" width="16" height="11" rx="2"/><path d="M3 9h18M12 9v11M12 9c-2-4-6-4-6-1.5S10 9 12 9zm0 0c2-4 6-4 6-1.5S14 9 12 9z"/></svg>',
+  spark: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l2.2 5.8L20 11l-5.8 2.2L12 19l-2.2-5.8L4 11l5.8-2.2z"/></svg>'
+};
+const $ = (s, r) => (r || document).querySelector(s);
+const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const U = {
+  rid(n) { const a = 'abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let s = ''; const r = crypto.getRandomValues(new Uint8Array(n)); for (const x of r) s += a[x % a.length]; return s; },
+  ls: { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) { } }, del(k) { try { localStorage.removeItem(k); } catch (e) { } } },
+  ss: { get(k) { try { return sessionStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { sessionStorage.setItem(k, v); } catch (e) { } }, del(k) { try { sessionStorage.removeItem(k); } catch (e) { } } },
+  iso() { return new Date().toISOString(); },
+  date(s) { if (!s) return ''; const d = new Date(s); return (d.getMonth() + 1) + '/' + d.getDate(); },
+  daysLeft(s) { const ms = new Date(s) - Date.now(); return Math.max(0, Math.ceil(ms / 86400000)); },
+  sec(ms) { const s = Math.round((+ms || 0) / 1000); return s >= 60 ? Math.floor(s / 60) + ' 分 ' + (s % 60) + ' 秒' : s + ' 秒'; }
+};
+function toast(msg, kind) {
+  const t = document.createElement('div'); t.className = 'toast' + (kind === 'err' ? ' err' : ''); t.setAttribute('role', 'status'); t.textContent = msg;
+  document.body.appendChild(t); setTimeout(() => t.remove(), 3200);
+}
+class ApiError extends Error { constructor(code, message, data) { super(message || '系統忙碌中，請稍後再試'); this.code = code; this.data = data; } }
+const errToast = e => toast((e && e.message) || '系統忙碌中，請稍後再試', 'err');
+function modal({ title, html, acts }) {
+  return new Promise(resolve => {
+    const bg = document.createElement('div'); bg.className = 'modal-bg';
+    bg.innerHTML = `<div class="modal" role="dialog" aria-modal="true" aria-label="${esc(title)}"><h3>${esc(title)}</h3>${html || ''}<div class="acts">${(acts || [{ label: '關閉', v: null, cls: 'line' }]).map((a, i) => `<button class="btn block ${a.cls || ''}" data-i="${i}">${esc(a.label)}</button>`).join('')}</div></div>`;
+    const done = v => { bg.remove(); resolve(v); };
+    bg.addEventListener('click', e => { if (e.target === bg) done(null); const b = e.target.closest('[data-i]'); if (b) done((acts || [{ v: null }])[+b.dataset.i].v); });
+    document.body.appendChild(bg); const f = $('button', bg); if (f) f.focus();
+    bg._done = done;
+  });
+}
+
+/* ---------- 登入：在 A、B 登入過的人直接認得（只讀 mia.session）；新朋友用小遊戲自己的登入（miaplay.session） ---------- */
+const Session = {
+  own: IS_DEMO ? 'miaplay.demo.session' : 'miaplay.session',
+  shared: IS_DEMO ? 'miaplay.demo.shared' : 'mia.session',
+  read(k) { let s = null; try { s = JSON.parse(U.ls.get(k) || 'null'); } catch (e) { } if (s && s.expiresAt && s.expiresAt < U.iso()) return null; return s && s.token ? s : null; },
+  get() { const o = this.read(this.own); if (o) return o; const s = this.read(this.shared); if (s && U.ss.get('miaplay.skip') === s.token) return null; return s; },
+  setOwn(s) { U.ls.set(this.own, JSON.stringify(s)); U.ss.del('miaplay.skip'); },
+  /* 登入失效：小遊戲自己的就刪掉；A、B 的不刪，只在小遊戲先不用，避免 A、B 被登出 */
+  drop() { if (this.read(this.own)) { U.ls.del(this.own); return; } const s = this.read(this.shared); if (s) U.ss.set('miaplay.skip', s.token); },
+  token() { const s = this.get(); return s ? s.token : ''; },
+  user() { const s = this.get(); return s ? s.user : null; }
+};
+/* 訪客：這支手機的編號（只存在這個瀏覽器） */
+const Guest = { id() { let g = U.ls.get('miaplay.guest'); if (!g) { g = U.rid(16); U.ls.set('miaplay.guest', g); } return g; } };
+/* 入口：?from=line|ig|booking|care|share，?ref=分享人 */
+const Entry = {
+  init() {
+    const qs = new URLSearchParams(location.search);
+    if (qs.get('from') || qs.get('ref')) {
+      U.ss.set('miaplay.entry', JSON.stringify({ source: qs.get('from') || (qs.get('ref') ? 'share' : 'direct'), ref: qs.get('ref') || '' }));
+      if (!qs.get('code')) history.replaceState(null, '', location.pathname + location.hash);
+    }
+  },
+  get() { try { return JSON.parse(U.ss.get('miaplay.entry') || 'null') || { source: 'direct', ref: '' }; } catch (e) { return { source: 'direct', ref: '' }; } }
+};
+const api = {
+  async call(action, data, opts) {
+    const token = Session.token();
+    data = Object.assign({ guestId: Guest.id() }, data || {});
+    try {
+      if (IS_DEMO) return await MOCK.call(action, data, token).catch(e => { throw new ApiError(e.code || 'INTERNAL', e.message, e.data); });
+      if (!/^https:\/\//.test(CFG.PLAY_GAS_URL || '')) throw new ApiError('CONFIG', '網站還沒設定完成（PLAY_GAS_URL）');
+      const res = await fetch(CFG.PLAY_GAS_URL, { method: 'POST', redirect: 'follow', body: JSON.stringify({ action, token, data }) });
+      const j = await res.json();
+      if (!j.ok) throw new ApiError(j.error && j.error.code || 'INTERNAL', j.error && j.error.message, j.error && j.error.data);
+      return j.data;
+    } catch (e) {
+      if (!(e instanceof ApiError)) e = new ApiError('INTERNAL', '無法連線，請稍後再試');
+      if (['AUTH_EXPIRED', 'AUTH_INVALID', 'AUTH_REQUIRED'].includes(e.code) && token && !(opts && opts.retried)) {
+        Session.drop(); toast('LINE 登入已過期，先用訪客遊玩；可以點「用 LINE 帳號遊玩」重新登入');
+        return api.call(action, data, { retried: true });
+      }
+      throw e;
+    }
+  }
+};
+const LineAuth = {
+  redirectUri() { return SITE; },
+  start(returnHash) {
+    const state = U.rid(12), nonce = U.rid(12);
+    U.ss.set('miaplay.oauth', JSON.stringify({ state, nonce, returnHash: returnHash || location.hash || '#/' }));
+    const p = new URLSearchParams({ response_type: 'code', client_id: CFG.LINE_LOGIN_CHANNEL_ID, redirect_uri: this.redirectUri(), state, scope: 'openid profile', nonce, bot_prompt: 'aggressive' });
+    location.href = 'https://access.line.me/oauth2/v2.1/authorize?' + p.toString();
+  },
+  async handleReturn() {
+    const qs = new URLSearchParams(location.search);
+    if (!qs.get('code') && !qs.get('error')) return false;
+    let st = {}; try { st = JSON.parse(U.ss.get('miaplay.oauth') || '{}'); } catch (e) { }
+    U.ss.del('miaplay.oauth');
+    const clean = () => history.replaceState(null, '', location.pathname + (st.returnHash || '#/'));
+    if (qs.get('error') || qs.get('state') !== st.state) { clean(); toast('LINE 登入未完成，請再試一次', 'err'); return true; }
+    try {
+      const r = await api.call('authLine', { code: qs.get('code'), redirectUri: this.redirectUri(), nonce: st.nonce });
+      Session.setOwn({ token: r.token, user: r.user, expiresAt: r.expiresAt });
+      U.ss.set('miaplay.justLogin', '1');
+    } catch (e) { errToast(e); }
+    clean(); return true;
+  }
+};
+function login(returnHash) {
+  if (IS_DEMO) {
+    const bg = document.createElement('div'); bg.className = 'modal-bg';
+    bg.innerHTML = `<div class="modal" role="dialog" aria-modal="true" aria-label="展示登入"><h3>展示登入</h3><p class="small" style="color:#6E6159">展示模式不會連線 LINE，選一個身分就能體驗。</p><div class="demo-pick">
+      <button data-u="demo-customer" data-k="shared"><span class="av">映</span><span><b>陳映彤</b><small>已在預約網站登入過：小遊戲直接認得。玩過兩週，這週玩一款就會解鎖「連續三週」</small></span></button>
+      <button data-u="demo-friend" data-k="own"><span class="av">晴</span><span><b>林小晴</b><small>第一次來的新朋友：用小遊戲自己的 LINE 登入，只記在互動網站</small></span></button>
+      ${Session.user() ? '<button data-u=""><span class="av">✕</span><span><b>登出，改用訪客遊玩</b><small>看看訪客的畫面</small></span></button>' : ''}</div>
+      <div class="acts"><button class="btn block line" data-x>取消</button></div></div>`;
+    bg.addEventListener('click', e => {
+      if (e.target === bg || e.target.closest('[data-x]')) return bg.remove();
+      const b = e.target.closest('[data-u]'); if (!b) return;
+      const u = b.dataset.u; bg.remove();
+      U.ls.del(Session.own); U.ls.del(Session.shared); U.ss.del('miaplay.skip');
+      if (!u) toast('已切換成訪客');
+      else { U.ls.set(b.dataset.k === 'own' ? Session.own : Session.shared, JSON.stringify({ token: u, user: DEMO_USERS[u], expiresAt: '2999-01-01T00:00:00Z' })); U.ss.set('miaplay.justLogin', '1'); }
+      route();
+    });
+    document.body.appendChild(bg); return;
+  }
+  LineAuth.start(returnHash);
+}
+
+/* ---------- 主題 ---------- */
+const Theme = {
+  cur: null,
+  apply(t) {
+    if (!t || !t.colors) return; this.cur = t; const c = t.colors, r = document.documentElement.style;
+    const map = { bg1: '--bg1', bg2: '--bg2', bg3: '--bg3', primary: '--primary', onPrimary: '--on', ink: '--ink', sub: '--sub', card: '--card', line: '--line', soft: '--soft', accentInk: '--accent-ink' };
+    for (const k in map) if (c[k]) r.setProperty(map[k], c[k]);
+    document.body.dataset.pattern = t.pattern || 'none';
+    const m = $('meta[name=theme-color]'); if (m) m.content = c.bg2 || c.bg1;
+    U.ls.set('miaplay.theme', JSON.stringify(t));
+  },
+  boot() { try { const t = JSON.parse(U.ls.get('miaplay.theme') || 'null'); if (t) this.apply(t); } catch (e) { } },
+  swatch(t) { const c = t.colors || {}; return `background:linear-gradient(180deg,${c.bg1},${c.bg2} 55%,${c.bg3})`; }
+};
+
+/* ---------- 版面 ---------- */
+const Layout = {
+  header(on) {
+    const u = Session.user();
+    const a = (h, l, k) => `<a href="${h}" class="${on === k ? 'on' : ''}"${on === k ? ' aria-current="page"' : ''}>${l}</a>`;
+    const name = u && (u.displayName || u.name) || '';
+    const pic = u && (u.pictureUrl || u.pic);
+    return `<header class="hd"><div class="wrap"><a class="logo" href="#/" aria-label="Mia 小遊戲 大廳"><span class="pearl" aria-hidden="true"></span><b>Mia</b><small>小遊戲</small></a>${IS_DEMO ? '<button class="demo-tag" data-demo>展示模式</button>' : ''}
+      <nav>${a('#/me', '我的成就', 'me')}${u ? `<button class="av" data-login aria-label="${esc(name)}"${IS_DEMO ? '' : ' tabindex="-1"'}>${pic ? `<img src="${esc(pic)}" alt="">` : esc((name || '我').slice(0, 1))}</button>` : ''}</nav></div></header>`;
+  },
+  footer(note) {
+    return `<footer class="ft"><div class="wrap">${note ? esc(note) + '<br>' : ''}<a href="${esc(CFG.MAIN_URL)}">Mia 客製化療癒服務</a>${CFG.LINE_OA_ID ? `・<a href="https://line.me/R/ti/p/${encodeURIComponent(CFG.LINE_OA_ID)}" target="_blank" rel="noopener">加入 Mia 官方 LINE</a>` : ''}</div></footer>`;
+  },
+  mount(inner, on, note) {
+    const app = $('#app');
+    app.innerHTML = this.header(on) + `<main><div class="wrap">${inner}</div></main>` + this.footer(note);
+    $$('[data-login]', app).forEach(b => b.addEventListener('click', e => { e.preventDefault(); if (IS_DEMO || !Session.user()) login(); }));
+    $$('[data-demo]', app).forEach(b => b.addEventListener('click', demoMenu));
+    window.scrollTo(0, 0);
+  },
+  loading(on) { this.mount('<div class="spin" role="status"><i></i><span class="sr">載入中</span></div>', on); }
+};
+function demoMenu() {
+  modal({ title: '展示模式', html: `<p class="small" style="color:#6E6159">資料只存在這個瀏覽器，不會動到正式資料。現在的展示日期：${MOCK.offsetDays() ? '快轉 ' + MOCK.offsetDays() + ' 天' : '今天'}</p>`,
+    acts: [{ label: '切換身分', v: 'who' }, { label: '快轉一週（看遊戲收起、結算排名）', v: 'fwd', cls: 'line' }, { label: '重設展示資料', v: 'reset', cls: 'line' }, { label: '關閉', v: null, cls: 'ghost' }] })
+    .then(v => { if (v === 'who') login(); if (v === 'fwd') { MOCK.forward(7); toast('已快轉一週'); route(); } if (v === 'reset') { MOCK.reset(); U.ls.del('miaplay.theme'); U.ls.del(Session.own); U.ls.del(Session.shared); toast('已重設'); location.hash = '#/'; route(); } });
+}
+function showUnlocks(r) {
+  (r.newTitles || []).forEach((t, i) => setTimeout(() => toast('解鎖新稱號：' + t.name), 400 + i * 1600));
+}
+
+/* ---------- 大廳 ---------- */
+async function pageLobby() {
+  Layout.loading('');
+  let d;
+  try { d = await api.call('lobby', {}); } catch (e) { return pageError(e); }
+  Theme.apply(d.theme);
+  if (d.merged && d.merged.plays) toast('已把這支手機的 ' + d.merged.plays + ' 次遊玩紀錄併入你的帳號');
+  else if (U.ss.get('miaplay.justLogin')) toast('已用 LINE 帳號遊玩，紀錄會保存在你的帳號');
+  U.ss.del('miaplay.justLogin');
+  const guest = !d.user;
+  const heroes = d.open.map((g, i) => `<section class="hero" aria-label="本週遊戲">
+      <span class="meta">${i === 0 ? '本週遊戲' : '也在開放'}・${esc(g.typeName)}・剩 ${U.daysLeft(g.endAt)} 天</span>
+      <h1>${esc(g.title)}</h1>${g.intro ? `<p>${esc(g.intro)}</p>` : ''}
+      <div class="row"><a class="btn inv" href="#/g/${esc(g.id)}">${g.mine ? '再玩一次' : '開始玩'}</a>${g.mine ? `<span class="best">${bestText(g.mine, g.scored, g.qCount)}</span>` : ''}</div></section>`).join('');
+  const none = !d.open.length ? `<section class="card"><h2>這週的遊戲準備中</h2><p class="muted small" style="margin-top:4px">${d.upcoming.length ? '下一款「' + esc(d.upcoming[0].title) + '」' + U.date(d.upcoming[0].startAt) + ' 開放。' : '新遊戲上架時，會在 Mia 的官方 LINE 通知你。'}</p></section>` : '';
+  const owned = d.titles.filter(t => t.own), shown = owned.concat(d.titles.filter(t => !t.own).slice(0, Math.max(2, 6 - owned.length)));
+  const html = `<div class="stack">
+    ${guest ? `<div class="notice" role="note"><span>${esc(d.notice.guest)}</span><button data-login>用 LINE 帳號遊玩</button></div>` : ''}
+    ${heroes}${none}
+    <div class="g2"><div class="stat"><span>累計遊玩</span><b>${d.stats.totalPlays}</b><i>次</i></div><div class="stat"><span>拿過前三名</span><b>${d.stats.top3}</b><i>款</i></div></div>
+    <section class="card"><div class="sec-t"><h2>我的稱號</h2><a href="#/me">全部・換主題</a></div>
+      <div class="chips">${shown.map(t => `<span class="chip ${t.own ? '' : 'off'}">${t.own ? '' : ICO.lock}${esc(t.name)}</span>`).join('')}</div></section>
+    ${d.upcoming.length && d.open.length ? `<p class="small muted" style="text-align:center">下週預告：${esc(d.upcoming[0].typeName)}「${esc(d.upcoming[0].title)}」${U.date(d.upcoming[0].startAt)} 開放</p>` : ''}
+    ${d.past.length ? `<section class="card"><h2>過去的遊戲</h2><div class="list">${d.past.map(g => `<a class="li" href="#/g/${esc(g.id)}"><span class="t">${esc(g.title)}<small>${esc(g.week ? g.week + '・' : '')}已收起</small></span><span class="r">${g.mine ? (g.scored ? '最佳 ' : '結果 ') + bestText(g.mine, g.scored, g.max) : '沒玩過'}</span></a>`).join('')}</div></section>` : ''}
+  </div>`;
+  Layout.mount(html, 'lobby', d.notice.privacy);
+}
+function bestText(m, scored, max) {
+  if (!m) return '';
+  if (scored) return m.score + '/' + (m.max || max) + (m.rank ? '・第 ' + m.rank + ' 名' : '');
+  return m.resultTitle || '已完成';
+}
+
+/* ---------- 遊戲 ---------- */
+const Play = { g: null, i: 0, ans: [], t0: 0 };
+async function pageGame(id) {
+  Layout.loading('');
+  let g; try { g = await api.call('gameGet', { gameId: id }); } catch (e) { return pageError(e); }
+  Theme.apply(g.theme);
+  if (g.status !== 'open') return pageClosed(g);
+  Play.g = g; Play.i = 0; Play.ans = []; Play.t0 = 0;
+  const html = `<div class="stack"><section class="hero"><span class="meta">${esc(g.week || '')}・${esc(g.typeName)}・${g.qCount} 題・剩 ${U.daysLeft(g.endAt)} 天</span><h1>${esc(g.title)}</h1>${g.intro ? `<p>${esc(g.intro)}</p>` : ''}
+    ${g.mine ? `<div class="row"><span class="best">你的${g.scored ? '最佳成績' : '上次結果'}：${bestText(g.mine, g.scored, g.qCount)}</span></div>` : ''}
+    <div class="row"><button class="btn inv lg" data-start>${g.mine ? '再玩一次' : '開始'}</button></div></section>
+    ${g.scored ? '<p class="small muted" style="text-align:center">答對越多、用時越短，排名越前面。再玩只會留下最好的一次。</p>' : ''}
+    ${!Session.user() ? `<div class="notice"><span>訪客也能玩；用 LINE 帳號遊玩，紀錄換手機也在。</span><button data-login>用 LINE 帳號遊玩</button></div>` : ''}</div>`;
+  Layout.mount(html, '');
+  $('[data-start]').addEventListener('click', () => { Play.t0 = performance.now(); api.call('gameStart', { gameId: g.id }).catch(() => { }); renderQ(); });
+}
+function renderQ() {
+  const g = Play.g, q = g.questions[Play.i], n = g.questions.length;
+  const html = `<div class="stack"><div><div class="prog" role="progressbar" aria-valuemin="0" aria-valuemax="${n}" aria-valuenow="${Play.i}"><i style="width:${Play.i / n * 100}%"></i></div>
+    <div class="qhead"><span>${esc(g.title)}</span><span class="num">${Play.i + 1} / ${n}</span></div></div>
+    <h1 class="q">${esc(q.q)}</h1>
+    <div class="opts" role="group" aria-label="選項">${q.options.map((o, j) => `<button class="opt" data-j="${j}"><span class="k" aria-hidden="true">${'ABCDEFGH'[j]}</span><span>${esc(o)}</span></button>`).join('')}</div>
+    ${Play.i > 0 ? '<button class="btn ghost" data-back>上一題</button>' : ''}</div>`;
+  Layout.mount(html, '');
+  $$('.opt').forEach(b => b.addEventListener('click', () => {
+    if (Play.busy) return;
+    b.classList.add('sel'); Play.ans[Play.i] = +b.dataset.j; Play.busy = true;
+    setTimeout(() => { Play.busy = false; if (Play.i < n - 1) { Play.i++; renderQ(); } else submit(); }, 260);
+  }));
+  const bk = $('[data-back]'); if (bk) bk.addEventListener('click', () => { Play.i--; renderQ(); });
+}
+async function submit() {
+  Layout.mount('<div class="spin" role="status"><i></i><span class="sr">計算結果中</span></div><p class="muted" style="text-align:center">計算結果中…</p>', '');
+  const timeMs = Math.round(performance.now() - Play.t0), en = Entry.get();
+  try {
+    const r = await api.call('playSubmit', { gameId: Play.g.id, answers: Play.ans, timeMs, source: en.source, ref: en.ref });
+    Play.last = { r, g: Play.g }; renderResult();
+  } catch (e) { errToast(e); if (e.code === 'GAME_CLOSED') location.hash = '#/'; else renderQ(); }
+}
+function renderResult() {
+  const { r, g } = Play.last; Theme.apply(r.theme);
+  let main = '';
+  if (r.type === 'quiz') main = `<div class="res card"><span class="muted small">你的結果</span><span class="dot" style="background:${esc(r.result.color || 'var(--primary)')}" aria-hidden="true"></span><span class="big">${esc(r.result.title)}</span><p style="max-width:34em">${esc(r.result.text)}</p></div>`;
+  else if (r.type === 'trivia') main = `<div class="res card"><span class="muted small">答對</span><span class="score">${r.score}<small> / ${r.max}</small></span><span class="muted small">用時 ${U.sec(r.timeMs)}</span>
+      <div class="chips" style="justify-content:center">${r.rank ? `<span class="pill">本週目前第 ${r.rank} 名</span>` : ''}${r.improved ? '<span class="pill">刷新最佳成績</span>' : (!r.firstTime && r.best && (r.best.score !== r.score || r.best.timeMs !== r.timeMs) ? `<span class="pill">最佳仍是 ${r.best.score}/${r.best.max}</span>` : '')}</div></div>`;
+  else if (r.type === 'poll') main = `<div class="card"><span class="muted small">你選了</span><div class="big" style="font-family:var(--serif);font-size:28px;font-weight:700;color:var(--accent-ink)">${esc(r.result.title)}</div>${r.result.text ? `<p class="small muted">${esc(r.result.text)}</p>` : ''}
+      <div class="bars" style="margin-top:12px">${r.poll[0].options.map((o, j) => `<div class="bar ${Play.ans[0] === j ? 'me' : ''}"><div style="display:flex;justify-content:space-between"><span class="lbl">${esc(o.t)}</span><span class="num">${o.pct}%</span></div><div class="tr"><i style="width:${o.pct}%"></i></div></div>`).join('')}</div><p class="small muted" style="margin-top:8px">目前 ${r.poll[0].total} 人參加</p></div>`;
+  const unlocks = (r.newThemes || []).map(t => `<div class="unlock">${ICO.gift}<span style="flex:1">解鎖新主題 <b>${esc(t.name)}</b></span><button class="btn inv" style="min-height:40px;padding:0 14px;color:#2F5E47;background:#fff" data-wear="${esc(t.id)}">換上</button></div>`).join('');
+  const titles = (r.newTitles || []).map(t => `<div class="unlock">${ICO.spark}<span>解鎖新稱號 <b>${esc(t.name)}</b></span></div>`).join('');
+  const guestKeep = !Session.user() && ((r.newThemes || []).length || (r.newTitles || []).length) ? `<div class="notice"><span>這些紀錄存在這支手機。用 LINE 帳號保存，換手機也不會不見。</span><button data-login>保存</button></div>` : '';
+  const board = r.board ? `<section class="card"><div class="sec-t"><h2>本週排行榜</h2><span class="small muted">${r.board.total} 人參加</span></div>${boardRows(r.board)}</section>` : '';
+  const review = r.review ? `<details class="card"><summary style="min-height:32px;cursor:pointer;font-weight:700">看看答案</summary>${r.review.map((v, i) => `<div class="rv"><div>${i + 1}. ${esc(v.q)}</div><div>${v.ok ? '<span class="ok">答對</span>' : `<span class="no">答錯</span>　正確答案：${esc(g.questions[i].options[v.answer])}`}</div>${v.explain ? `<div class="muted small">${esc(v.explain)}</div>` : ''}</div>`).join('')}</details>` : '';
+  const html = `<div class="stack"><div class="qhead" style="margin-top:0"><span>${esc(g.title)}</span>${r.pointsAdded ? `<span>+${r.pointsAdded} 點</span>` : ''}</div>
+    ${titles}${unlocks}${guestKeep}${main}
+    <section class="card"><h2>分享給朋友</h2><div class="stack" style="margin-top:10px">
+      <button class="btn block" data-share="image">下載成績圖</button>
+      <div class="g2"><button class="btn line" data-share="line">傳給 LINE 好友</button><button class="btn line" data-share="copy">複製連結</button></div>
+      <p class="small muted">成績圖是直式的，可以直接貼到 IG 限動。朋友從你的連結第一次來玩，會算你邀請。</p></div></section>
+    ${board}${review}
+    <div class="g2"><a class="btn line" href="#/g/${esc(g.id)}" data-again>再玩一次</a><a class="btn line" href="#/">回大廳</a></div></div>`;
+  Layout.mount(html, '');
+  showUnlocks(r);
+  $$('[data-share]').forEach(b => b.addEventListener('click', () => doShare(b.dataset.share)));
+  $$('[data-wear]').forEach(b => b.addEventListener('click', async () => { try { const x = await api.call('setTheme', { themeId: b.dataset.wear }); Theme.apply(x.theme); toast('已換上「' + x.theme.name + '」'); b.remove(); } catch (e) { errToast(e); } }));
+  const ag = $('[data-again]'); if (ag) ag.addEventListener('click', e => { e.preventDefault(); if (location.hash === '#/g/' + g.id) route(); else location.hash = '#/g/' + g.id; });
+}
+function boardRows(b) {
+  const rows = b.top.map(x => `<div class="bd ${x.me ? 'me' : ''}"><span class="n">${x.rank}</span><span>${esc(x.name)}${x.me ? '（你）' : ''}</span><span class="num">${x.score}/${b.max}・${U.sec(x.timeMs)}</span></div>`).join('');
+  const mine = b.mine && b.mine.rank > b.top.length ? `<div class="bd me"><span class="n">${b.mine.rank}</span><span>你</span><span class="num">${b.mine.score}/${b.max}・${U.sec(b.mine.timeMs)}</span></div>` : '';
+  return `<div style="margin-top:6px">${rows}${mine}</div>` + (b.top.length ? '' : '<p class="small muted">還沒有人上榜</p>');
+}
+function pageClosed(g) {
+  const st = g.status === 'upcoming' ? `${U.date(g.startAt)} 開放，敬請期待` : '這款遊戲已經收起來了';
+  const mine = g.mine ? `<section class="card"><h2>你的${g.scored ? '最佳成績' : '結果'}</h2><p style="font-size:22px;font-weight:700;color:var(--accent-ink);margin-top:4px">${bestText(g.mine, g.scored, g.qCount)}</p></section>` : (g.status !== 'upcoming' ? '<section class="card"><p class="muted">你沒有玩到這一款，下次再一起玩。</p></section>' : '');
+  const board = g.board ? `<section class="card"><div class="sec-t"><h2>最終排行榜</h2><span class="small muted">${g.board.total} 人參加</span></div>${boardRows(g.board)}</section>` : '';
+  const poll = g.poll ? `<section class="card"><h2>大家的選擇</h2><div class="bars" style="margin-top:10px">${g.poll[0].options.map(o => `<div class="bar"><div style="display:flex;justify-content:space-between"><span class="lbl">${esc(o.t)}</span><span class="num">${o.pct}%</span></div><div class="tr"><i style="width:${o.pct}%"></i></div></div>`).join('')}</div></section>` : '';
+  Layout.mount(`<div class="stack"><section class="card"><span class="muted small">${esc(g.week || '')}・${esc(g.typeName)}</span><h1 style="font-family:var(--serif);font-size:21px">${esc(g.title)}</h1><p class="muted">${st}</p></section>${mine}${board}${poll}<a class="btn line block" href="#/">回大廳</a></div>`, '');
+}
+
+/* ---------- 分享 ---------- */
+function shareUrl(ref, gameId) { return SITE + '?from=share' + (ref ? '&ref=' + encodeURIComponent(ref) : '') + (gameId ? '#/g/' + encodeURIComponent(gameId) : ''); }
+function shareText() {
+  const { r, g } = Play.last;
+  if (r.type === 'quiz') return `我在 Mia 小遊戲「${g.title}」測出「${r.result.title}」，你呢？`;
+  if (r.type === 'trivia') return `我在「${g.title}」答對 ${r.score}/${r.max}${r.rank ? '，目前第 ' + r.rank + ' 名' : ''}，來挑戰我！`;
+  return `「${g.title}」我選了「${r.result.title}」，你呢？`;
+}
+async function doShare(kind) {
+  const { r, g } = Play.last, url = shareUrl(r.shareRef, g.id), text = shareText();
+  if (kind === 'line') window.open('https://line.me/R/share?text=' + encodeURIComponent(text + '\n' + url), '_blank', 'noopener');
+  if (kind === 'copy') { try { await navigator.clipboard.writeText(text + '\n' + url); toast('已複製連結'); } catch (e) { await modal({ title: '複製連結', html: `<textarea readonly style="width:100%;min-height:90px;border:1px solid #EADCD2;border-radius:12px;padding:10px">${esc(text + '\n' + url)}</textarea>` }); } }
+  if (kind === 'image') { await shareImage(text, url); }
+  api.call('share', { gameId: g.id, kind }).then(x => { (x.newTitles || []).forEach(t => toast('解鎖新稱號：' + t.name)); }).catch(() => { });
+}
+async function shareImage(text, url) {
+  const { r, g } = Play.last, c = (Theme.cur && Theme.cur.colors) || {};
+  try { await document.fonts.ready; } catch (e) { }
+  const W = 1080, H = 1920, cv = document.createElement('canvas'); cv.width = W; cv.height = H; const x = cv.getContext('2d');
+  const gr = x.createLinearGradient(0, 0, 0, H); gr.addColorStop(0, c.bg1 || '#FFF4EE'); gr.addColorStop(.55, c.bg2 || '#FDE6DB'); gr.addColorStop(1, c.bg3 || '#F8D3C3'); x.fillStyle = gr; x.fillRect(0, 0, W, H);
+  x.fillStyle = c.line || 'rgba(181,82,59,.16)'; for (let yy = 30; yy < H; yy += 54) for (let xx = (yy / 54 % 2) * 27 + 30; xx < W; xx += 54) { x.beginPath(); x.arc(xx, yy, 3, 0, 7); x.fill(); }
+  const ink = c.ink || '#3B302A', acc = c.accentInk || c.primary || '#8A3A24', sub = c.sub || '#6E6159';
+  const pg = x.createRadialGradient(140, 170, 4, 160, 190, 60); pg.addColorStop(0, '#fff'); pg.addColorStop(.45, '#C4DAF3'); pg.addColorStop(1, '#56709F'); x.fillStyle = pg; x.beginPath(); x.arc(160, 190, 46, 0, 7); x.fill();
+  x.fillStyle = ink; x.font = '600 76px "Cormorant Garamond",serif'; x.textBaseline = 'middle'; x.fillText('Mia', 230, 192); x.font = '700 50px "Noto Sans TC",sans-serif'; x.fillText('小遊戲', 375, 196);
+  x.textAlign = 'center';
+  const card = (y, h) => { x.fillStyle = c.card || 'rgba(255,255,255,.86)'; rr(x, 90, y, W - 180, h, 48); x.fill(); };
+  card(420, 1000);
+  x.fillStyle = sub; x.font = '500 40px "Noto Sans TC",sans-serif'; x.fillText(g.week ? g.week + '・' + g.typeName : g.typeName, W / 2, 520);
+  x.fillStyle = ink; x.font = '700 58px "Noto Serif TC",serif'; wrap(x, g.title, W / 2, 620, W - 300, 76);
+  if (r.type === 'trivia') {
+    x.fillStyle = acc; x.font = '700 230px "Noto Sans TC",sans-serif'; x.fillText(r.score + '/' + r.max, W / 2, 940);
+    x.fillStyle = sub; x.font = '500 46px "Noto Sans TC",sans-serif'; x.fillText('答對 ' + r.score + ' 題・用時 ' + U.sec(r.timeMs), W / 2, 1130);
+    if (r.rank) { x.fillStyle = acc; x.font = '700 54px "Noto Sans TC",sans-serif'; x.fillText('本週目前第 ' + r.rank + ' 名', W / 2, 1240); }
+  } else {
+    if (r.result && r.result.color) { x.fillStyle = r.result.color; x.beginPath(); x.arc(W / 2, 850, 90, 0, 7); x.fill(); }
+    x.fillStyle = acc; x.font = '700 120px "Noto Serif TC",serif'; x.fillText(r.result ? r.result.title : '', W / 2, r.result && r.result.color ? 1060 : 900);
+    if (r.result && r.result.text) { x.fillStyle = ink; x.font = '400 42px "Noto Sans TC",sans-serif'; wrap(x, r.result.text, W / 2, 1190, W - 320, 64); }
+  }
+  x.fillStyle = c.primary || '#B5523B'; rr(x, 240, 1540, W - 480, 130, 65); x.fill();
+  x.fillStyle = c.onPrimary || '#fff'; x.font = '700 50px "Noto Sans TC",sans-serif'; x.fillText(r.type === 'trivia' ? '來挑戰我' : '你也來測測看', W / 2, 1606);
+  x.fillStyle = sub; x.font = '500 34px "Noto Sans TC",sans-serif'; x.fillText(SITE.replace(/^https?:\/\//, '').replace(/\/$/, ''), W / 2, 1740);
+  const blob = await new Promise(res => cv.toBlob(res, 'image/png'));
+  const file = new File([blob], 'mia-play.png', { type: 'image/png' });
+  const src = URL.createObjectURL(blob);
+  const canFile = navigator.canShare && navigator.canShare({ files: [file] });
+  const v = await modal({ title: '你的成績圖', html: `<img src="${src}" alt="成績圖" style="width:min(70vw,260px);margin:0 auto;border-radius:14px;box-shadow:0 6px 20px rgba(0,0,0,.15)"><p class="small" style="text-align:center;color:#6E6159">在 LINE 裡打開時，請長按圖片儲存</p>`,
+    acts: (canFile ? [{ label: '分享到 IG 或其他 App', v: 'native' }] : []).concat([{ label: '下載圖片', v: 'dl', cls: canFile ? 'line' : '' }, { label: '關閉', v: null, cls: 'ghost' }]) });
+  if (v === 'native') { try { await navigator.share({ files: [file], text: text + '\n' + url }); } catch (e) { } }
+  if (v === 'dl') { const a = document.createElement('a'); a.href = src; a.download = 'mia-play.png'; document.body.appendChild(a); a.click(); a.remove(); }
+}
+function rr(x, X, Y, w, h, r) { x.beginPath(); x.moveTo(X + r, Y); x.arcTo(X + w, Y, X + w, Y + h, r); x.arcTo(X + w, Y + h, X, Y + h, r); x.arcTo(X, Y + h, X, Y, r); x.arcTo(X, Y, X + w, Y, r); x.closePath(); }
+function wrap(x, s, cx, y, max, lh) { let line = '', lines = []; for (const ch of String(s)) { if (x.measureText(line + ch).width > max) { lines.push(line); line = ch; } else line += ch; } lines.push(line); lines.slice(0, 4).forEach((l, i) => x.fillText(l, cx, y + i * lh)); }
+
+/* ---------- 我的成就 ---------- */
+async function pageMe() {
+  Layout.loading('me');
+  let d; try { d = await api.call('me', {}); } catch (e) { return pageError(e); }
+  Theme.apply(d.theme);
+  const s = d.stats, own = d.titles.filter(t => t.own).length;
+  const next = d.themes.filter(t => t.redeemable).sort((a, b) => a.price - b.price)[0];
+  const goal = next ? next.price : 10, pts = s.points, on = Math.min(10, Math.round(Math.min(pts, goal) / goal * 10));
+  const html = `<div class="stack">
+    ${d.guest ? `<div class="notice"><span>你目前是訪客遊玩，成就只存在這支手機。</span><button data-login>用 LINE 帳號保存</button></div>` : ''}
+    <div class="g2"><div class="stat"><span>累計遊玩</span><b>${s.totalPlays}</b><i>次</i></div><div class="stat"><span>參加遊戲</span><b>${s.games}</b><i>款</i></div><div class="stat"><span>拿過前三名</span><b>${s.top3}</b><i>款</i></div><div class="stat"><span>連續參加</span><b>${s.streak}</b><i>週</i></div></div>
+    <section class="card"><div class="sec-t"><h2>稱號 ${own}/${d.titles.length}</h2></div><div class="tl" style="margin-top:8px">${d.titles.map(t => `<div class="ti ${t.own ? '' : 'off'}"><b>${t.own ? '' : ICO.lock + ' '}${esc(t.name)}</b><span>${esc(t.how)}</span></div>`).join('')}</div></section>
+    <section class="card"><div class="sec-t"><h2>集點卡 ${pts} 點</h2></div>
+      <div class="stamps" aria-hidden="true">${Array.from({ length: 10 }, (_, i) => `<i class="${i < on ? 'on' : ''}"></i>`).join('')}</div>
+      <p class="small muted">${next ? (pts >= next.price ? `可以兌換「${esc(next.name)}」主題了` : `再 ${next.price - pts} 點可以兌換「${esc(next.name)}」主題`) : '每款遊戲第一次玩 +1 點，進前三名 +2 點'}</p></section>
+    <section class="card"><div class="sec-t"><h2>大廳主題</h2><a href="#/themes">換主題</a></div>
+      <div style="display:flex;gap:10px;align-items:center;margin-top:6px"><span style="width:48px;height:48px;border-radius:12px;${Theme.swatch(d.theme)};border:1px solid rgba(0,0,0,.06)" aria-hidden="true"></span><span><b>${esc(d.theme.name)}</b><br><span class="small muted">已收集 ${d.themes.filter(t => t.own).length} 款</span></span></div></section>
+    <section class="card"><h2>我的紀錄</h2>${s.fav ? `<p class="small muted">最常玩：${esc(s.fav)}・分享 ${s.shares} 次・邀請 ${s.invites} 位</p>` : ''}
+      <div class="list">${d.history.length ? d.history.map(h => `<a class="li" href="#/g/${esc(h.id)}"><span class="t">${esc(h.title)}<small>${esc(h.week ? h.week + '・' : '')}${esc(h.typeName)}</small></span><span class="r">${h.scored ? h.score + '/' + h.max + (h.rank ? '・第 ' + h.rank + ' 名' : '') : esc(h.resultTitle || '已完成')}</span></a>`).join('') : '<p class="small muted" style="padding:8px 0">還沒有紀錄，去大廳玩第一款吧</p>'}</div></section>
+  </div>`;
+  Layout.mount(html, 'me');
+}
+
+/* ---------- 換主題 ---------- */
+async function pageThemes() {
+  Layout.loading('me');
+  let d; try { d = await api.call('me', {}); } catch (e) { return pageError(e); }
+  Theme.apply(d.theme);
+  const tile = t => {
+    const c = t.colors || {}, lock = !t.own;
+    return `<button class="tc ${t.current ? 'cur' : ''} ${lock ? 'lock' : ''}" ${lock ? 'data-lock' : `data-use="${esc(t.id)}"`} data-id="${esc(t.id)}" aria-label="${esc(t.name)}${t.current ? '，使用中' : lock ? '，未解鎖' : ''}">
+      <span class="pv" style="${Theme.swatch(t)}"><i style="background:${esc(c.primary)}"></i></span><span class="tn">${esc(t.name)}${t.kind === 'limited' ? '・限定' : ''}</span>
+      <span class="how">${t.current ? '使用中' : lock && !t.redeemable ? esc(t.how || '') : ''}</span>${t.redeemable ? `<span class="mini" data-redeem="${esc(t.id)}">${t.price} 點兌換</span>` : ''}</button>`;
+  };
+  const basic = d.themes.filter(t => t.kind === 'basic'), got = d.themes.filter(t => t.kind !== 'basic' && t.own), lock = d.themes.filter(t => t.kind !== 'basic' && !t.own);
+  const html = `<div class="stack"><div class="sec-t"><h1 style="font-size:19px">我的大廳主題</h1><a href="#/me">完成</a></div>
+    <section class="card"><h2>基本</h2><div class="tg" style="margin-top:8px">${basic.map(tile).join('')}</div></section>
+    <section class="card"><h2>我收集到的 ${got.length}</h2>${got.length ? `<div class="tg" style="margin-top:8px">${got.map(tile).join('')}</div>` : '<p class="small muted">玩遊戲、達成稱號就能收集更多主題</p>'}</section>
+    ${lock.length ? `<section class="card"><h2>還沒解鎖</h2><div class="tg" style="margin-top:8px">${lock.map(tile).join('')}</div><p class="small muted" style="margin-top:8px">目前有 ${d.stats.points} 點</p></section>` : ''}
+    ${d.guest ? '<div class="notice"><span>訪客的主題只存在這支手機。</span><button data-login>用 LINE 帳號保存</button></div>' : ''}</div>`;
+  Layout.mount(html, 'me');
+  $$('[data-use]').forEach(b => b.addEventListener('click', async () => { try { const x = await api.call('setTheme', { themeId: b.dataset.use }); Theme.apply(x.theme); pageThemes(); } catch (e) { errToast(e); } }));
+  $$('[data-lock]').forEach(b => b.addEventListener('click', async e => {
+    const id = b.dataset.id, t = d.themes.find(x => x.id === id);
+    if (e.target.closest('[data-redeem]')) {
+      const ok = await modal({ title: '兌換「' + t.name + '」', html: `<p>用 ${t.price} 點兌換，兌換後馬上換上。你目前有 ${d.stats.points} 點。</p>`, acts: [{ label: '兌換', v: 1 }, { label: '取消', v: null, cls: 'line' }] });
+      if (!ok) return;
+      try { const x = await api.call('redeemTheme', { themeId: id }); Theme.apply(x.theme); toast('已兌換「' + x.theme.name + '」'); pageThemes(); } catch (er) { errToast(er); }
+    } else toast(t.how ? '解鎖方式：' + t.how : '這個主題還沒解鎖');
+  }));
+}
+
+function pageError(e) {
+  Layout.mount(`<section class="card" style="text-align:center"><h2>暫時打不開</h2><p class="muted" style="margin:6px 0 12px">${esc(e.message || '請稍後再試')}</p><button class="btn" data-retry>再試一次</button></section>`, '');
+  $('[data-retry]').addEventListener('click', route);
+}
+
+/* ---------- 路由 ---------- */
+function route() {
+  const h = location.hash || '#/';
+  let m;
+  if ((m = h.match(/^#\/g\/([^/?]+)/))) return pageGame(decodeURIComponent(m[1]));
+  if (h.startsWith('#/me')) return pageMe();
+  if (h.startsWith('#/themes')) return pageThemes();
+  return pageLobby();
+}
+async function boot() {
+  Theme.boot();
+  Entry.init();
+  if (!IS_DEMO) await LineAuth.handleReturn();
+  if (!U.ss.get('miaplay.visited')) { U.ss.set('miaplay.visited', '1'); const en = Entry.get(); api.call('visit', { source: en.source, ref: en.ref }).catch(() => { }); }
+  window.addEventListener('hashchange', route);
+  route();
+}
+boot();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,616 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>互動後台｜Mia 小遊戲</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700&family=Cormorant+Garamond:wght@500;600&display=swap">
+<script>
+/* ===== Mia 小遊戲・互動後台 C-1.0.0-測試版 1：設定只要改這一段 ===== */
+window.MIA_PLAY_CONFIG = {
+  PLAY_GAS_URL: '請貼上互動網站的 Apps Script 網址',   // 互動網站自己的 Apps Script 網址（和 index.html 相同）
+  LINE_LOGIN_CHANNEL_ID: '2012624805',
+  SITE_URL: 'https://psnw0925-creator.github.io/mia-play/admin.html',   // 這個後台的網址
+  PLAY_URL: 'https://psnw0925-creator.github.io/mia-play/',             // 互動網站（客人頁）
+  MAIN_ADMIN_URL: 'https://psnw0925-creator.github.io/mia-booking/admin.html',
+  CARE_ADMIN_URL: 'https://psnw0925-creator.github.io/mia-care/admin.html'
+};
+</script>
+<style>
+:root{color-scheme:light;
+  --bg:#F7F4F1;--paper:#fff;--ink:#2F2A27;--sub:#6B625C;--line:#E7DFD9;--line2:#D9CEC6;
+  --pri:#B5523B;--pri2:#8A3A24;--soft:#FBE7DE;--ok:#2F6B4A;--okbg:#DDEFE4;--warn:#7A5A1E;--warnbg:#F8EAC9;--bad:#A4473B;--badbg:#F7DEDA;
+  --sans:'Noto Sans TC',system-ui,-apple-system,sans-serif;--serif:'Noto Serif TC',serif;--lat:'Cormorant Garamond',serif;--r:14px}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--bg);color:var(--ink);font-size:14px;line-height:1.65}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:0}
+a{color:var(--pri2)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.num{font-variant-numeric:tabular-nums}
+.A{display:grid;grid-template-columns:220px minmax(0,1fr);min-height:100vh}
+.side{background:#fff;border-right:1px solid var(--line);padding:16px 12px;display:flex;flex-direction:column;gap:4px;position:sticky;top:0;height:100vh;overflow:auto}
+.logo{display:flex;align-items:center;gap:8px;padding:4px 8px 14px;text-decoration:none;color:var(--ink)}
+.logo b{font-family:var(--lat);font-size:22px;font-weight:600;line-height:1}
+.logo small{font-size:12px;color:var(--sub);display:block}
+.pearl{width:26px;height:26px;border-radius:50%;flex:none;background:radial-gradient(circle at 34% 30%,#fff 0 14%,#C4DAF3 45%,#56709F 100%)}
+.nav a{display:flex;align-items:center;min-height:42px;padding:0 12px;border-radius:10px;text-decoration:none;color:var(--ink);font-size:14px}
+.nav a.on{background:var(--soft);color:var(--pri2);font-weight:700}
+.side .sw{margin-top:auto;border-top:1px solid var(--line);padding-top:10px;display:flex;flex-direction:column;gap:2px}
+.side .sw a{font-size:13px;color:var(--sub);min-height:36px;display:flex;align-items:center;padding:0 12px;text-decoration:none}
+.main{padding:22px 24px 60px;max-width:1180px;width:100%}
+.ph{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.ph h1{font-family:var(--serif);font-size:24px;flex:1;min-width:200px}
+.demo{font-size:11px;font-weight:700;background:#FFF1C9;color:#6B4A00;border-radius:999px;padding:3px 9px}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:18px;padding:18px;margin-bottom:14px}
+.card h2{font-size:16px;margin-bottom:8px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.card h2 .r{margin-left:auto;font-size:13px;font-weight:500}
+.muted{color:var(--sub)}.small{font-size:12.5px}
+.k4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:14px}
+.k{background:#fff;border:1px solid var(--line);border-radius:14px;padding:12px 14px}
+.k span{display:block;font-size:12px;color:var(--sub)}
+.k b{font-size:26px;color:var(--pri2);font-variant-numeric:tabular-nums}
+.two{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:40px;padding:0 16px;border-radius:999px;background:var(--pri);color:#fff;font-weight:700;font-size:13.5px;text-decoration:none;white-space:nowrap}
+.btn.l{background:#fff;color:var(--pri2);border:1px solid var(--pri)}
+.btn.g{background:transparent;color:var(--pri2);padding:0 8px}
+.btn.s{min-height:32px;padding:0 11px;font-size:12.5px}
+.btn.d{background:#fff;color:var(--bad);border:1px solid #E5B8B1}
+.btn[disabled]{opacity:.5;pointer-events:none}
+.tw{overflow-x:auto;border:1px solid var(--line);border-radius:12px}
+table{width:100%;border-collapse:collapse;font-size:13.5px;background:#fff}
+th{background:#FBF8F6;text-align:left;font-weight:700;font-size:12.5px;color:var(--sub);padding:9px 10px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:0}
+.acts{display:flex;gap:6px;flex-wrap:wrap}
+.chip{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:999px;font-size:11.5px;font-weight:700;white-space:nowrap}
+.c-open{background:var(--okbg);color:var(--ok)}.c-up{background:var(--warnbg);color:var(--warn)}.c-closed,.c-ended{background:#ECEEF2;color:#4E5666}.c-draft{background:#F1ECE8;color:#6B625C}
+.c-hot{background:var(--pri);color:#fff}.c-star{background:var(--warnbg);color:var(--warn)}.c-tag{background:#EEF1F6;color:#3E4E6E;margin:0 4px 4px 0}
+.bars{display:flex;flex-direction:column;gap:8px}
+.bar{display:grid;grid-template-columns:96px 1fr 120px;gap:10px;align-items:center;font-size:13px}
+.bar .tr{height:12px;border-radius:6px;background:#F3ECE8;overflow:hidden}.bar .tr i{display:block;height:100%;background:var(--pri)}
+.hm{display:grid;grid-template-columns:44px repeat(5,minmax(0,1fr));gap:4px;font-size:12px;text-align:center}
+.hm span{padding:7px 0;border-radius:6px}
+.f{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}
+.f label,.lbl{font-size:12.5px;font-weight:700;color:var(--sub)}
+.f input,.f select,.f textarea,.in{border:1px solid var(--line2);border-radius:10px;padding:8px 10px;background:#fff;min-height:40px;width:100%}
+.f textarea{min-height:70px;resize:vertical}
+.row{display:flex;gap:10px;flex-wrap:wrap}.row>.f{flex:1;min-width:160px}
+.qb{border:1px solid var(--line);border-radius:14px;padding:12px;margin-bottom:10px;background:#FFFCFA}
+.qb .hd{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.qb .hd b{font-size:13px;color:var(--pri2)}
+.op{display:grid;grid-template-columns:28px minmax(0,1fr) auto auto;gap:6px;align-items:center;margin-bottom:6px}
+.op .k{width:26px;height:26px;border-radius:50%;background:var(--soft);color:var(--pri2);font-weight:700;font-size:12px;display:flex;align-items:center;justify-content:center}
+.sw2{display:inline-flex;align-items:center;gap:8px;min-height:40px;cursor:pointer}
+.sw2 input{width:18px;height:18px;accent-color:var(--pri)}
+.pv{border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:8px;min-height:150px;border:1px solid var(--line)}
+.err{color:var(--bad);font-size:12.5px;font-weight:700}
+.okt{color:var(--ok);font-size:12.5px;font-weight:700}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:80;background:#2B2622;color:#fff;border-radius:12px;padding:10px 16px;font-size:14px;max-width:92vw}
+.toast.err{background:#8A2F25}
+.mb{position:fixed;inset:0;z-index:70;background:rgba(30,20,15,.45);display:flex;align-items:center;justify-content:center;padding:16px}
+.md{background:#fff;border-radius:18px;max-width:640px;width:100%;max-height:90vh;overflow:auto;padding:18px;display:flex;flex-direction:column;gap:12px}
+.md h3{font-size:17px}
+.md .ft{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.prompt{background:#2B2622;color:#F3ECE0;border-radius:12px;padding:12px;font-size:12.5px;line-height:1.75;white-space:pre-wrap;max-height:46vh;overflow:auto;font-family:ui-monospace,Menlo,"Noto Sans TC",monospace}
+.sticky{position:sticky;bottom:0;background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:10px;box-shadow:0 -6px 20px rgba(0,0,0,.06)}
+.spin{display:flex;justify-content:center;padding:60px 0}.spin i{width:28px;height:28px;border-radius:50%;border:3px solid var(--soft);border-top-color:var(--pri);animation:sp 1s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.login{max-width:420px;margin:12vh auto;background:#fff;border:1px solid var(--line);border-radius:20px;padding:26px;display:flex;flex-direction:column;gap:12px;text-align:center}
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--pri);outline-offset:2px}
+@media (max-width:860px){
+  .A{grid-template-columns:1fr}
+  .side{position:sticky;top:0;z-index:30;height:auto;flex-direction:row;align-items:center;overflow-x:auto;padding:6px 10px;border-right:0;border-bottom:1px solid var(--line)}
+  .logo{padding:0 8px 0 0}.logo small{display:none}
+  .nav{display:flex;gap:2px}.nav a{white-space:nowrap;min-height:40px;padding:0 10px}
+  .side .sw{display:none}
+  .main{padding:16px 12px 60px}
+  .k4{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .two{grid-template-columns:1fr}
+  .bar{grid-template-columns:80px 1fr 96px}
+  .tw table{min-width:640px}
+}
+</style>
+</head>
+<body>
+<div id="app"><div class="spin" role="status"><i></i><span class="sr">載入中</span></div></div>
+<script>
+
+
+(function () {
+'use strict';
+const CFG = window.MIA_PLAY_CONFIG || {};
+const IS_DEMO = false;
+const $ = (s, r) => (r || document).querySelector(s);
+const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const U = {
+  rid(n) { const a = 'abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let s = ''; for (const x of crypto.getRandomValues(new Uint8Array(n))) s += a[x % a.length]; return s; },
+  ls: { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) { } }, del(k) { try { localStorage.removeItem(k); } catch (e) { } } },
+  ss: { get(k) { try { return sessionStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { sessionStorage.setItem(k, v); } catch (e) { } }, del(k) { try { sessionStorage.removeItem(k); } catch (e) { } } },
+  d(s) { if (!s) return ''; const t = String(s); return t.slice(5, 10).replace('-', '/') + (t.length > 11 ? ' ' + t.slice(11, 16) : ''); },
+  pct(v) { return v == null ? '—' : v + '%'; },
+  dl(name, text, type) { const b = new Blob([text], { type: type || 'application/json' }); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = name; document.body.appendChild(a); a.click(); a.remove(); }
+};
+const TYPES = { quiz: '測驗', trivia: '問答', poll: '心情投票' };
+const ST = { open: ['開放中', 'c-open'], upcoming: ['排定上架', 'c-up'], ended: ['待結算', 'c-ended'], closed: ['已收起', 'c-closed'], draft: ['草稿', 'c-draft'] };
+const chip = st => `<span class="chip ${ST[st] ? ST[st][1] : ''}">${ST[st] ? ST[st][0] : esc(st)}</span>`;
+function toast(m, k) { const t = document.createElement('div'); t.className = 'toast' + (k === 'err' ? ' err' : ''); t.setAttribute('role', 'status'); t.textContent = m; document.body.appendChild(t); setTimeout(() => t.remove(), 3200); }
+const errToast = e => toast((e && e.message) || '系統忙碌中，請稍後再試', 'err');
+class ApiError extends Error { constructor(c, m, d) { super(m || '系統忙碌中，請稍後再試'); this.code = c; this.data = d; } }
+function modal(title, html, buttons, onOpen) {
+  return new Promise(res => {
+    const bg = document.createElement('div'); bg.className = 'mb';
+    bg.innerHTML = `<div class="md" role="dialog" aria-modal="true" aria-label="${esc(title)}"><h3>${esc(title)}</h3>${html}<div class="ft">${(buttons || [{ l: '關閉', v: null, c: 'l' }]).map((b, i) => `<button class="btn ${b.c || ''}" data-i="${i}">${esc(b.l)}</button>`).join('')}</div></div>`;
+    const close = v => { bg.remove(); res(v); };
+    bg.addEventListener('click', e => { if (e.target === bg) close(null); const b = e.target.closest('[data-i]'); if (b) { const bt = (buttons || [{ v: null }])[+b.dataset.i]; if (bt.check && !bt.check(bg)) return; close(typeof bt.v === 'function' ? bt.v(bg) : bt.v); } });
+    document.body.appendChild(bg); if (onOpen) onOpen(bg); const f = $('input,textarea,button', bg); if (f) f.focus();
+  });
+}
+
+/* ---------- 管理員登入：登入過預約後台就直接認得（只讀 mia.session.admin）；否則用小遊戲自己的 LINE 登入＋開通碼 ---------- */
+const Session = {
+  own: IS_DEMO ? 'miaplay.demo.admin' : 'miaplay.session.admin',
+  shared: IS_DEMO ? 'miaplay.demo.sharedAdmin' : 'mia.session.admin',
+  read(k) { let s = null; try { s = JSON.parse(U.ls.get(k) || 'null'); } catch (e) { } if (s && s.expiresAt && s.expiresAt < new Date().toISOString()) return null; return s && s.token ? s : null; },
+  get() { const s = this.read(this.shared); if (s && U.ss.get('miaplay.admin.skip') !== s.token) return s; return this.read(this.own); },
+  setOwn(s) { U.ls.set(this.own, JSON.stringify(s)); },
+  hasOwn() { return !!this.read(this.own); },
+  drop() { const s = this.read(this.shared); if (s && U.ss.get('miaplay.admin.skip') !== s.token) { U.ss.set('miaplay.admin.skip', s.token); return true; } return false; },
+  token() { const s = this.get(); return s ? s.token : ''; },
+  user() { const s = this.get(); return s ? s.user : null; }
+};
+const api = {
+  async call(action, data) {
+    const token = Session.token();
+    try {
+      if (IS_DEMO) return await MOCK.call(action, data || {}, token).catch(e => { throw new ApiError(e.code || 'INTERNAL', e.message); });
+      if (!/^https:\/\//.test(CFG.PLAY_GAS_URL || '')) throw new ApiError('CONFIG', '後台還沒設定完成（PLAY_GAS_URL）');
+      const r = await fetch(CFG.PLAY_GAS_URL, { method: 'POST', redirect: 'follow', body: JSON.stringify({ action, token, data: data || {} }) });
+      const j = await r.json();
+      if (!j.ok) throw new ApiError(j.error && j.error.code, j.error && j.error.message);
+      return j.data;
+    } catch (e) {
+      if (!(e instanceof ApiError)) e = new ApiError('INTERNAL', '無法連線，請稍後再試');
+      if (['AUTH_EXPIRED', 'AUTH_INVALID', 'AUTH_REQUIRED', 'FORBIDDEN'].includes(e.code) && action !== 'registerAdmin') {
+        if (Session.drop() && Session.token()) return api.call(action, data);   /* 預約後台的登入不能用，改試小遊戲自己的 */
+        if (e.code !== 'FORBIDDEN' && Session.hasOwn()) U.ls.del(Session.own);
+        App.needLogin = e.code === 'FORBIDDEN' ? 'forbidden' : e.message;
+      }
+      throw e;
+    }
+  }
+};
+const LineAuth = {
+  start() {
+    const state = U.rid(12), nonce = U.rid(12);
+    U.ss.set('miaplay.admin.oauth', JSON.stringify({ state, nonce, back: location.hash || '#/' }));
+    const p = new URLSearchParams({ response_type: 'code', client_id: CFG.LINE_LOGIN_CHANNEL_ID, redirect_uri: CFG.SITE_URL, state, scope: 'openid profile', nonce });
+    location.href = 'https://access.line.me/oauth2/v2.1/authorize?' + p;
+  },
+  async handleReturn() {
+    const qs = new URLSearchParams(location.search); if (!qs.get('code') && !qs.get('error')) return;
+    let st = {}; try { st = JSON.parse(U.ss.get('miaplay.admin.oauth') || '{}'); } catch (e) { }
+    U.ss.del('miaplay.admin.oauth');
+    history.replaceState(null, '', location.pathname + (st.back || '#/'));
+    if (qs.get('error') || qs.get('state') !== st.state) return toast('LINE 登入未完成，請再試一次', 'err');
+    try {
+      const r = await api.call('authLine', { code: qs.get('code'), redirectUri: CFG.SITE_URL, nonce: st.nonce });
+      Session.setOwn({ token: r.token, user: r.user, expiresAt: r.expiresAt }); U.ss.del('miaplay.admin.skip');
+    } catch (e) { errToast(e); }
+  }
+};
+
+/* ---------- 版面 ---------- */
+const NAV = [['#/', '本週總覽'], ['#/games', '遊戲清單'], ['#/templates', '範本庫'], ['#/bank', '題庫'], ['#/data', '數據分析'], ['#/players', '玩家'], ['#/rules', '稱號與獎勵'], ['#/themes', '主題樣式'], ['#/settings', '設定']];
+const App = {
+  needLogin: '',
+  mount(title, inner, on, tools) {
+    const u = Session.user() || {};
+    $('#app').innerHTML = `<div class="A"><aside class="side" aria-label="後台選單"><a class="logo" href="#/"><span class="pearl" aria-hidden="true"></span><span><b>Mia</b><small>互動後台</small></span></a>
+      <nav class="nav">${NAV.map(([h, l]) => `<a href="${h}" class="${on === h ? 'on' : ''}"${on === h ? ' aria-current="page"' : ''}>${l}</a>`).join('')}</nav>
+      <div class="sw"><a href="${esc(CFG.PLAY_URL)}" target="_blank" rel="noopener">→ 打開小遊戲</a><a href="${esc(CFG.MAIN_ADMIN_URL)}">→ 預約後台</a><a href="${esc(CFG.CARE_ADMIN_URL)}">→ 陪伴後台</a><span class="small muted" style="padding:4px 12px">${esc(u.displayName || '')}・管理員</span></div></aside>
+      <main class="main"><div class="ph"><h1>${esc(title)}</h1>${IS_DEMO ? '<span class="demo">展示模式</span>' : ''}${tools || ''}</div>${inner}</main></div>`;
+    window.scrollTo(0, 0);
+  },
+  loading(title, on) { this.mount(title, '<div class="spin" role="status"><i></i><span class="sr">載入中</span></div>', on); },
+  login(msg) {
+    const forb = msg === 'forbidden' && Session.hasOwn();
+    $('#app').innerHTML = `<div class="login"><span class="pearl" style="margin:0 auto;width:40px;height:40px"></span><h1 style="font-family:var(--serif);font-size:22px">Mia 小遊戲・互動後台</h1>
+      ${forb ? `<p>這個 LINE 帳號還不是互動後台的管理員。第一次使用請輸入<b>開通碼</b>（部署步驟第一步執行 setup 時顯示的 8 個字）。</p>
+        <div class="f" style="text-align:left"><label for="sc">開通碼</label><input id="sc" class="in" autocomplete="off" placeholder="例如 3F9A1C2B"></div><span class="err" id="se" role="alert"></span>
+        <button class="btn" data-reg>開通</button><button class="btn l" data-out>換一個帳號</button>`
+      : `<p class="muted">${esc(msg && msg !== 'forbidden' ? msg : '已經登入預約後台的話，會直接認得你。')}</p>
+        ${IS_DEMO ? '<button class="btn" data-demo="shared">展示：已登入預約後台的 Mia</button><button class="btn l" data-demo="own">展示：用小遊戲自己的 LINE 登入</button>' : '<button class="btn" data-line>用 LINE 登入</button>'}
+        <p class="small muted">也可以先登入<a href="${esc(CFG.MAIN_ADMIN_URL)}">預約後台</a>，再回到這裡。</p>`}
+      ${IS_DEMO && forb ? '<p class="small muted">展示用開通碼：DEMO1234</p>' : ''}</div>`;
+    $$('[data-demo]').forEach(b => b.addEventListener('click', () => {
+      const own = b.dataset.demo === 'own';
+      const tk = own ? 'demo-admin-own' : 'demo-admin';
+      U.ls.set(own ? Session.own : Session.shared, JSON.stringify({ token: tk, user: DEMO_USERS[tk], expiresAt: '2999-01-01T00:00:00Z' }));
+      App.needLogin = ''; route();
+    }));
+    const l = $('[data-line]'); if (l) l.addEventListener('click', () => LineAuth.start());
+    const o = $('[data-out]'); if (o) o.addEventListener('click', () => { U.ls.del(Session.own); App.login(); });
+    const r = $('[data-reg]'); if (r) r.addEventListener('click', async () => {
+      try { await api.call('registerAdmin', { code: $('#sc').value }); toast('已開通，歡迎'); App.needLogin = ''; route(); } catch (e) { $('#se').textContent = e.message; }
+    });
+  },
+  fail(e, title, on) {
+    if (App.needLogin) { const m = App.needLogin; App.needLogin = ''; return App.login(m); }
+    this.mount(title || '暫時打不開', `<div class="card"><p>${esc(e.message)}</p><button class="btn l" style="margin-top:10px" onclick="location.reload()">重新整理</button></div>`, on);
+  }
+};
+
+/* ================= 本週總覽 ================= */
+const SRC = { line: 'LINE', ig: 'IG', booking: '預約網站', care: '陪伴網站', share: '別人分享', direct: '直接開啟' };
+async function pOverview() {
+  App.loading('本週總覽', '#/');
+  let o, a; try { [o, a] = await Promise.all([api.call('adminOverview'), api.call('adminAnalytics', {})]); } catch (e) { return App.fail(e, '本週總覽', '#/'); }
+  const open = o.open.length ? o.open.map(g => `<tr><td><b>${esc(g.title)}</b><br><span class="small muted">${esc(g.week || '')}・${esc(g.typeName)}</span></td><td>${U.d(g.startAt)} – ${U.d(g.endAt)}</td><td class="num">${g.plays}</td><td class="num">${g.players}</td><td><div class="acts"><a class="btn s l" href="#/game/${esc(g.id)}">數據</a><a class="btn s l" href="#/edit/${esc(g.id)}">編輯</a></div></td></tr>`).join('') : '<tr><td colspan="5" class="muted">這週沒有開放中的遊戲。到「遊戲清單」新增或排定上架。</td></tr>';
+  App.mount('本週總覽', `
+    <div class="k4"><div class="k"><span>本週遊玩次數</span><b>${o.week.plays}</b></div><div class="k"><span>本週玩家</span><b>${o.week.players}</b></div><div class="k"><span>LINE 帳號遊玩比例</span><b>${o.week.lineRate}%</b></div><div class="k"><span>本週新朋友</span><b>${o.week.newPlayers}</b></div></div>
+    <div class="card"><h2>開放中的遊戲<a class="r" href="#/games">全部遊戲</a></h2><div class="tw"><table><thead><tr><th>遊戲</th><th>開放期間</th><th>次數</th><th>人數</th><th></th></tr></thead><tbody>${open}</tbody></table></div></div>
+    <div class="two">${srcCard(a)}${heatCard(a)}</div>
+    <p class="small muted">累計 ${o.total.players} 位玩家（${o.total.linePlayers} 位用 LINE 帳號）・${o.total.plays} 次遊玩・${esc(o.version)}</p>`, '#/');
+}
+function srcCard(a) {
+  const mx = Math.max(1, ...a.sources.map(s => s.plays));
+  return `<div class="card"><h2>從哪個入口來</h2><div class="bars">${a.sources.map(s => `<div class="bar"><span>${esc(s.name)}</span><span class="tr"><i style="width:${s.plays / mx * 100}%"></i></span><span class="num small">${s.plays} 次・新朋友 ${s.newPlayers}</span></div>`).join('')}</div><p class="small muted" style="margin-top:8px">入口網址：在網址後面加 <code>?from=line</code>、<code>?from=ig</code>、<code>?from=booking</code>、<code>?from=care</code>（見「設定」）</p></div>`;
+}
+function heatCard(a) {
+  const days = [[1, '週一'], [2, '週二'], [3, '週三'], [4, '週四'], [5, '週五'], [6, '週六'], [0, '週日']];
+  let mx = 1; for (const k in a.heat) mx = Math.max(mx, a.heat[k]);
+  const col = v => { const t = v / mx; return t === 0 ? 'background:#F5F1EE;color:#8A8079' : t < .34 ? 'background:#F8DCCF;color:#6B2E1C' : t < .67 ? 'background:#E59C80;color:#3E170C' : 'background:#B5523B;color:#fff'; };
+  return `<div class="card"><h2>通常什麼時候玩</h2><div class="hm"><span></span>${a.slots.map(s => `<span class="small muted">${esc(s[1])}</span>`).join('')}
+    ${days.map(([d, n]) => `<span class="small muted">${n}</span>` + a.slots.map(s => { const v = a.heat[d + '-' + s[0]] || 0; return `<span style="${col(v)}" title="${n}${s[1]} ${v} 次">${v}</span>`; }).join('')).join('')}</div>
+    <p class="small muted" style="margin-top:8px">數字是遊玩次數，顏色越深越多；早上 5–11 點、中午 11–14、下午 14–18、晚上 18–23、深夜 23–5。</p></div>`;
+}
+
+/* ================= 遊戲清單 ================= */
+async function pGames() {
+  App.loading('遊戲清單', '#/games');
+  let d; try { d = await api.call('adminGames'); } catch (e) { return App.fail(e, '遊戲清單', '#/games'); }
+  const rows = d.items.map(g => `<tr><td class="num">${esc(g.week || '')}</td><td><b>${esc(g.title)}</b>${g.parentId ? '<br><span class="small muted">延伸自範本</span>' : ''}</td><td>${esc(g.typeName)}</td><td class="small">${U.d(g.startAt)} – ${U.d(g.endAt)}</td><td>${chip(g.status)}</td><td class="num">${g.plays}</td><td class="num">${g.players}</td><td class="num">${g.shares}</td>
+    <td><div class="acts"><a class="btn s l" href="#/edit/${esc(g.id)}">編輯</a>${g.plays ? `<a class="btn s l" href="#/game/${esc(g.id)}">數據</a>` : ''}${g.status === 'open' || g.status === 'ended' ? `<button class="btn s g" data-settle="${esc(g.id)}">立即結算</button>` : ''}</div></td></tr>`).join('');
+  App.mount('遊戲清單', `<div class="card"><div class="tw"><table><thead><tr><th>週次</th><th>遊戲</th><th>類型</th><th>開放期間</th><th>狀態</th><th>次數</th><th>人數</th><th>分享</th><th></th></tr></thead><tbody>${rows || '<tr><td colspan="9" class="muted">還沒有遊戲</td></tr>'}</tbody></table></div>
+    <p class="small muted" style="margin-top:10px">「公開」打勾、到了開放時間就會出現在大廳；到收起時間會自動結算（每小時檢查一次），明細移到封存、遊戲存進範本庫。</p></div>`, '#/games',
+    '<a class="btn" href="#/new">＋ 新增遊戲</a>');
+  $$('[data-settle]').forEach(b => b.addEventListener('click', async () => {
+    const ok = await modal('立即結算', '<p>結算後這款遊戲會收起：算出排名、發前三名點數、明細移到封存。客人就不能再玩這一款。</p>', [{ l: '取消', v: null, c: 'l' }, { l: '確定結算', v: 1 }]);
+    if (!ok) return; try { await api.call('adminSettle', { gameId: b.dataset.settle }); toast('已結算'); pGames(); } catch (e) { errToast(e); }
+  }));
+}
+
+/* ----- 編輯遊戲 ----- */
+function blankGame(type) {
+  const q = type === 'quiz' ? { q: '', options: [{ t: '', r: 'r1' }, { t: '', r: 'r2' }, { t: '', r: 'r3' }, { t: '', r: 'r4' }] } : type === 'trivia' ? { q: '', options: ['', '', '', ''], answer: 0, explain: '' } : { q: '', options: ['', '', '', ''] };
+  const cfg = { intro: '', questions: [q] };
+  if (type === 'quiz') cfg.results = { r1: { title: '', text: '', color: '#6F8FC7' }, r2: { title: '', text: '', color: '#E39A5B' }, r3: { title: '', text: '', color: '#6FA582' }, r4: { title: '', text: '', color: '#9A86C8' } };
+  if (type === 'poll') cfg.thanks = '';
+  const mon = nextMonday();
+  return { id: '', week: '', title: '', type, startAt: mon + 'T00:00:00+08:00', endAt: addDays(mon, 7) + 'T00:00:00+08:00', published: false, notes: '', config: cfg };
+}
+function nextMonday() { const t = new Date(Date.now() + 8 * 3600e3); const wd = (t.getUTCDay() + 6) % 7; return new Date(t.getTime() + (7 - wd) * 86400e3).toISOString().slice(0, 10); }
+function addDays(ymd, n) { return new Date(Date.parse(ymd + 'T00:00:00Z') + n * 86400e3).toISOString().slice(0, 10); }
+async function pNew() {
+  const t = await modal('新增遊戲：選類型', `<div class="acts" style="flex-direction:column">
+    <button class="btn l" data-t="quiz" style="justify-content:flex-start;min-height:56px;text-align:left;white-space:normal">測驗：每個選項對應一種結果，例如「你的療癒色彩」</button>
+    <button class="btn l" data-t="trivia" style="justify-content:flex-start;min-height:56px;text-align:left;white-space:normal">問答：有正確答案，答對越多、越快排名越前</button>
+    <button class="btn l" data-t="poll" style="justify-content:flex-start;min-height:56px;text-align:left;white-space:normal">心情投票：選一個，看大家的比例</button></div>`, [{ l: '取消', v: null, c: 'l' }], bg => $$('[data-t]', bg).forEach(b => b.addEventListener('click', () => { bg.remove(); Edit.open(blankGame(b.dataset.t)); })));
+  if (t === null && location.hash === '#/new') location.hash = '#/games';
+}
+const Edit = {
+  g: null,
+  async load(id) { App.loading('編輯遊戲', '#/games'); try { const g = await api.call('adminGetGame', { gameId: id }); this.open(g); } catch (e) { App.fail(e, '編輯遊戲', '#/games'); } },
+  open(g) { this.g = JSON.parse(JSON.stringify(g)); this.render(); },
+  render() {
+    const g = this.g, c = g.config, locked = (g.plays || 0) > 0;
+    const res = g.type === 'quiz' ? Object.keys(c.results || {}) : [];
+    const qHtml = c.questions.map((q, i) => {
+      const ops = q.options.map((op, j) => {
+        const t = typeof op === 'string' ? op : op.t;
+        const extra = g.type === 'trivia' ? `<label class="sw2 small"><input type="radio" name="ans${i}" data-ans="${i}:${j}" ${+q.answer === j ? 'checked' : ''}>正確</label>`
+          : g.type === 'quiz' ? `<select class="in" style="min-height:36px;width:auto" data-r="${i}:${j}" aria-label="對應結果">${res.map(k => `<option value="${k}" ${op.r === k ? 'selected' : ''}>${esc((c.results[k].title || k))}</option>`).join('')}</select>` : '<span></span>';
+        return `<div class="op"><span class="k">${'ABCDEFGH'[j]}</span><input class="in" value="${esc(t)}" data-o="${i}:${j}" aria-label="選項 ${'ABCDEFGH'[j]}" placeholder="選項">${extra}<button class="btn s g" data-delo="${i}:${j}" aria-label="刪除選項" ${q.options.length <= 2 ? 'disabled' : ''}>刪除</button></div>`;
+      }).join('');
+      return `<div class="qb"><div class="hd"><b>第 ${i + 1} 題</b><span class="muted small">${(q.tags || []).map(t => '#' + esc(t)).join(' ')}</span><span style="margin-left:auto" class="acts"><button class="btn s g" data-up="${i}" ${i ? '' : 'disabled'}>上移</button><button class="btn s g" data-delq="${i}" ${c.questions.length <= 1 ? 'disabled' : ''}>刪除這題</button></span></div>
+        <div class="f"><input class="in" value="${esc(q.q)}" data-q="${i}" placeholder="題目" aria-label="第 ${i + 1} 題題目"></div>${ops}
+        <button class="btn s g" data-addo="${i}" ${q.options.length >= 6 ? 'disabled' : ''}>＋ 選項</button>
+        ${g.type === 'trivia' ? `<div class="f" style="margin-top:6px"><label>答案說明（答完後顯示，可不填）</label><input class="in" value="${esc(q.explain || '')}" data-ex="${i}"></div>` : ''}</div>`;
+    }).join('');
+    const results = g.type === 'quiz' ? `<div class="card"><h2>結果（${res.length} 種）<span class="r"><button class="btn s l" data-addr ${res.length >= 6 ? 'disabled' : ''}>＋ 結果</button></span></h2>
+      ${res.map(k => `<div class="qb"><div class="row"><div class="f" style="flex:2"><label>名稱</label><input class="in" value="${esc(c.results[k].title)}" data-rt="${k}"></div><div class="f" style="flex:0 0 120px;min-width:120px"><label>代表色</label><input type="color" class="in" value="${esc(c.results[k].color || '#B5523B')}" data-rc="${k}" style="padding:2px"></div>${res.length > 2 ? `<button class="btn s g" data-delr="${k}" style="align-self:center">刪除</button>` : ''}</div><div class="f"><label>結果說明</label><textarea data-rx="${k}">${esc(c.results[k].text)}</textarea></div></div>`).join('')}
+      <p class="small muted">玩家選最多的那一種就是他的結果，同分時取上面那一個。</p></div>` : '';
+    App.mount(g.id ? '編輯：' + (g.title || '') : '新增' + TYPES[g.type], `
+      ${locked ? `<div class="card" style="background:#FFF8E6;border-color:#EFD9A8"><b>已經有 ${g.plays} 次遊玩。</b><span class="small">改題目會影響之後的計分，建議只修錯字；大改請到範本庫「複製成新遊戲」。</span></div>` : ''}
+      <div class="card"><h2>基本資料</h2>
+        <div class="row"><div class="f" style="flex:2"><label for="e-title">遊戲名稱</label><input id="e-title" class="in" value="${esc(g.title)}" placeholder="例如：你的療癒色彩是什麼？"></div><div class="f"><label for="e-week">週次標示</label><input id="e-week" class="in" value="${esc(g.week || '')}" placeholder="例如：第 4 週"></div><div class="f"><label>類型</label><input class="in" value="${TYPES[g.type]}" disabled></div></div>
+        <div class="row"><div class="f"><label for="e-st">開放時間</label><input id="e-st" type="datetime-local" class="in" value="${esc(String(g.startAt).slice(0, 16))}"></div><div class="f"><label for="e-en">收起時間</label><input id="e-en" type="datetime-local" class="in" value="${esc(String(g.endAt).slice(0, 16))}"></div></div>
+        <div class="f"><label for="e-intro">開場說明</label><textarea id="e-intro" placeholder="一兩句話告訴玩家怎麼玩">${esc(c.intro || '')}</textarea></div>
+        ${g.type === 'poll' ? `<div class="f"><label for="e-thanks">投完顯示的一句話</label><input id="e-thanks" class="in" value="${esc(c.thanks || '')}"></div>` : ''}
+        <label class="sw2"><input type="checkbox" id="e-pub" ${g.published ? 'checked' : ''}> 公開（到了開放時間就出現在大廳）</label></div>
+      ${results}
+      <div class="card"><h2>題目（${c.questions.length} 題）<span class="r"><button class="btn s l" data-addq>＋ 新增一題</button></span></h2>${qHtml}</div>
+      <div class="card"><h2>給製作指令的補充（可不填）</h2><div class="f"><textarea id="e-notes" placeholder="例如：結果文字可以多一點畫面感">${esc(g.notes || '')}</textarea></div></div>
+      <div class="sticky"><span class="err" id="e-err" role="alert"></span><span style="margin-left:auto" class="acts">${g.id && !locked ? '<button class="btn d" data-del>刪除</button>' : ''}<a class="btn l" href="#/games">取消</a><button class="btn" data-save>儲存</button></span></div>`, '#/games');
+    this.bind();
+  },
+  collect() {
+    const g = this.g, c = g.config;
+    g.title = $('#e-title').value.trim(); g.week = $('#e-week').value.trim();
+    const st = $('#e-st').value, en = $('#e-en').value;
+    g.startAt = st ? st + ':00+08:00' : ''; g.endAt = en ? en + ':00+08:00' : '';
+    c.intro = $('#e-intro').value.trim(); if ($('#e-thanks')) c.thanks = $('#e-thanks').value.trim();
+    g.published = $('#e-pub').checked; g.notes = $('#e-notes').value;
+    $$('[data-q]').forEach(el => { c.questions[+el.dataset.q].q = el.value; });
+    $$('[data-o]').forEach(el => { const [i, j] = el.dataset.o.split(':').map(Number); const op = c.questions[i].options[j]; if (typeof op === 'string') c.questions[i].options[j] = el.value; else op.t = el.value; });
+    $$('[data-ans]').forEach(el => { if (el.checked) { const [i, j] = el.dataset.ans.split(':').map(Number); c.questions[i].answer = j; } });
+    $$('[data-r]').forEach(el => { const [i, j] = el.dataset.r.split(':').map(Number); c.questions[i].options[j].r = el.value; });
+    $$('[data-ex]').forEach(el => { c.questions[+el.dataset.ex].explain = el.value; });
+    $$('[data-rt]').forEach(el => { c.results[el.dataset.rt].title = el.value; });
+    $$('[data-rx]').forEach(el => { c.results[el.dataset.rx].text = el.value; });
+    $$('[data-rc]').forEach(el => { c.results[el.dataset.rc].color = el.value; });
+  },
+  check() {
+    const g = this.g, c = g.config;
+    if (!g.title) return '請填遊戲名稱';
+    if (!g.startAt || !g.endAt || g.endAt <= g.startAt) return '收起時間要晚於開放時間';
+    for (let i = 0; i < c.questions.length; i++) { const q = c.questions[i]; if (!String(q.q).trim()) return '第 ' + (i + 1) + ' 題還沒有題目'; if (q.options.some(o => !String(typeof o === 'string' ? o : o.t).trim())) return '第 ' + (i + 1) + ' 題有空白的選項'; }
+    if (g.type === 'quiz') for (const k in c.results) if (!String(c.results[k].title).trim()) return '有結果還沒取名稱';
+    return '';
+  },
+  bind() {
+    const g = this.g, c = g.config, re = () => { this.collect(); this.render(); };
+    $('[data-addq]').addEventListener('click', () => { this.collect(); const b = blankGame(g.type).config.questions[0]; if (g.type === 'quiz') { const ks = Object.keys(c.results); b.options = ks.slice(0, 4).map(k => ({ t: '', r: k })); } c.questions.push(b); this.render(); });
+    $$('[data-delq]').forEach(b => b.addEventListener('click', () => { this.collect(); c.questions.splice(+b.dataset.delq, 1); this.render(); }));
+    $$('[data-up]').forEach(b => b.addEventListener('click', () => { this.collect(); const i = +b.dataset.up; [c.questions[i - 1], c.questions[i]] = [c.questions[i], c.questions[i - 1]]; this.render(); }));
+    $$('[data-addo]').forEach(b => b.addEventListener('click', () => { this.collect(); const q = c.questions[+b.dataset.addo]; q.options.push(g.type === 'quiz' ? { t: '', r: Object.keys(c.results)[0] } : ''); this.render(); }));
+    $$('[data-delo]').forEach(b => b.addEventListener('click', () => { this.collect(); const [i, j] = b.dataset.delo.split(':').map(Number); const q = c.questions[i]; q.options.splice(j, 1); if (g.type === 'trivia' && +q.answer >= q.options.length) q.answer = 0; this.render(); }));
+    const ar = $('[data-addr]'); if (ar) ar.addEventListener('click', () => { this.collect(); let n = 1; while (c.results['r' + n]) n++; c.results['r' + n] = { title: '', text: '', color: '#B5523B' }; this.render(); });
+    $$('[data-delr]').forEach(b => b.addEventListener('click', () => { this.collect(); const k = b.dataset.delr, first = Object.keys(c.results).find(x => x !== k); delete c.results[k]; c.questions.forEach(q => q.options.forEach(o => { if (o.r === k) o.r = first; })); this.render(); }));
+    $$('[data-rt]').forEach(el => el.addEventListener('change', re));
+    $('[data-save]').addEventListener('click', async () => {
+      this.collect(); const err = this.check(); $('#e-err').textContent = err; if (err) return;
+      try { const r = await api.call('adminSaveGame', { game: g }); toast('已儲存'); location.hash = '#/games'; if (!g.id) g.id = r.game.id; } catch (e) { $('#e-err').textContent = e.message; }
+    });
+    const del = $('[data-del]'); if (del) del.addEventListener('click', async () => { const ok = await modal('刪除遊戲', '<p>確定刪除這款遊戲？刪除後無法復原。</p>', [{ l: '取消', v: null, c: 'l' }, { l: '刪除', v: 1, c: 'd' }]); if (!ok) return; try { await api.call('adminDeleteGame', { gameId: g.id }); toast('已刪除'); location.hash = '#/games'; } catch (e) { errToast(e); } });
+  }
+};
+
+/* ----- 單款遊戲數據 ----- */
+async function pGame(id) {
+  App.loading('遊戲數據', '#/games');
+  let g, a; try { [g, a] = await Promise.all([api.call('adminGetGame', { gameId: id }), api.call('adminAnalytics', { gameId: id })]); } catch (e) { return App.fail(e, '遊戲數據', '#/games'); }
+  let detail = '';
+  if (g.board) detail = `<div class="card"><h2>排行榜（${g.board.total} 人）</h2><div class="tw"><table><thead><tr><th>名次</th><th>玩家</th><th>成績</th><th>用時</th></tr></thead><tbody>${g.board.top.map(r => `<tr><td class="num">${r.rank}</td><td>${esc(r.name)}</td><td class="num">${r.score}/${g.board.max}</td><td class="num">${Math.round(r.timeMs / 1000)} 秒</td></tr>`).join('') || '<tr><td colspan="4" class="muted">還沒有人玩</td></tr>'}</tbody></table></div><p class="small muted" style="margin-top:6px">排行榜上的名字只顯示頭尾一個字</p></div>`;
+  if (g.dist) { const tot = Object.values(g.dist).reduce((s, x) => s + x, 0) || 1; detail = `<div class="card"><h2>結果分布</h2><div class="bars">${Object.keys(g.config.results || {}).map(k => { const v = g.dist[k] || 0; return `<div class="bar"><span>${esc(g.config.results[k].title)}</span><span class="tr"><i style="width:${v / tot * 100}%;background:${esc(g.config.results[k].color || 'var(--pri)')}"></i></span><span class="num small">${v} 人次・${Math.round(v * 100 / tot)}%</span></div>`; }).join('')}</div></div>`; }
+  if (g.poll) detail = g.poll.map(q => `<div class="card"><h2>${esc(q.q)}（${q.total} 票）</h2><div class="bars">${q.options.map(o => `<div class="bar"><span>${esc(o.t)}</span><span class="tr"><i style="width:${o.pct}%"></i></span><span class="num small">${o.n} 票・${o.pct}%</span></div>`).join('')}</div></div>`).join('');
+  App.mount(g.title, `<div class="k4"><div class="k"><span>狀態</span><b style="font-size:18px">${chip(g.status)}</b></div><div class="k"><span>遊玩次數</span><b>${g.plays || 0}</b></div><div class="k"><span>玩家人數</span><b>${g.players || 0}</b></div><div class="k"><span>分享次數</span><b>${g.shares || 0}</b></div></div>
+    ${detail}<div class="two">${srcCard(a)}${heatCard(a)}</div>`, '#/games', `<a class="btn l" href="#/edit/${esc(g.id)}">編輯</a><a class="btn l" href="#/templates">範本庫</a>`);
+}
+
+/* ================= 範本庫 ================= */
+const EXPORT_FORMAT = '{"format":"mia-play-templates","version":1,"games":[{"title":"","type":"quiz｜trivia｜poll","notes":"","config":{"intro":"","questions":[],"results":{}}}]}';
+function makePrompt(g, m) {
+  const c = g.config || {}, qs = c.questions || [], n = qs.length, op = qs[0] ? qs[0].options.length : 4;
+  const lines = [];
+  if (g.type === 'quiz') {
+    const rs = Object.keys(c.results || {});
+    lines.push(`請幫我做一款 Mia 小遊戲的「測驗」，沿用「${g.title}」的框架：`, `・${n} 題，每題 ${op} 個選項，每個選項對應一種結果`, `・${rs.length} 種結果，每種有名稱、一段 40 字內的溫柔建議、一個代表色（色碼）`, '・結果用「選最多的那一種」決定，同分時取第一個');
+  } else if (g.type === 'trivia') {
+    lines.push(`請幫我做一款 Mia 小遊戲的「問答」，沿用「${g.title}」的框架：`, `・${n} 題，每題 ${op} 個選項，只有一個正確答案`, '・每題附一句答案說明（30 字內）', '・難度：大部分人能答對一半以上，有一兩題需要想一下');
+  } else {
+    lines.push(`請幫我做一款 Mia 小遊戲的「心情投票」，沿用「${g.title}」的框架：`, `・${n} 題，每題 ${op} 個選項，選完看大家的比例`, '・投完顯示一句溫暖的話');
+  }
+  lines.push('・語氣：溫柔、像朋友聊天，不說教，不提醫療或診斷', '・開場說明一句話');
+  if (qs[0] && qs[0].q) lines.push(`・參考原本的第一題：「${qs[0].q}」`);
+  lines.push('這次的主題：【在這裡寫新主題】');
+  if (m && m.players) lines.push(`這款上次的表現：${m.players} 人、完成率 ${U.pct(m.completion)}、分享率 ${U.pct(m.shareRate)}${m.topResult ? `（最多人測出「${m.topResult}」）` : ''}`);
+  if (g.notes) lines.push('Mia 的補充：' + g.notes);
+  lines.push('', '請用下面的 JSON 格式回覆（questions 裡：測驗的選項是 {"t":"文字","r":"結果代號"}，results 用結果代號當 key，內容是 {"title","text","color"}；問答的選項是文字陣列，加上 "answer":正確選項的位置（從 0 開始）和 "explain"；心情投票的選項是文字陣列，config 加上 "thanks"），我會直接匯入後台：', EXPORT_FORMAT);
+  return lines.join('\n');
+}
+async function pTemplates() {
+  App.loading('範本庫', '#/templates');
+  let d; try { d = await api.call('adminTemplates'); } catch (e) { return App.fail(e, '範本庫', '#/templates'); }
+  const items = d.items.filter(t => t.qCount > 0);
+  const rows = items.map(t => `<tr><td><b>${esc(t.title)}</b><br><span class="small muted">${esc(t.week || '')}${t.parentTitle ? '・延伸自「' + esc(t.parentTitle) + '」' : ''}${t.children ? '・已延伸 ' + t.children + ' 款' : ''}</span></td><td>${esc(t.typeName)}<br><span class="small muted">${t.qCount} 題${t.resultCount ? '・' + t.resultCount + ' 種結果' : ''}</span></td><td>${chip(t.status)}</td>
+    <td class="num">${t.players}</td><td class="num">${U.pct(t.completion)}</td><td class="num">${t.replay == null ? '—' : t.replay + ' 次'}</td><td class="num">${U.pct(t.shareRate)}</td><td class="num">${t.newPlayers}</td>
+    <td>${t.hot ? `<span class="chip c-hot" title="${esc(t.hotBy.join('、'))}">熱門</span> ` : ''}<button class="btn s g" data-star="${esc(t.id)}" data-v="${t.starred ? 0 : 1}" aria-label="${t.starred ? '取消星號' : '加星號'}">${t.starred ? '★' : '☆'}</button></td>
+    <td><div class="acts"><button class="btn s l" data-copy="${esc(t.id)}">複製成新遊戲</button><button class="btn s l" data-seq="${esc(t.id)}">做續集</button><button class="btn s l" data-prompt="${esc(t.id)}">製作指令</button><button class="btn s g" data-exp="${esc(t.id)}">匯出</button></div></td></tr>`).join('');
+  App.mount('範本庫', `<div class="card"><p class="small muted" style="margin-bottom:10px">每款遊戲都會自動留在這裡。<b>熱門</b>：參與人數、完成率、重玩率、分享率、帶來新朋友，任兩項排在前 25%（至少 ${d.minGamesForHot} 款有人玩過才開始標）。☆ 是你自己加的星號。</p>
+    <div class="tw"><table><thead><tr><th>遊戲</th><th>類型</th><th>狀態</th><th>人數</th><th>完成率</th><th>重玩</th><th>分享率</th><th>新朋友</th><th>標記</th><th></th></tr></thead><tbody>${rows || '<tr><td colspan="10" class="muted">還沒有遊戲</td></tr>'}</tbody></table></div></div>`, '#/templates',
+    '<button class="btn l" data-imp>匯入</button><button class="btn l" data-expall>全部匯出</button>');
+  const byId = {}; items.forEach(t => byId[t.id] = t);
+  $$('[data-star]').forEach(b => b.addEventListener('click', async () => { try { await api.call('adminStarGame', { gameId: b.dataset.star, starred: b.dataset.v === '1' }); pTemplates(); } catch (e) { errToast(e); } }));
+  const copy = async (id, mode) => { try { const r = await api.call('adminCopyGame', { gameId: id, mode }); toast(mode === 'sequel' ? '已建立續集草稿' : '已複製成草稿'); location.hash = '#/edit/' + r.game.id; } catch (e) { errToast(e); } };
+  $$('[data-copy]').forEach(b => b.addEventListener('click', () => copy(b.dataset.copy, 'copy')));
+  $$('[data-seq]').forEach(b => b.addEventListener('click', () => copy(b.dataset.seq, 'sequel')));
+  $$('[data-exp]').forEach(b => b.addEventListener('click', async () => { try { const r = await api.call('adminExportGames', { ids: [b.dataset.exp] }); U.dl('mia-play-' + byId[b.dataset.exp].title.slice(0, 12) + '.json', JSON.stringify(r, null, 2)); } catch (e) { errToast(e); } }));
+  $('[data-expall]').addEventListener('click', async () => { try { const r = await api.call('adminExportGames', {}); U.dl('mia-play-範本庫-' + new Date().toISOString().slice(0, 10) + '.json', JSON.stringify(r, null, 2)); } catch (e) { errToast(e); } });
+  $$('[data-prompt]').forEach(b => b.addEventListener('click', async () => {
+    let t; try { t = await api.call('adminGetTemplate', { gameId: b.dataset.prompt }); } catch (e) { return errToast(e); }
+    const draw = () => makePrompt(t.game, t.metrics);
+    await modal('製作指令：' + t.game.title, `<p class="small muted">複製後貼給 Claude，把【新主題】換掉就能做出同框架的新遊戲；Claude 回覆的 JSON 可以用「匯入」直接變成草稿。</p><div class="prompt" id="pp">${esc(draw())}</div>
+      <div class="f"><label for="pn">我的補充（會一起寫進指令，也會存下來）</label><textarea id="pn">${esc(t.game.notes || '')}</textarea></div>`,
+      [{ l: '關閉', v: null, c: 'l' }, { l: '存補充', c: 'l', check: bg => { const v = $('#pn', bg).value; api.call('adminSaveNotes', { gameId: t.game.id, notes: v }).then(() => { t.game.notes = v; $('#pp', bg).textContent = draw(); toast('已存補充'); }).catch(errToast); return false; } },
+       { l: '複製指令', check: bg => { t.game.notes = $('#pn', bg).value; const txt = draw(); $('#pp', bg).textContent = txt; navigator.clipboard.writeText(txt).then(() => toast('已複製'), () => toast('請長按上面的文字複製', 'err')); return false; } }]);
+  }));
+  $('[data-imp]').addEventListener('click', async () => {
+    const v = await modal('匯入遊戲', `<p class="small muted">選一個匯出的 .json 檔，或直接貼上 Claude 回覆的 JSON。匯入的遊戲都會變成草稿，不會自動上架。</p><input type="file" accept=".json,application/json" id="if" class="in"><div class="f"><label for="it">或貼上內容</label><textarea id="it" style="min-height:140px;font-family:ui-monospace,monospace;font-size:12px"></textarea></div><span class="err" id="ie"></span>`,
+      [{ l: '取消', v: null, c: 'l' }, { l: '匯入', v: bg => ({ file: $('#if', bg).files[0], text: $('#it', bg).value }) }]);
+    if (!v) return;
+    let text = v.text.trim(); if (v.file) text = await v.file.text();
+    const m = text.match(/\{[\s\S]*\}/); let data;
+    try { data = JSON.parse(m ? m[0] : text); } catch (e) { return toast('看不懂這段內容，請確認是 JSON 格式', 'err'); }
+    if (!data.games && data.config) data = { games: [data] };
+    try { const r = await api.call('adminImportGames', { data }); toast('已匯入 ' + r.made.length + ' 款草稿'); location.hash = r.made.length === 1 ? '#/edit/' + r.made[0].id : '#/games'; } catch (e) { errToast(e); }
+  });
+}
+
+/* ================= 題庫 ================= */
+const Bank = { sel: {}, items: [] };
+async function pBank() {
+  App.loading('題庫', '#/bank');
+  let d; try { d = await api.call('adminBank'); } catch (e) { return App.fail(e, '題庫', '#/bank'); }
+  Bank.items = d.items;
+  const tags = [...new Set(d.items.flatMap(x => x.tags || []))];
+  App.mount('題庫', `<div class="card"><div class="row" style="align-items:flex-end">
+      <div class="f"><label for="bq">搜尋題目</label><input id="bq" class="in" placeholder="關鍵字"></div>
+      <div class="f"><label for="bt">類型</label><select id="bt" class="in"><option value="">全部</option>${Object.keys(TYPES).map(k => `<option value="${k}">${TYPES[k]}</option>`).join('')}</select></div>
+      <div class="f"><label for="bg">標籤</label><select id="bg" class="in"><option value="">全部</option>${tags.map(t => `<option>${esc(t)}</option>`).join('')}</select></div>
+      <div class="f"><label for="bd">難度（問答）</label><select id="bd" class="in"><option value="">全部</option><option value="easy">偏簡單（答對率 85% 以上）</option><option value="hard">偏難（答對率 45% 以下）</option></select></div></div>
+      <div id="blist"></div></div>
+    <div class="sticky" id="bbar" hidden><span id="bn"></span><span class="err" id="berr"></span><span style="margin-left:auto" class="acts"><button class="btn l" data-clear>清除選取</button><button class="btn" data-make>用選取的題目做新遊戲</button></span></div>`, '#/bank');
+  const draw = () => {
+    const q = $('#bq').value.trim(), ty = $('#bt').value, tg = $('#bg').value, df = $('#bd').value;
+    const list = Bank.items.filter(x => (!q || x.q.includes(q)) && (!ty || x.type === ty) && (!tg || (x.tags || []).includes(tg)) && (!df || (x.type === 'trivia' && x.stats.correct != null && (df === 'easy' ? x.stats.correct >= 85 : x.stats.correct <= 45))));
+    $('#blist').innerHTML = `<div class="tw" style="margin-top:6px"><table><thead><tr><th><span class="sr">選取</span></th><th>題目</th><th>來自</th><th>標籤</th><th>表現</th></tr></thead><tbody>${list.map(x => {
+      const perf = x.type === 'trivia' ? (x.stats.correct == null ? '還沒有人答' : `答對率 ${x.stats.correct}%${x.stats.correct >= 85 ? '（偏簡單）' : x.stats.correct <= 45 ? '（偏難）' : ''}`) : (x.stats.top ? `最多人選「${esc(x.stats.top)}」${x.stats.topPct}%` : '還沒有人答');
+      return `<tr><td><input type="checkbox" data-sel="${esc(x.id)}" ${Bank.sel[x.id] ? 'checked' : ''} aria-label="選取這題" style="width:18px;height:18px;accent-color:var(--pri)"></td><td>${esc(x.q)}<br><span class="small muted">${x.options.map(esc).join('／')}</span></td><td class="small">${esc(x.gameTitle)}<br><span class="muted">${esc(x.typeName)}${x.used > 1 ? '・用過 ' + x.used + ' 次' : ''}</span></td>
+        <td>${(x.tags || []).map(t => `<span class="chip c-tag">${esc(t)}</span>`).join('')}<button class="btn s g" data-tag="${esc(x.id)}">${(x.tags || []).length ? '改' : '＋ 標籤'}</button></td><td class="small">${perf}<br><span class="muted">${x.stats.total} 人次</span></td></tr>`;
+    }).join('') || '<tr><td colspan="5" class="muted">沒有符合的題目</td></tr>'}</tbody></table></div>`;
+    $$('[data-sel]').forEach(c => c.addEventListener('change', () => { if (c.checked) Bank.sel[c.dataset.sel] = 1; else delete Bank.sel[c.dataset.sel]; bar(); }));
+    $$('[data-tag]').forEach(b => b.addEventListener('click', async () => {
+      const x = Bank.items.find(i => i.id === b.dataset.tag);
+      const v = await modal('標籤', `<div class="f"><label for="tg">用逗號分開，例如：脈輪, 情緒</label><input id="tg" class="in" value="${esc((x.tags || []).join(', '))}"></div>`, [{ l: '取消', v: null, c: 'l' }, { l: '儲存', v: bg => $('#tg', bg).value }]);
+      if (v == null) return;
+      try { const r = await api.call('adminSaveQuestionTags', { gameId: x.gameId, index: x.index, tags: v.split(/[,，、]/) }); x.tags = r.tags; draw(); } catch (e) { errToast(e); }
+    }));
+  };
+  const bar = () => { const n = Object.keys(Bank.sel).length; $('#bbar').hidden = !n; $('#bn').textContent = '已選 ' + n + ' 題'; $('#berr').textContent = ''; };
+  ['#bq', '#bt', '#bg', '#bd'].forEach(s => $(s).addEventListener('input', draw));
+  $('[data-clear]').addEventListener('click', () => { Bank.sel = {}; draw(); bar(); });
+  $('[data-make]').addEventListener('click', () => {
+    const picked = Bank.items.filter(x => Bank.sel[x.id]); const types = [...new Set(picked.map(x => x.type))];
+    if (types.length > 1) { $('#berr').textContent = '請選同一種類型的題目'; return; }
+    const type = types[0], g = blankGame(type);
+    g.config.questions = picked.map(x => type === 'trivia' ? { q: x.q, options: x.options.slice(), answer: +x.answer, explain: x.explain, tags: x.tags } : type === 'quiz' ? { q: x.q, options: x.options.map((t, j) => ({ t, r: 'r' + (j % 4 + 1) })), tags: x.tags } : { q: x.q, options: x.options.slice(), tags: x.tags });
+    Bank.sel = {}; Edit.open(g); toast(type === 'quiz' ? '已帶入題目，請重新設定結果和每個選項對應的結果' : '已帶入題目');
+  });
+  draw(); bar();
+}
+
+/* ================= 數據分析 ================= */
+async function pData() {
+  App.loading('數據分析', '#/data');
+  let a, t; try { [a, t] = await Promise.all([api.call('adminAnalytics', {}), api.call('adminTemplates')]); } catch (e) { return App.fail(e, '數據分析', '#/data'); }
+  const byType = {}; t.items.forEach(x => { const k = x.typeName; byType[k] = byType[k] || { n: 0, players: 0, plays: 0 }; if (x.players) { byType[k].n++; byType[k].players += x.players; byType[k].plays += x.plays; } });
+  App.mount('數據分析', `<div class="two">${srcCard(a)}${heatCard(a)}</div>
+    <div class="card"><h2>哪一類最受歡迎</h2><div class="tw"><table><thead><tr><th>類型</th><th>有人玩的款數</th><th>平均每款人數</th><th>平均每人次數</th></tr></thead><tbody>${Object.keys(byType).map(k => { const v = byType[k]; return `<tr><td>${esc(k)}</td><td class="num">${v.n}</td><td class="num">${v.n ? Math.round(v.players / v.n) : '—'}</td><td class="num">${v.players ? (v.plays / v.players).toFixed(1) : '—'}</td></tr>`; }).join('')}</tbody></table></div></div>
+    <p class="small muted">每款遊戲的完成率、分享率、熱門標記在「範本庫」。原始明細可以在「設定」匯出 CSV。</p>`, '#/data');
+}
+
+/* ================= 玩家 ================= */
+async function pPlayers() {
+  App.loading('玩家', '#/players');
+  let d; try { d = await api.call('adminPlayers', {}); } catch (e) { return App.fail(e, '玩家', '#/players'); }
+  App.mount('玩家', `<div class="card"><div class="f" style="max-width:320px"><label for="pq">搜尋名字</label><input id="pq" class="in"></div><div id="pl"></div></div>`, '#/players');
+  const draw = () => { const q = $('#pq').value.trim(); const list = d.items.filter(p => !q || p.name.includes(q));
+    $('#pl').innerHTML = `<p class="small muted">${list.length} 位</p><div class="tw"><table><thead><tr><th>玩家</th><th>第一次來</th><th>最近</th><th>入口</th><th>次數</th><th>款數</th><th>前三</th><th>連續週</th><th>點數</th><th>稱號</th><th>分享／邀請</th></tr></thead><tbody>${list.slice(0, 300).map(p => `<tr><td>${esc(p.name)}${p.guest ? '' : ' <span class="chip c-open">LINE</span>'}</td><td class="small">${U.d(p.firstAt)}</td><td class="small">${U.d(p.lastAt)}</td><td class="small">${esc(p.firstSource)}</td><td class="num">${p.totalPlays}</td><td class="num">${p.games}</td><td class="num">${p.top3}</td><td class="num">${p.streak}</td><td class="num">${p.points}</td><td class="num">${p.titles}</td><td class="num">${p.shares}／${p.invites}</td></tr>`).join('')}</tbody></table></div>`; };
+  $('#pq').addEventListener('input', draw); draw();
+}
+
+/* ================= 稱號與獎勵 ================= */
+const COND = { plays: ['累計玩 n 次', ['n']], games: ['參加 n 款遊戲', ['n']], streak: ['連續 n 週都有玩', ['n']], top3: ['n 款遊戲進前三名', ['n']], shares: ['分享 n 次', ['n']], invites: ['邀請 n 位朋友', ['n']], typeCount: ['玩 n 款某類型', ['n', 'gameType']], hour: ['在某個時段玩過', ['from', 'to']], gameDone: ['完成指定遊戲', ['gameId', 'minScore']] };
+async function pRules() {
+  App.loading('稱號與獎勵', '#/rules');
+  let d, th, gm; try { [d, th, gm] = await Promise.all([api.call('adminRules'), api.call('adminThemes'), api.call('adminGames')]); } catch (e) { return App.fail(e, '稱號與獎勵', '#/rules'); }
+  const tName = id => (th.items.find(t => t.id === id) || {}).name || id;
+  App.mount('稱號與獎勵', `<div class="card"><p class="small muted" style="margin-bottom:10px">達成條件就自動發：稱號＋（可選）主題、點數。隱藏的稱號在客人那邊顯示「？？？」，達成才揭曉。代碼、折價券是第二階段。</p>
+    <div class="tw"><table><thead><tr><th>稱號</th><th>條件</th><th>獎勵</th><th>顯示</th><th>已達成</th><th></th></tr></thead><tbody>${d.items.map(r => `<tr><td><b>${esc(r.name)}</b>${r.active === true || r.active === 'true' ? '' : ' <span class="chip c-draft">停用</span>'}<br><span class="small muted">${esc(r.desc || '')}</span></td><td class="small">${esc(r.text)}</td><td class="small">${[(r.reward || {}).theme ? '主題「' + esc(tName(r.reward.theme)) + '」' : '', +(r.reward || {}).points ? '+' + r.reward.points + ' 點' : ''].filter(Boolean).join('、') || '稱號'}</td><td class="small">${r.hidden === true || r.hidden === 'true' ? '隱藏任務' : '公開'}</td><td class="num">${r.owners} 人</td><td><button class="btn s l" data-er="${esc(r.id)}">編輯</button></td></tr>`).join('')}</tbody></table></div></div>`, '#/rules', '<button class="btn" data-er="">＋ 新增稱號</button>');
+  $$('[data-er]').forEach(b => b.addEventListener('click', () => editRule(d.items.find(r => r.id === b.dataset.er) || { id: '', sort: d.items.length + 1, name: '', desc: '', hidden: false, active: true, cond: { type: 'plays', n: 5 }, reward: {} }, th.items, gm.items)));
+}
+async function editRule(r, themes, games) {
+  r = JSON.parse(JSON.stringify(r)); r.reward = r.reward || {};
+  const html = () => `<div class="row"><div class="f"><label for="rn">稱號名稱</label><input id="rn" class="in" value="${esc(r.name)}"></div><div class="f"><label for="rd">說明（給客人看）</label><input id="rd" class="in" value="${esc(r.desc || '')}"></div></div>
+    <div class="row"><div class="f"><label for="rc">條件</label><select id="rc" class="in">${Object.keys(COND).map(k => `<option value="${k}" ${r.cond.type === k ? 'selected' : ''}>${COND[k][0]}</option>`).join('')}</select></div>
+    ${COND[r.cond.type][1].map(p => p === 'gameType' ? `<div class="f"><label for="c-${p}">類型</label><select id="c-${p}" class="in">${Object.keys(TYPES).map(k => `<option value="${k}" ${r.cond.gameType === k ? 'selected' : ''}>${TYPES[k]}</option>`).join('')}</select></div>`
+      : p === 'gameId' ? `<div class="f"><label for="c-${p}">遊戲</label><select id="c-${p}" class="in">${games.map(g => `<option value="${esc(g.id)}" ${r.cond.gameId === g.id ? 'selected' : ''}>${esc(g.title)}</option>`).join('')}</select></div>`
+      : `<div class="f"><label for="c-${p}">${{ n: '數量', from: '從幾點（0–23）', to: '到幾點', minScore: '至少幾分（可不填）' }[p]}</label><input id="c-${p}" type="number" class="in" value="${esc(r.cond[p] == null ? '' : r.cond[p])}"></div>`).join('')}</div>
+    <div class="row"><div class="f"><label for="rt">送主題</label><select id="rt" class="in"><option value="">不送</option>${themes.filter(t => t.kind !== 'basic').map(t => `<option value="${esc(t.id)}" ${r.reward.theme === t.id ? 'selected' : ''}>${esc(t.name)}</option>`).join('')}</select></div><div class="f"><label for="rp">送點數</label><input id="rp" type="number" min="0" class="in" value="${esc(r.reward.points || '')}"></div></div>
+    <label class="sw2"><input type="checkbox" id="rh" ${r.hidden === true || r.hidden === 'true' ? 'checked' : ''}> 隱藏任務（達成前顯示「？？？」）</label>
+    <label class="sw2"><input type="checkbox" id="ra" ${r.active === true || r.active === 'true' ? 'checked' : ''}> 啟用</label><span class="err" id="re"></span>`;
+  const read = bg => { r.name = $('#rn', bg).value.trim(); r.desc = $('#rd', bg).value.trim(); const ty = $('#rc', bg).value; const c = { type: ty }; COND[ty][1].forEach(p => { const el = $('#c-' + p, bg); if (el) c[p] = p === 'gameType' || p === 'gameId' ? el.value : (el.value === '' ? '' : +el.value); }); r.cond = c; r.reward = { theme: $('#rt', bg).value, points: +$('#rp', bg).value || 0 }; r.hidden = $('#rh', bg).checked; r.active = $('#ra', bg).checked; };
+  const v = await modal(r.id ? '編輯稱號' : '新增稱號', `<div id="rf">${html()}</div>`, [{ l: '取消', v: null, c: 'l' }, { l: '儲存', check: bg => { read(bg); if (!r.name) { $('#re', bg).textContent = '請填稱號名稱'; return false; } return true; }, v: () => 1 }],
+    bg => bg.addEventListener('change', e => { if (e.target.id === 'rc') { read(bg); r.cond = { type: e.target.value, n: 1 }; $('#rf', bg).innerHTML = html(); } }));
+  if (!v) return;
+  try { await api.call('adminSaveRule', { rule: r }); toast('已儲存'); pRules(); } catch (e) { errToast(e); }
+}
+
+/* ================= 主題樣式 ================= */
+function lum(hex) { const m = String(hex).match(/^#?([0-9a-f]{6})$/i); if (!m) return null; const n = parseInt(m[1], 16); return [n >> 16, n >> 8 & 255, n & 255].map(v => { v /= 255; return v <= .03928 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4); }).reduce((s, v, i) => s + v * [.2126, .7152, .0722][i], 0); }
+function contrast(a, b) { const x = lum(a), y = lum(b); if (x == null || y == null) return null; return (Math.max(x, y) + .05) / (Math.min(x, y) + .05); }
+const PATTERNS = { none: '無', dots: '點點', stars: '星星', snow: '雪花', pumpkin: '南瓜', petals: '花瓣' };
+async function pThemes() {
+  App.loading('主題樣式', '#/themes');
+  let d; try { d = await api.call('adminThemes'); } catch (e) { return App.fail(e, '主題樣式', '#/themes'); }
+  const K = { basic: '基本（每個人都有）', reward: '獎勵', limited: '限定' };
+  App.mount('主題樣式', `<div class="card"><p class="small muted" style="margin-bottom:10px">新增主題不用改程式。要當獎勵送出時，到「稱號與獎勵」在條件的「送主題」選它；「獎勵」類填了點數，客人就能用點數兌換。</p>
+    <div class="tw"><table><thead><tr><th>預覽</th><th>名稱</th><th>種類</th><th>取得方式</th><th>擁有</th><th>使用中</th><th></th></tr></thead><tbody>${d.items.map(t => { const c = t.colors || {}; return `<tr><td><span style="display:inline-flex;align-items:flex-end;justify-content:center;width:64px;height:40px;border-radius:8px;background:linear-gradient(180deg,${esc(c.bg1)},${esc(c.bg2)},${esc(c.bg3)});padding-bottom:6px;border:1px solid var(--line)"><i style="width:30px;height:9px;border-radius:9px;background:${esc(c.primary)}"></i></span></td><td><b>${esc(t.name)}</b>${t.active === true || t.active === 'true' ? '' : ' <span class="chip c-draft">停用</span>'}</td><td class="small">${K[t.kind] || ''}</td><td class="small">${esc(t.how || '')}${+t.price ? '・' + t.price + ' 點兌換' : ''}</td><td class="num">${t.owners}</td><td class="num">${t.using}</td><td><button class="btn s l" data-et="${esc(t.id)}">編輯</button></td></tr>`; }).join('')}</tbody></table></div></div>`, '#/themes', '<button class="btn" data-et="">＋ 新增主題</button>');
+  $$('[data-et]').forEach(b => b.addEventListener('click', () => editTheme(d.items.find(t => t.id === b.dataset.et) || { id: '', sort: d.items.length + 1, name: '', kind: 'reward', how: '', price: 0, pattern: 'dots', active: true, colors: JSON.parse(JSON.stringify(d.items[0].colors)) })));
+}
+async function editTheme(t) {
+  t = JSON.parse(JSON.stringify(t)); const c = t.colors;
+  const F = [['bg1', '背景（上）'], ['bg2', '背景（中）'], ['bg3', '背景（下）'], ['primary', '主按鈕'], ['onPrimary', '按鈕上的字'], ['ink', '內文字'], ['sub', '次要文字'], ['accentInk', '強調文字'], ['soft', '標籤底色']];
+  const checks = () => { const bgMid = c.bg2, card = c.dark ? c.bg2 : '#FFFFFF'; return [['主按鈕的字', contrast(c.primary, c.onPrimary), 4.5], ['內文字（背景上）', contrast(c.ink, bgMid), 4.5], ['次要文字', contrast(c.sub, bgMid), 4.5], ['強調文字（卡片上）', contrast(c.accentInk, card), 4.5], ['強調文字（標籤上）', contrast(c.accentInk, c.soft), 4.5]]; };
+  const body = () => `<div class="row"><div class="f"><label for="tn">名稱</label><input id="tn" class="in" value="${esc(t.name)}"></div><div class="f"><label for="tk">種類</label><select id="tk" class="in">${[['basic', '基本'], ['reward', '獎勵'], ['limited', '限定']].map(([k, l]) => `<option value="${k}" ${t.kind === k ? 'selected' : ''}>${l}</option>`).join('')}</select></div></div>
+    <div class="row"><div class="f"><label for="th">取得方式（給客人看）</label><input id="th" class="in" value="${esc(t.how || '')}" placeholder="例如：萬聖節小遊戲破關"></div><div class="f"><label for="tp">兌換點數（0＝不能兌換）</label><input id="tp" type="number" min="0" class="in" value="${esc(t.price || 0)}"></div><div class="f"><label for="tpt">背景圖案</label><select id="tpt" class="in">${Object.keys(PATTERNS).map(k => `<option value="${k}" ${t.pattern === k ? 'selected' : ''}>${PATTERNS[k]}</option>`).join('')}</select></div></div>
+    <div class="row">${F.map(([k, l]) => `<div class="f" style="flex:0 0 120px;min-width:110px"><label for="tc-${k}">${l}</label><input type="color" id="tc-${k}" class="in" value="${esc(/^#/.test(c[k] || '') ? c[k] : '#ffffff')}" style="padding:2px"></div>`).join('')}</div>
+    <label class="sw2"><input type="checkbox" id="tdk" ${c.dark ? 'checked' : ''}> 深色主題（卡片改成半透明深色）</label>
+    <label class="sw2"><input type="checkbox" id="ta" ${t.active === true || t.active === 'true' ? 'checked' : ''}> 啟用</label>
+    <div class="two"><div class="pv" id="tpv"></div><div id="tck"></div></div><span class="err" id="te"></span>`;
+  const read = bg => { t.name = $('#tn', bg).value.trim(); t.kind = $('#tk', bg).value; t.how = $('#th', bg).value.trim(); t.price = +$('#tp', bg).value || 0; t.pattern = $('#tpt', bg).value; F.forEach(([k]) => { c[k] = $('#tc-' + k, bg).value; }); c.dark = $('#tdk', bg).checked; c.card = c.dark ? 'rgba(255,255,255,.08)' : 'rgba(255,255,255,.86)'; c.line = c.dark ? 'rgba(255,255,255,.16)' : 'rgba(0,0,0,.1)'; t.active = $('#ta', bg).checked; };
+  const paint = bg => {
+    $('#tpv', bg).style.background = `linear-gradient(180deg,${c.bg1},${c.bg2},${c.bg3})`;
+    $('#tpv', bg).innerHTML = `<b style="color:${c.ink};font-family:var(--serif)">本週遊戲</b><span style="color:${c.sub};font-size:12px">次要文字範例</span><span style="align-self:flex-start;background:${c.soft};color:${c.accentInk};border-radius:999px;padding:2px 10px;font-size:12px;font-weight:700">稱號</span><span style="align-self:flex-start;background:${c.primary};color:${c.onPrimary};border-radius:999px;padding:6px 16px;font-weight:700">開始玩</span>`;
+    $('#tck', bg).innerHTML = '<div class="lbl" style="margin-bottom:4px">字看不看得清楚（4.5 以上才算清楚）</div>' + checks().map(([n, v, min]) => `<div class="${v != null && v >= min ? 'okt' : 'err'}">${v != null && v >= min ? '✓' : '✕'} ${n}：${v == null ? '—' : v.toFixed(1)}</div>`).join('');
+  };
+  const v = await modal(t.id ? '編輯主題' : '新增主題', `<div id="tf">${body()}</div>`, [{ l: '取消', v: null, c: 'l' }, { l: '儲存', check: bg => { read(bg); if (!t.name) { $('#te', bg).textContent = '請填名稱'; return false; } if (checks().some(([, v, m]) => v == null || v < m)) { $('#te', bg).textContent = '有文字對比不夠，請調整顏色（看右邊紅字）'; return false; } return true; }, v: () => 1 }],
+    bg => { paint(bg); bg.addEventListener('input', () => { read(bg); paint(bg); }); });
+  if (!v) return;
+  try { await api.call('adminSaveTheme', { theme: t }); toast('已儲存'); pThemes(); } catch (e) { errToast(e); }
+}
+
+/* ================= 設定 ================= */
+async function pSettings() {
+  App.loading('設定', '#/settings');
+  let d; try { d = await api.call('adminSettings'); } catch (e) { return App.fail(e, '設定', '#/settings'); }
+  const s = d.settings, P = CFG.PLAY_URL;
+  App.mount('設定', `<div class="card"><h2>客人看到的文字</h2>
+      <div class="f"><label for="s1">訪客提醒</label><textarea id="s1">${esc(s.guestNotice || '')}</textarea></div>
+      <div class="f"><label for="s2">資料說明（大廳最下方）</label><textarea id="s2">${esc(s.privacyNote || '')}</textarea></div>
+      <button class="btn" data-save>儲存</button></div>
+    <div class="card"><h2>入口網址（用來統計從哪裡來）</h2><div class="tw"><table><thead><tr><th>放在哪裡</th><th>網址</th><th></th></tr></thead><tbody>${[['LINE 圖文選單、LINE 訊息', 'line'], ['IG 貼文、限動、個人簡介', 'ig'], ['預約網站（網站 A）', 'booking'], ['陪伴網站（網站 B）', 'care']].map(([n, k]) => `<tr><td>${n}</td><td><code style="font-size:12px;word-break:break-all">${esc(P)}?from=${k}</code></td><td><button class="btn s l" data-cp="${esc(P)}?from=${k}">複製</button></td></tr>`).join('')}</tbody></table></div><p class="small muted" style="margin-top:6px">客人分享出去的連結會自動帶 <code>?from=share</code>。</p></div>
+    <div class="card"><h2>備份與匯出</h2><div class="acts"><button class="btn l" data-csv="plays">本週明細 CSV</button><button class="btn l" data-csv="archive">封存明細 CSV</button><a class="btn l" href="#/templates">範本庫匯出</a></div><p class="small muted" style="margin-top:6px">CSV 可以用 Excel 或 Google 試算表打開。試算表本身也在你的 Google 雲端硬碟。</p></div>`, '#/settings');
+  $('[data-save]').addEventListener('click', async () => { try { await api.call('adminSaveSettings', { settings: { guestNotice: $('#s1').value.trim(), privacyNote: $('#s2').value.trim() } }); toast('已儲存'); } catch (e) { errToast(e); } });
+  $$('[data-cp]').forEach(b => b.addEventListener('click', () => navigator.clipboard.writeText(b.dataset.cp).then(() => toast('已複製'), () => toast('請手動複製', 'err'))));
+  $$('[data-csv]').forEach(b => b.addEventListener('click', async () => { try { const r = await api.call('adminExport', { table: b.dataset.csv }); U.dl('mia-play-' + b.dataset.csv + '.csv', '﻿' + r.csv, 'text/csv'); } catch (e) { errToast(e); } }));
+}
+
+/* ---------- 路由 ---------- */
+function route() {
+  if (!Session.token()) return App.login();
+  const h = location.hash || '#/'; let m;
+  if (h === '#/games') return pGames();
+  if (h === '#/new') return pNew();
+  if ((m = h.match(/^#\/edit\/(.+)/))) return Edit.load(decodeURIComponent(m[1]));
+  if ((m = h.match(/^#\/game\/(.+)/))) return pGame(decodeURIComponent(m[1]));
+  if (h === '#/templates') return pTemplates();
+  if (h === '#/bank') return pBank();
+  if (h === '#/data') return pData();
+  if (h === '#/players') return pPlayers();
+  if (h === '#/rules') return pRules();
+  if (h === '#/themes') return pThemes();
+  if (h === '#/settings') return pSettings();
+  return pOverview();
+}
+(async function boot() { if (!IS_DEMO) await LineAuth.handleReturn(); window.addEventListener('hashchange', route); route(); })();
+})();
+</script>
+</body>
+</html>
