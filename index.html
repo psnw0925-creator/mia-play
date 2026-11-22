@@ -383,7 +383,12 @@ function coverCard(g, kicker, i) {
     <span class="cta">${g.mine ? '再玩一次' + (g.scored || g.mine.resultTitle ? '・' + esc(bestText(g.mine, g.scored, g.qCount)) : '') : '開始玩'}</span></a>`;
 }
 function calTile(pn) {
-  const c = pn.card || {}, jan = c.phase === 'jan', day = jan ? 31 : (c.today || 1);
+  const c = pn.card || {};
+  if (c.phase === 'before') return `<a class="calt" href="${esc(pn.url)}" aria-label="${esc(pn.title)}：12/1 開始，還有 ${c.startsIn} 天">
+    <span class="rings" aria-hidden="true"><i></i><i></i></span>
+    <span class="hdr"><span>DEC 2026</span><span>即將開始</span></span>
+    <span class="bd"><span class="num">01</span><span class="tx"><b>12/1 開始・還有 ${c.startsIn} 天</b><span>${esc(pn.intro || '每天撕一頁，把 2026 收進玻璃罐')}</span><span class="go">先看看</span></span></span><span class="tear" aria-hidden="true"></span></a>`;
+  const jan = c.phase === 'jan', day = jan ? 31 : (c.today || 1);
   const title = jan ? '31 頁都翻完了' : c.todayDone ? '今天這頁撕好了' : '今天這頁還沒撕';
   const sub = jan ? '錯過的可以補撕到 1/31' : '倒數 ' + c.daysLeft + ' 天・罐子裡 ' + (c.torn || 0) + ' 顆糖';
   return `<a class="calt" href="${esc(pn.url)}" aria-label="${esc(pn.title)}：${title}">
