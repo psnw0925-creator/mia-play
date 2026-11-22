@@ -64,6 +64,27 @@ tr:last-child td{border-bottom:0}
 .bar .tr{height:12px;border-radius:6px;background:#F3ECE8;overflow:hidden}.bar .tr i{display:block;height:100%;background:var(--pri)}
 .hm{display:grid;grid-template-columns:44px repeat(5,minmax(0,1fr));gap:4px;font-size:12px;text-align:center}
 .hm span{padding:7px 0;border-radius:6px}
+.tgn{display:inline-flex;width:26px;height:26px;border-radius:50%;background:var(--pri);color:#fff;align-items:center;justify-content:center;font-size:13px;margin-right:4px}
+.tg4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.tgs{border:1px solid var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:6px}
+.tgs.on{border:2px solid var(--pri);background:#FFF8F5}
+.tgdrop{border:1.5px dashed var(--line2);border-radius:12px;min-height:64px;display:flex;align-items:center;justify-content:center;gap:4px;cursor:pointer;font-size:13px;color:var(--sub);flex-wrap:wrap;padding:6px}
+.tgdrop i{width:22px;height:22px;border-radius:6px;border:1px solid rgba(0,0,0,.08)}
+.tg3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.tgv{border:1px solid var(--line);border-radius:16px;overflow:hidden;text-align:left;background:#fff;padding:0}
+.tgv.on{border:3px solid var(--pri)}
+.tgl{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;font-size:13px}
+.tgm{min-height:170px;padding:14px;display:flex;flex-direction:column;gap:8px}
+.tgm b{font-size:17px}
+.tgc{border-radius:12px;padding:8px 10px;display:flex;flex-direction:column;gap:6px;font-size:12px}
+.tgt{display:flex;gap:6px}.tgt i{font-style:normal;font-size:11px;font-weight:700;border-radius:999px;padding:1px 8px}
+.tgb{align-self:flex-start;border-radius:999px;padding:5px 14px;font-weight:700;font-size:13px}
+.tgsw{display:inline-flex;align-items:center;gap:8px}.tgsw input{width:34px;height:30px;border:1px solid var(--line2);border-radius:8px;padding:1px;background:#fff}.tgsw i{width:30px;height:26px;border-radius:7px;border:1px solid var(--line2);display:inline-block}.tgsw code{font-size:12px;background:#F3F1F7;border-radius:6px;padding:1px 6px}
+.tglk{width:36px;height:34px;border:1px solid var(--line2);border-radius:10px;background:#fff}.tglk.on{border-color:var(--pri);background:var(--soft)}
+.tgshare{display:flex;align-items:center;gap:12px;margin-top:10px}
+.tgimg{width:72px;height:128px;border-radius:10px;border:1px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;font-size:9px;text-align:center;padding:4px}
+.tgimg b{font-family:var(--serif);font-size:13px}.tgimg i{font-style:normal;border-radius:999px;padding:1px 6px;font-size:8px}
+@media (max-width:860px){.tg4{grid-template-columns:1fr 1fr}.tg3{grid-template-columns:1fr}}
 .tabs{display:flex;gap:4px;flex-wrap:wrap;margin:-4px 0 14px;border-bottom:1px solid var(--line)}
 .tabs a{min-height:40px;display:inline-flex;align-items:center;padding:0 14px;text-decoration:none;color:var(--sub);font-weight:700;font-size:14px;border-bottom:3px solid transparent;margin-bottom:-1px}
 .tabs a.on{color:var(--pri2);border-bottom-color:var(--pri)}
@@ -549,13 +570,14 @@ async function editRule(r, themes, games) {
 /* ================= 主題樣式 ================= */
 function lum(hex) { const m = String(hex).match(/^#?([0-9a-f]{6})$/i); if (!m) return null; const n = parseInt(m[1], 16); return [n >> 16, n >> 8 & 255, n & 255].map(v => { v /= 255; return v <= .03928 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4); }).reduce((s, v, i) => s + v * [.2126, .7152, .0722][i], 0); }
 function contrast(a, b) { const x = lum(a), y = lum(b); if (x == null || y == null) return null; return (Math.max(x, y) + .05) / (Math.min(x, y) + .05); }
-const PATTERNS = { none: '無', dots: '點點', stars: '星星', snow: '雪花', pumpkin: '南瓜', petals: '花瓣' };
+const PATTERNS = { none: '無', dots: '點點', stars: '星星', snow: '雪花', candy: '糖果', heart: '愛心', leaf: '葉子', pumpkin: '南瓜', petals: '花瓣' };
 async function pThemes() {
   App.loading('主題樣式', '#/themes');
   let d; try { d = await api.call('adminThemes'); } catch (e) { return App.fail(e, '主題樣式', '#/themes'); }
   const K = { basic: '基本（每個人都有）', reward: '獎勵', limited: '限定' };
   App.mount('主題樣式', `<div class="card"><p class="small muted" style="margin-bottom:10px">新增主題不用改程式。要當獎勵送出時，到「稱號與獎勵」在條件的「送主題」選它；「獎勵」類填了點數，客人就能用點數兌換。</p>
-    <div class="tw"><table><thead><tr><th>預覽</th><th>名稱</th><th>種類</th><th>取得方式</th><th>擁有</th><th>使用中</th><th></th></tr></thead><tbody>${d.items.map(t => { const c = t.colors || {}; return `<tr><td><span style="display:inline-flex;align-items:flex-end;justify-content:center;width:64px;height:40px;border-radius:8px;background:linear-gradient(180deg,${esc(c.bg1)},${esc(c.bg2)},${esc(c.bg3)});padding-bottom:6px;border:1px solid var(--line)"><i style="width:30px;height:9px;border-radius:9px;background:${esc(c.primary)}"></i></span></td><td><b>${esc(t.name)}</b>${t.active === true || t.active === 'true' ? '' : ' <span class="chip c-draft">停用</span>'}</td><td class="small">${K[t.kind] || ''}</td><td class="small">${esc(t.how || '')}${+t.price ? '・' + t.price + ' 點兌換' : ''}</td><td class="num">${t.owners}</td><td class="num">${t.using}</td><td><button class="btn s l" data-et="${esc(t.id)}">編輯</button></td></tr>`; }).join('')}</tbody></table></div></div>`, '#/themes', '<button class="btn" data-et="">＋ 新增主題</button>');
+    <div class="tw"><table><thead><tr><th>預覽</th><th>名稱</th><th>種類</th><th>取得方式</th><th>擁有</th><th>使用中</th><th></th></tr></thead><tbody>${d.items.map(t => { const c = t.colors || {}; return `<tr><td><span style="display:inline-flex;align-items:flex-end;justify-content:center;width:64px;height:40px;border-radius:8px;background:linear-gradient(180deg,${esc(c.bg1)},${esc(c.bg2)},${esc(c.bg3)});padding-bottom:6px;border:1px solid var(--line)"><i style="width:30px;height:9px;border-radius:9px;background:${esc(c.primary)}"></i></span></td><td><b>${esc(t.name)}</b>${t.active === true || t.active === 'true' ? '' : ` <span class="chip c-draft">${t.status === '草稿' ? '草稿' : '停用'}</span>`}</td><td class="small">${K[t.kind] || ''}</td><td class="small">${esc(t.how || '')}${+t.price ? '・' + t.price + ' 點兌換' : ''}</td><td class="num">${t.owners}</td><td class="num">${t.using}</td><td><div class="acts"><a class="btn s l" href="#/theme-new/${esc(t.id)}">用產生器調整</a><button class="btn s l" data-et="${esc(t.id)}">細部編輯</button><button class="btn s g" data-code="${esc(t.id)}">主題碼</button></div></td></tr>`; }).join('')}</tbody></table></div></div>`, '#/themes', '<a class="btn" href="#/theme-new">＋ 新增主題</a>');
+  $$('[data-code]').forEach(b => b.addEventListener('click', () => { const c = tgCode(d.items.find(t => t.id === b.dataset.code)); modal('主題碼', `<textarea class="in" readonly rows="4" style="font-family:monospace">${esc(c)}</textarea>`, [{ l: '複製', v: 1 }, { l: '關閉', v: null, c: 'l' }]).then(v => { if (v && navigator.clipboard) navigator.clipboard.writeText(c).then(() => toast('已複製主題碼')).catch(() => { }); }); }));
   $$('[data-et]').forEach(b => b.addEventListener('click', () => editTheme(d.items.find(t => t.id === b.dataset.et) || { id: '', sort: d.items.length + 1, name: '', kind: 'reward', how: '', price: 0, pattern: 'dots', active: true, colors: JSON.parse(JSON.stringify(d.items[0].colors)) })));
 }
 async function editTheme(t) {
@@ -578,6 +600,259 @@ async function editTheme(t) {
     bg => { paint(bg); bg.addEventListener('input', () => { read(bg); paint(bg); }); });
   if (!v) return;
   try { await api.call('adminSaveTheme', { theme: t }); toast('已儲存'); pThemes(); } catch (e) { errToast(e); }
+}
+
+/* ================= 主題產生器（主題樣式 › 新增主題） ================= */
+const CX = {
+  rgb(h) { const m = String(h || '').match(/^#?([0-9a-f]{6})$/i); if (!m) return null; const n = parseInt(m[1], 16); return [n >> 16, n >> 8 & 255, n & 255]; },
+  hex(r, g, b) { return '#' + [r, g, b].map(v => Math.max(0, Math.min(255, Math.round(v))).toString(16).padStart(2, '0')).join('').toUpperCase(); },
+  toHsl(h) { const c = this.rgb(h); if (!c) return [0, 0, 1]; let [r, g, b] = c.map(v => v / 255); const mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2; if (mx === mn) return [0, 0, l]; const d = mx - mn, s = l > .5 ? d / (2 - mx - mn) : d / (mx + mn); let hh = mx === r ? (g - b) / d + (g < b ? 6 : 0) : mx === g ? (b - r) / d + 2 : (r - g) / d + 4; return [hh * 60, s, l]; },
+  hsl(h, s, l) { h = ((h % 360) + 360) % 360 / 360; s = Math.max(0, Math.min(1, s)); l = Math.max(0, Math.min(1, l)); if (!s) return this.hex(l * 255, l * 255, l * 255); const q = l < .5 ? l * (1 + s) : l + s - l * s, p = 2 * l - q; const f = t => { t = (t + 1) % 1; return t < 1 / 6 ? p + (q - p) * 6 * t : t < .5 ? q : t < 2 / 3 ? p + (q - p) * (2 / 3 - t) * 6 : p; }; return this.hex(f(h + 1 / 3) * 255, f(h) * 255, f(h - 1 / 3) * 255); },
+  mix(a, b, t) { const x = this.rgb(a), y = this.rgb(b); return this.hex(x[0] + (y[0] - x[0]) * t, x[1] + (y[1] - x[1]) * t, x[2] + (y[2] - x[2]) * t); },
+  rgba(h, a) { const c = this.rgb(h); return `rgba(${c[0]},${c[1]},${c[2]},${a})`; },
+  /* 把前景色往深（dir=-1）或往淺（dir=1）調，直到和背景對比夠 */
+  until(fg, bg, min, dir) { let [h, s, l] = this.toHsl(fg), c = fg; for (let i = 0; i < 60 && contrast(c, bg) < min; i++) { l += dir * .015; c = this.hsl(h, s, l); } return c; },
+  lab(h) { const c = this.rgb(h).map(v => { v /= 255; return v <= .04045 ? v / 12.92 : Math.pow((v + .055) / 1.055, 2.4); }); let x = (c[0] * .4124 + c[1] * .3576 + c[2] * .1805) / .95047, y = c[0] * .2126 + c[1] * .7152 + c[2] * .0722, z = (c[0] * .0193 + c[1] * .1192 + c[2] * .9505) / 1.08883; const f = t => t > .008856 ? Math.cbrt(t) : 7.787 * t + 16 / 116; x = f(x); y = f(y); z = f(z); return [116 * y - 16, 500 * (x - y), 200 * (y - z)]; },
+  dE(a, b) { const x = this.lab(a), y = this.lab(b); return Math.hypot(x[0] - y[0], x[1] - y[1], x[2] - y[2]); },
+  hueMean(hs) { let x = 0, y = 0; hs.forEach(h => { x += Math.cos(h * Math.PI / 180); y += Math.sin(h * Math.PI / 180); }); return (Math.atan2(y, x) * 180 / Math.PI + 360) % 360; }
+};
+const TG_TITLE = '#5A4632', TG_TITLE_DARK = '#F6E7C8', TG_GOLD = '#C9A35A';
+/* 由 4 個基本色（背景上、背景下、主按鈕、點綴）算出整組主題色，並套用 Mia 系列規則 */
+function tgBuild(b) {
+  const notes = [], dark = !!b.dark;
+  const bg1 = b.bgTop, bg3 = b.bgBottom, bg2 = CX.mix(bg1, bg3, .5);
+  let primary = b.button, on = dark ? '#241C14' : '#FFFFFF';
+  if (dark) { if (contrast(primary, on) < 4.5) { const p2 = CX.until(primary, on, 4.5, 1); notes.push(`主按鈕調淺一點，深色字才看得清楚（${primary} → ${p2}）`); primary = p2; } }
+  else if (contrast(primary, on) < 4.5) { const p2 = CX.until(primary, on, 4.5, -1); notes.push(`主按鈕調深一點，白字才看得清楚（${primary} → ${p2}）`); primary = p2; }
+  const [ah, as] = CX.toHsl(b.accent);
+  const ink = dark ? '#F3EEE2' : '#3B302A';
+  const darkest = dark ? (CX.toHsl(bg1)[2] > CX.toHsl(bg3)[2] ? bg1 : bg3) : (CX.toHsl(bg1)[2] < CX.toHsl(bg3)[2] ? bg1 : bg3);
+  const sub = dark ? CX.until('#C9C3D3', darkest, 4.5, 1) : CX.until('#6E6159', darkest, 4.5, -1);
+  const soft = dark ? CX.mix(bg2, '#FFFFFF', .14) : CX.hsl(ah, Math.min(.6, Math.max(.3, as)), .9);
+  let accentInk = dark ? CX.until(CX.hsl(ah, .65, .8), soft, 4.5, 1) : CX.until(CX.hsl(ah, .5, .34), soft, 4.5, -1);
+  if (!dark) accentInk = CX.until(accentInk, '#FFFFFF', 4.5, -1);
+  const title = dark ? TG_TITLE_DARK : TG_TITLE;
+  const colors = { bg1, bg2, bg3, primary, onPrimary: on, ink, sub, title, accent: b.accent, soft, accentInk,
+    card: dark ? 'rgba(255,255,255,.08)' : 'rgba(255,255,255,.86)', line: dark ? 'rgba(255,255,255,.16)' : CX.rgba(primary, .16), dark,
+    bgTop: bg1, bgBottom: bg3, button: primary, border: dark ? 'rgba(255,255,255,.16)' : CX.rgba(primary, .16), tag: soft };
+  const checks = [['主按鈕的字', contrast(primary, on)], ['稱號標籤的字', contrast(accentInk, soft)], ['標題字', contrast(title, darkest)], ['次要文字', contrast(sub, darkest)]];
+  return { colors, notes, checks, ok: checks.every(c => c[1] >= 4.5) };
+}
+/* 意象字典：詞 → 色相、彩度、是否深色、建議圖案 */
+const TG_DICT = (() => {
+  const D = {}, add = (ws, h, s, o) => ws.split(' ').forEach(w => { D[w] = Object.assign({ h, s }, o || {}); });
+  add('春 春天', 110, .42, { p: 'leaf' }); add('夏 夏天', 190, .5, { p: 'dots' }); add('秋 秋天', 28, .55, { p: 'leaf' }); add('冬 冬天', 210, .3, { p: 'snow' });
+  add('聖誕 聖誕節', 355, .55, { p: 'snow' }); add('新年 跨年', 8, .6, { p: 'stars' }); add('春節 過年 元宵', 2, .65, { p: 'dots' }); add('萬聖 萬聖節', 25, .7, { p: 'stars', d: 1 });
+  add('情人 情人節', 345, .55, { p: 'heart' }); add('中秋', 40, .55, { p: 'stars' }); add('端午', 140, .4, { p: 'leaf' }); add('生日', 330, .5, { p: 'candy' }); add('七夕', 260, .45, { p: 'stars' });
+  add('雪 白雪', 205, .25, { p: 'snow' }); add('雨 下雨', 215, .3, { p: 'dots' }); add('晴 晴天', 200, .55, { p: 'dots' }); add('雲 白雲', 220, .2, { p: 'dots' }); add('霧 晨霧', 210, .2, { p: 'dots' });
+  add('彩虹', 290, .55, { p: 'dots' }); add('陽光 太陽', 45, .7, { p: 'dots' }); add('風', 180, .3, { p: 'leaf' });
+  add('晨 早晨 清晨 早安', 35, .5, { p: 'dots' }); add('午後 下午', 40, .45, { p: 'dots' }); add('黃昏 夕陽 傍晚', 20, .65, { p: 'stars' });
+  add('夜 夜晚 晚安', 230, .45, { p: 'stars', d: 1 }); add('深夜 午夜', 235, .4, { p: 'stars', d: 1 }); add('月 月亮 月光', 225, .3, { p: 'stars' });
+  add('星 星星 星空 銀河 宇宙', 240, .45, { p: 'stars', d: 1 }); add('黑 黑色', 240, .12, { p: 'stars', d: 1 });
+  add('櫻 櫻花', 345, .5, { p: 'heart' }); add('玫瑰', 350, .6, { p: 'heart' }); add('薰衣草', 265, .4, { p: 'leaf' }); add('向日葵', 45, .75, { p: 'leaf' }); add('茉莉', 60, .2, { p: 'leaf' });
+  add('繡球', 230, .4, { p: 'dots' }); add('楓 楓葉', 15, .7, { p: 'leaf' }); add('竹', 120, .35, { p: 'leaf' }); add('森林 森', 140, .35, { p: 'leaf' }); add('葉 綠葉', 110, .4, { p: 'leaf' });
+  add('花 花朵', 340, .45, { p: 'heart' }); add('薄荷', 155, .4, { p: 'leaf' }); add('桂花', 42, .6, { p: 'dots' });
+  add('南瓜', 28, .75, { p: 'dots' }); add('抹茶', 95, .4, { p: 'leaf' }); add('焦糖', 30, .6, { p: 'candy' }); add('糖 糖果 糖罐', 335, .5, { p: 'candy' }); add('巧克力 可可', 22, .45, { p: 'candy' });
+  add('草莓', 350, .6, { p: 'heart' }); add('檸檬', 55, .7, { p: 'dots' }); add('蜂蜜', 40, .7, { p: 'dots' }); add('奶茶', 30, .3, { p: 'dots' }); add('咖啡', 25, .35, { p: 'dots' }); add('牛奶', 40, .15, { p: 'dots' });
+  add('蜜桃 桃', 15, .6, { p: 'dots' }); add('葡萄', 280, .4, { p: 'dots' }); add('莓 藍莓', 330, .5, { p: 'dots' }); add('柚 柚子', 45, .6, { p: 'dots' }); add('橘 橘子', 28, .75, { p: 'dots' });
+  add('布丁', 42, .55, { p: 'candy' }); add('棉花糖', 320, .35, { p: 'candy' }); add('汽水', 195, .55, { p: 'dots' });
+  add('海 海邊 海洋', 200, .55, { p: 'dots' }); add('沙灘', 40, .4, { p: 'dots' }); add('山', 150, .3, { p: 'leaf' }); add('湖', 190, .4, { p: 'dots' }); add('城市', 225, .2, { p: 'dots' }); add('島', 185, .5, { p: 'dots' });
+  add('花園', 120, .35, { p: 'leaf' }); add('雪山', 205, .2, { p: 'snow' });
+  add('珍珠', 220, .15, { p: 'dots' }); add('金 金色', 43, .6, { p: 'stars' }); add('銀 銀色', 220, .08, { p: 'stars' }); add('絲 絲綢', 330, .2, { p: 'dots' });
+  add('粉 粉紅', 340, .45, { p: 'heart' }); add('藍 藍色', 215, .5, { p: 'dots' }); add('綠 綠色', 140, .4, { p: 'leaf' }); add('紅 紅色', 355, .6, { p: 'dots' }); add('紫 紫色', 270, .4, { p: 'dots' });
+  add('黃 黃色', 48, .7, { p: 'dots' }); add('橙 橘色', 28, .7, { p: 'dots' }); add('灰 灰色', 220, .06, { p: 'dots' }); add('白 白色', 40, .08, { p: 'dots' });
+  add('暖 溫暖', 30, .5, { p: 'dots' }); add('冷 清涼', 210, .4, { p: 'snow' }); add('溫柔', 330, .3, { p: 'heart' }); add('安靜 寧靜', 220, .2, { p: 'dots' }); add('療癒', 160, .3, { p: 'leaf' });
+  add('光 閃亮', 45, .55, { p: 'stars' }); add('心 愛心 愛', 345, .55, { p: 'heart' });
+  return D;
+})();
+function tgRead(name) {
+  const words = Object.keys(TG_DICT).sort((a, b) => b.length - a.length), hits = []; let s = String(name || '');
+  for (let i = 0; i < s.length;) { const w = words.find(x => s.startsWith(x, i)); if (w) { hits.push(w); i += w.length; } else i++; }
+  return hits;
+}
+/* 「規格」：背景色相、按鈕色相、點綴色相、彩度、是否深色；3 個版本都從它算 */
+function tgSpecFromWords(hits) {
+  const E = hits.map(w => TG_DICT[w]), base = E.length > 1 ? E.slice(0, -1) : E, last = E[E.length - 1];
+  const h = CX.hueMean(base.map(e => e.h)), s = base.reduce((a, e) => a + e.s, 0) / base.length;
+  const d = E.find(e => e.d);
+  return { h, s, bh: h, bs: Math.max(.35, s + .1), ah: E.length > 1 ? last.h : (h + 40) % 360, as: E.length > 1 ? last.s : s, dark: !!d, pattern: (d || last).p || 'dots' };
+}
+function tgSpecRandom() { const h = Math.random() * 360; return { h, s: .25 + Math.random() * .35, bh: h + (Math.random() * 40 - 20), bs: .35 + Math.random() * .3, ah: h + 120 + Math.random() * 120, as: .4 + Math.random() * .25, dark: false, pattern: ['dots', 'stars', 'heart', 'leaf', 'candy'][Math.floor(Math.random() * 5)] }; }
+function tgSpecFromBase(b) { const t = CX.toHsl(b.bgTop), bt = CX.toHsl(b.button), a = CX.toHsl(b.accent); return { h: t[0], s: Math.max(.15, t[1]), bh: bt[0], bs: bt[1], ah: a[0], as: a[1], dark: !!b.dark, pattern: b.pattern || 'dots' }; }
+function tgVariants(sp) {
+  const v = (bgL1, bgL2, sMul, bL, bsMul, dark) => dark
+    ? { bgTop: CX.hsl(sp.h, Math.min(.5, sp.s + .1), .17), bgBottom: CX.hsl(sp.h + 8, Math.min(.5, sp.s + .1), .25), button: CX.hsl(sp.ah, Math.min(.75, sp.as + .15), .78), accent: CX.hsl(sp.ah, Math.min(.7, sp.as + .1), .8), dark: true }
+    : { bgTop: CX.hsl(sp.h, Math.min(.6, sp.s * sMul), bgL1), bgBottom: CX.hsl(sp.h + 6, Math.min(.65, sp.s * sMul + .05), bgL2), button: CX.hsl(sp.bh, Math.min(.75, sp.bs * bsMul), bL), accent: CX.hsl(sp.ah, Math.min(.7, sp.as), .82), dark: false };
+  return [
+    ['柔和', v(.975, .93, .6, .46, .75)],
+    ['標準（推薦）', v(.96, .885, 1, .38, 1)],
+    sp.dark ? ['夜色（深色）', v(0, 0, 0, 0, 0, true)] : ['濃一點', v(.945, .84, 1.3, .32, 1.2)]
+  ];
+}
+/* 從圖片抽 6 個主色（在瀏覽器裡算，圖片不上傳） */
+async function tgImageBase(file) {
+  const img = await new Promise((res, rej) => { const r = new FileReader(); r.onload = () => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = r.result; }; r.onerror = rej; r.readAsDataURL(file); });
+  const cv = document.createElement('canvas'), W = 64, H = Math.max(1, Math.round(64 * img.height / img.width)); cv.width = W; cv.height = H;
+  const x = cv.getContext('2d'); x.drawImage(img, 0, 0, W, H); const d = x.getImageData(0, 0, W, H).data, px = [];
+  for (let i = 0; i < d.length; i += 4) if (d[i + 3] > 128) px.push([d[i], d[i + 1], d[i + 2]]);
+  let cs = Array.from({ length: 6 }, (_, k) => px[Math.floor(k * px.length / 6)].slice());
+  for (let it = 0; it < 12; it++) {
+    const sum = cs.map(() => [0, 0, 0, 0]);
+    px.forEach(p => { let bi = 0, bd = 1e9; cs.forEach((c, i) => { const dd = (p[0] - c[0]) ** 2 + (p[1] - c[1]) ** 2 + (p[2] - c[2]) ** 2; if (dd < bd) { bd = dd; bi = i; } }); const s = sum[bi]; s[0] += p[0]; s[1] += p[1]; s[2] += p[2]; s[3]++; });
+    cs = cs.map((c, i) => sum[i][3] ? [sum[i][0] / sum[i][3], sum[i][1] / sum[i][3], sum[i][2] / sum[i][3], sum[i][3]] : c);
+  }
+  const cl = cs.map(c => { const hx = CX.hex(c[0], c[1], c[2]), hs = CX.toHsl(hx); return { hx, h: hs[0], s: hs[1], l: hs[2], n: c[3] || 1 }; });
+  const light = cl.slice().sort((a, b) => (b.l - b.s * .3) - (a.l - a.s * .3))[0];
+  const btn = cl.filter(c => c !== light).sort((a, b) => b.s * Math.sqrt(b.n) * (1 - Math.abs(b.l - .45)) - a.s * Math.sqrt(a.n) * (1 - Math.abs(a.l - .45)))[0];
+  const acc = cl.filter(c => c !== light && c !== btn).sort((a, b) => Math.abs(((b.h - btn.h + 540) % 360) - 180) - Math.abs(((a.h - btn.h + 540) % 360) - 180) + (b.s - a.s))[0] || btn;
+  return { swatches: cl.map(c => c.hx), spec: { h: light.h, s: Math.min(.5, Math.max(.12, light.s)), bh: btn.h, bs: Math.max(.35, btn.s), ah: acc.h, as: Math.max(.35, acc.s), dark: light.l < .35, pattern: 'dots' } };
+}
+const TG_PATTERNS = { none: '無', dots: '點點', stars: '星星', snow: '雪花', candy: '糖果', heart: '愛心', leaf: '葉子' };
+function tgPatternCss(p, dark) {
+  const c = dark ? '%23E8D9A8' : '%23C9A35A';
+  const S = { dots: `radial-gradient(${dark ? 'rgba(255,255,255,.14)' : 'rgba(0,0,0,.08)'} 1.2px,transparent 1.6px) 0 0/16px 16px`,
+    stars: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48'%3E%3Cpath d='M12 8l1.2 2.6 2.6 1.2-2.6 1.2L12 15.6l-1.2-2.6L8.2 11.8l2.6-1.2z' fill='${c}' opacity='.5'/%3E%3Ccircle cx='36' cy='34' r='1.2' fill='${c}' opacity='.6'/%3E%3C/svg%3E") 0 0/48px 48px`,
+    snow: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='54' height='54'%3E%3Cg stroke='%23A9C4D8' stroke-width='1.1' opacity='.7'%3E%3Cpath d='M14 8v12M8 14h12M9.8 9.8l8.4 8.4M18.2 9.8l-8.4 8.4'/%3E%3C/g%3E%3C/svg%3E") 0 0/54px 54px`,
+    candy: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56'%3E%3Cg opacity='.4'%3E%3Ccircle cx='16' cy='16' r='4' fill='%23E79AB6'/%3E%3Cpath d='M12 16l-4-3v6zM20 16l4-3v6z' fill='%23E79AB6'/%3E%3C/g%3E%3Ccircle cx='42' cy='40' r='1.5' fill='${c}' opacity='.5'/%3E%3C/svg%3E") 0 0/56px 56px`,
+    heart: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='52' height='52'%3E%3Cpath d='M14 20s-5-3.2-5-7a2.8 2.8 0 0 1 5-1.8A2.8 2.8 0 0 1 19 13c0 3.8-5 7-5 7z' fill='%23E7A3BC' opacity='.45'/%3E%3C/svg%3E") 0 0/52px 52px`,
+    leaf: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='56' height='56'%3E%3Cpath d='M12 22c0-8 6-12 12-12 0 8-6 12-12 12z' fill='%238FB89A' opacity='.4'/%3E%3C/svg%3E") 0 0/56px 56px` };
+  return S[p] || 'none';
+}
+/* 主題碼 */
+const tgCode = t => 'MIA-THEME:' + JSON.stringify({ name: t.name, bgTop: t.colors.bgTop || t.colors.bg1, bgBottom: t.colors.bgBottom || t.colors.bg3, button: t.colors.button || t.colors.primary, accent: t.colors.accent || t.colors.soft, pattern: t.pattern || 'dots', dark: !!t.colors.dark });
+function tgParse(code) {
+  const m = String(code || '').trim().match(/^MIA-THEME:\s*(\{[\s\S]*\})\s*$/); if (!m) throw new Error('主題碼要用 MIA-THEME: 開頭，後面接一段 { } 包起來的內容');
+  let o; try { o = JSON.parse(m[1]); } catch (e) { throw new Error('主題碼的內容格式不對，請整段重新複製'); }
+  const hx = v => /^#[0-9a-f]{6}$/i.test(v || '');
+  if (!hx(o.bgTop) || !hx(o.bgBottom) || !hx(o.button)) throw new Error('主題碼少了 bgTop、bgBottom 或 button 的色號（要像 #E9ECF8）');
+  return { name: String(o.name || '').slice(0, 20), base: { bgTop: o.bgTop.toUpperCase(), bgBottom: o.bgBottom.toUpperCase(), button: o.button.toUpperCase(), accent: hx(o.accent) ? o.accent.toUpperCase() : CX.hsl(CX.toHsl(o.button)[0] + 150, .5, .82), dark: !!o.dark }, pattern: TG_PATTERNS[o.pattern] ? o.pattern : 'dots' };
+}
+/* 系列規則提醒：米色、和現有主題太像 */
+function tgWarn(G, colors, existing) {
+  const w = [], [h, s, l] = CX.toHsl(colors.bg1);
+  const beige = !colors.dark && h >= 25 && h <= 60 && s >= .12 && s <= .65 && l >= .85;
+  if (beige && G.kind === 'basic') w.push({ block: true, t: '基本主題不能用米色當背景（避免和 Mia 陪伴網站太像）。換成獎勵或限定主題，或背景換個顏色。' });
+  existing.filter(t => t.id !== G.id).forEach(t => { const c = t.colors || {}; if (/^#/.test(c.bg2 || '') && /^#/.test(c.primary || '') && CX.dE(c.bg2, colors.bg2) < 9 && CX.dE(c.primary, colors.primary) < 18) w.push({ t: `跟現有的「${t.name}」很接近，大廳裡可能分不太出來。` }); });
+  return w;
+}
+function tgMini(name, c, pattern, small) {
+  return `<div class="tgm${small ? ' sm' : ''}" style="background:${esc(tgPatternCss(pattern, c.dark) + ',linear-gradient(180deg,' + c.bg1 + ',' + c.bg2 + ' 55%,' + c.bg3 + ')')}">
+    <b style="color:${c.title};font-family:var(--serif)">${esc(name || '新主題')}</b>
+    <div class="tgc" style="background:${c.dark ? 'rgba(255,255,255,.08)' : 'rgba(255,255,255,.86)'};border:1px solid ${c.line}"><span style="color:${c.ink}">本週遊戲・剩 3 天</span>
+      <span class="tgt"><i style="background:${c.soft};color:${c.accentInk}">每天見</i><i style="background:${c.soft};color:${c.accentInk}">貓咪收藏家</i></span></div>
+    <span class="tgb" style="background:${c.primary};color:${c.onPrimary}">開始玩</span></div>`;
+}
+const TG = { G: null, themes: [], rules: [] };
+async function pThemeNew(id) {
+  App.loading('新增主題', '#/themes');
+  let th, ru; try { [th, ru] = await Promise.all([api.call('adminThemes'), api.call('adminRules')]); } catch (e) { return App.fail(e, '新增主題', '#/themes'); }
+  TG.themes = th.items; TG.rules = ru.items;
+  const old = id && th.items.find(t => t.id === id);
+  TG.G = { id: old ? old.id : '', sort: old ? old.sort : th.items.length + 1, name: old ? old.name : '', source: old ? (old.source || 'code') : 'name', kind: old ? old.kind : 'limited', how: old ? old.how || '' : '', price: old ? +old.price || 0 : 0,
+    pattern: old ? old.pattern || 'dots' : 'dots', illustration: old ? old.illustration || '' : '', locks: {}, pick: 1, spec: null, variants: null, base: null, hits: [], msg: '', swatches: null, ruleId: '' };
+  if (old) { const c = old.colors || {}; TG.G.base = { bgTop: c.bgTop || c.bg1, bgBottom: c.bgBottom || c.bg3, button: c.button || c.primary, accent: c.accent || CX.hsl(CX.toHsl(c.primary)[0] + 150, .5, .82), dark: !!c.dark }; TG.G.spec = tgSpecFromBase(Object.assign({ pattern: old.pattern }, TG.G.base)); TG.G.variants = tgVariants(TG.G.spec); TG.G.variants[1] = ['目前的樣子', Object.assign({}, TG.G.base)]; TG.G.ruleId = (ru.items.find(r => (r.reward || {}).theme === old.id) || {}).id || ''; }
+  tgRender();
+}
+function tgFromName(silent) {
+  const G = TG.G, hits = tgRead(G.name); G.hits = hits; G.source = 'name';
+  if (!hits.length) { G.msg = '這個名稱裡沒有字典認得的詞。可以改用「從圖片」或「隨機配一組」（AI 配色要等設定 AI 金鑰後才會開啟）。'; if (!silent) tgRender(); return; }
+  G.msg = ''; G.spec = tgSpecFromWords(hits); G.pattern = G.spec.pattern; tgMakeVariants(); if (!silent) tgRender();
+}
+function tgMakeVariants() { const G = TG.G; G.variants = tgVariants(G.spec); G.variants.forEach(v => Object.keys(G.locks).forEach(k => { if (G.locks[k]) v[1][k] = G.locks[k]; })); G.base = Object.assign({}, G.variants[G.pick][1]); }
+function tgRender() {
+  const G = TG.G; if (!G.base) { G.spec = tgSpecRandom(); tgMakeVariants(); }
+  const R = tgBuild(G.base), C = R.colors, warns = tgWarn(G, C, TG.themes);
+  const vcards = G.variants.map(([label, b], i) => { const r = tgBuild(Object.assign({}, b)); return `<button class="tgv ${G.pick === i ? 'on' : ''}" data-v="${i}" aria-pressed="${G.pick === i}">${tgMini(G.name, r.colors, G.pattern)}<span class="tgl"><b>${esc(label)}</b><span class="chip ${r.ok ? 'c-open' : 'c-up'}">${r.notes.length ? '對比 OK・已自動調整' : '對比 OK'}</span></span></button>`; }).join('');
+  const row = (k, l) => `<tr><td>${l}</td><td><span class="tgsw"><input type="color" data-c="${k}" value="${G.base[k]}" aria-label="${l}"><code>${G.base[k]}</code></span></td><td><button class="tglk ${G.locks[k] ? 'on' : ''}" data-lk="${k}" aria-pressed="${!!G.locks[k]}" aria-label="鎖住${l}">${G.locks[k] ? '🔒' : '🔓'}</button></td><td>${k === 'button' ? `<span class="chip ${R.checks[0][1] >= 4.5 ? 'c-open' : 'c-up'}">${C.dark ? '深色字' : '白字'} ${R.checks[0][1].toFixed(1)}:1</span>` : ''}</td></tr>`;
+  const ruleOpts = TG.rules.map(r => `<option value="${esc(r.id)}" ${G.ruleId === r.id ? 'selected' : ''}>${esc(r.name)}（${esc(r.text || '')}）${(r.reward || {}).theme && r.reward.theme !== G.id ? '・目前送別的主題' : ''}</option>`).join('');
+  App.mount(G.id ? '用產生器調整：' + G.name : '新增主題', `
+    <p class="muted small" style="margin:-6px 0 12px">給一張圖、打一個主題名稱、或按隨機，就生成 3 個版本給你挑；挑好再微調、上架。每個版本都會自動套用 Mia 系列規則。</p>
+    <div class="card"><h2><span class="tgn">1</span>選一個起點</h2><div class="tg4">
+      <div class="tgs ${G.source === 'image' ? 'on' : ''}"><b>從圖片</b><span class="small muted">上傳照片或插畫，自動抽出顏色。圖片不會上傳。</span><label class="tgdrop" for="tgimg">${G.swatches ? G.swatches.map(h => `<i style="background:${h}"></i>`).join('') : '點一下選擇圖片'}</label><input type="file" id="tgimg" accept="image/*" class="sr"></div>
+      <div class="tgs ${G.source === 'name' ? 'on' : ''}"><b>從主題名稱</b><label class="small muted" for="tgname">主題名稱</label><input id="tgname" class="in" maxlength="20" value="${esc(G.name)}"><span class="small">${G.hits.length ? '讀到：<b>' + G.hits.map(esc).join('、') + '</b>' : ''}</span><button class="btn s l" data-gen="name">照名稱配色</button></div>
+      <div class="tgs ${G.source === 'random' ? 'on' : ''}"><b>隨機配一組</b><span class="small muted">喜歡其中某個顏色就在下面鎖起來，再按只換其他的。</span><button class="btn s l" data-gen="random">隨機產生</button></div>
+      <div class="tgs ${G.source === 'code' ? 'on' : ''}"><b>貼上主題碼</b><span class="small muted">請任何 Claude 對話「給我 Mia 小遊戲主題碼」，複製貼上。</span><textarea id="tgcode" class="in" rows="2" placeholder="MIA-THEME:{…}"></textarea><button class="btn s l" data-gen="code">套用主題碼</button></div>
+    </div>${G.msg ? `<p class="err" style="margin-top:8px">${esc(G.msg)}</p>` : ''}</div>
+    <div class="card"><h2><span class="tgn">2</span>挑一個版本</h2><div class="tg3">${vcards}</div>
+      <div class="acts" style="margin-top:10px">${[['again', '再產生 3 個'], ['warm', '偏暖一點'], ['cool', '偏冷一點'], ['light', '淡一點'], ['rich', '濃一點']].map(([k, l]) => `<button class="btn s l" data-adj="${k}">${l}</button>`).join('')}</div></div>
+    <div class="two"><div class="card"><h2><span class="tgn">3</span>微調顏色（可跳過）</h2>
+      <div class="tw"><table><thead><tr><th>用在哪裡</th><th>顏色</th><th>鎖住</th><th>檢查</th></tr></thead><tbody>
+        ${row('bgTop', '背景（上）')}${row('bgBottom', '背景（下）')}${row('button', '主按鈕')}${row('accent', '點綴（標籤、糖果色）')}
+        <tr><td>卡片邊框</td><td><span class="tgsw"><i style="background:${C.border}"></i><code>自動</code></span></td><td></td><td></td></tr>
+        <tr><td>稱號標籤</td><td><span class="tgsw"><i style="background:${C.soft}"></i><code>自動</code></span></td><td></td><td><span class="chip ${R.checks[1][1] >= 4.5 ? 'c-open' : 'c-up'}">字 ${R.checks[1][1].toFixed(1)}:1</span></td></tr>
+        <tr><td>標題字</td><td><span class="tgsw"><i style="background:${C.title}"></i><code>${C.title} 固定</code></span></td><td></td><td><span class="chip ${R.checks[2][1] >= 4.5 ? 'c-open' : 'c-up'}">${R.checks[2][1].toFixed(1)}:1</span></td></tr></tbody></table></div>
+      <label class="sw2" style="margin-top:8px"><input type="checkbox" id="tgdark" ${G.base.dark ? 'checked' : ''}> 深色主題（標題自動換淺金、內文換淺色）</label>
+      ${R.notes.map(n => `<p class="small okt">已自動調整：${esc(n)}</p>`).join('')}${warns.map(w => `<p class="small" style="margin-top:6px"><span class="chip ${w.block ? 'c-up' : 'c-star'}">${w.block ? '不能上架' : '提醒'}</span> ${esc(w.t)}</p>`).join('')}</div>
+      <div class="card"><h2><span class="tgn">4</span>背景小圖案、取得方式</h2>
+        <span class="lbl">背景小圖案${G.source === 'name' && G.hits.length ? '（依名稱先幫你選好）' : ''}</span><div class="acts" style="margin:6px 0 12px">${Object.keys(TG_PATTERNS).map(k => `<button class="btn s ${G.pattern === k ? '' : 'l'}" data-pt="${k}" aria-pressed="${G.pattern === k}">${TG_PATTERNS[k]}</button>`).join('')}</div>
+        <span class="lbl">大廳小插圖（可不放，建議透明背景 PNG）</span>
+        <div class="acts" style="margin:6px 0 12px;align-items:center">${G.illustration ? `<img src="${G.illustration}" alt="大廳小插圖" style="width:64px;height:64px;object-fit:contain;border:1px solid var(--line);border-radius:10px;background:#fff"><button class="btn s l" data-ill="rm">拿掉</button>` : ''}<label class="btn s l" for="tgill">${G.illustration ? '換一張' : '上傳小插圖'}</label><input type="file" id="tgill" accept="image/png,image/webp,image/*" class="sr"></div>
+        <div class="row"><div class="f"><label for="tgname2">主題名稱</label><input id="tgname2" class="in" maxlength="20" value="${esc(G.name)}"></div><div class="f"><label for="tgkind">取得方式</label><select id="tgkind" class="in">${[['basic', '基本（每個人都有）'], ['reward', '獎勵'], ['limited', '限定']].map(([k, l]) => `<option value="${k}" ${G.kind === k ? 'selected' : ''}>${l}</option>`).join('')}</select></div></div>
+        <div class="f"><label for="tghow">條件說明（給客人看）</label><input id="tghow" class="in" value="${esc(G.how)}" placeholder="例如：倒數撕日曆：撕滿 31 頁"></div>
+        <div class="row"><div class="f"><label for="tgrule">達成哪個稱號就送這個主題</label><select id="tgrule" class="in"><option value="">之後再到「稱號與獎勵」設定</option>${ruleOpts}</select></div>${G.kind === 'reward' ? `<div class="f" style="flex:0 0 140px"><label for="tgprice">兌換點數（0＝不能兌換）</label><input id="tgprice" class="in" type="number" min="0" value="${G.price}"></div>` : ''}</div>
+        <div class="tgshare"><div class="tgimg" style="background:linear-gradient(180deg,${C.bg1},${C.bg3})"><span style="color:${C.title}">${esc(G.name || '新主題')}</span><b style="color:${C.accentInk}">晨霧藍</b><i style="background:${C.primary};color:${C.onPrimary}">Mia 小遊戲</i></div><span class="small muted">分享成績圖會用這組顏色</span></div>
+        <div class="acts" style="margin-top:12px"><button class="btn" data-save="上架" ${warns.some(w => w.block) ? 'disabled' : ''}>上架</button><button class="btn l" data-save="草稿">存成草稿</button><button class="btn g" data-export>匯出主題碼</button></div><span class="err" id="tgerr"></span></div></div>`, '#/themes', '<a class="btn l" href="#/themes">回主題清單</a>');
+  tgBind();
+}
+function tgBind() {
+  const G = TG.G, re = () => tgRender();
+  const syncName = v => { G.name = v.trim().slice(0, 20); };
+  $('#tgname').addEventListener('input', e => syncName(e.target.value));
+  $('#tgname').addEventListener('keydown', e => { if (e.key === 'Enter') { syncName(e.target.value); G.pick = 1; tgFromName(); } });
+  $('#tgname2').addEventListener('change', e => { syncName(e.target.value); re(); });
+  $('#tghow').addEventListener('input', e => { G.how = e.target.value; });
+  $('#tgkind').addEventListener('change', e => { G.kind = e.target.value; re(); });
+  $('#tgrule').addEventListener('change', e => { G.ruleId = e.target.value; });
+  const pr = $('#tgprice'); if (pr) pr.addEventListener('input', e => { G.price = +e.target.value || 0; });
+  $$('[data-gen]').forEach(b => b.addEventListener('click', () => {
+    const k = b.dataset.gen; G.pick = 1;
+    if (k === 'name') { syncName($('#tgname').value); return tgFromName(); }
+    if (k === 'random') { G.source = 'random'; G.msg = ''; G.spec = tgSpecRandom(); G.pattern = G.spec.pattern; tgMakeVariants(); return re(); }
+    if (k === 'code') { try { const o = tgParse($('#tgcode').value); G.source = 'code'; G.msg = ''; if (o.name) G.name = o.name; G.pattern = o.pattern; G.spec = tgSpecFromBase(Object.assign({ pattern: o.pattern }, o.base)); tgMakeVariants(); G.variants[1] = ['主題碼原樣', Object.assign({}, o.base)]; G.base = Object.assign({}, o.base); } catch (e) { G.msg = e.message; } return re(); }
+  }));
+  $('#tgimg').addEventListener('change', async e => { const f = e.target.files[0]; if (!f) return; try { const o = await tgImageBase(f); G.source = 'image'; G.msg = ''; G.swatches = o.swatches; G.spec = o.spec; G.pick = 1; tgMakeVariants(); } catch (er) { G.msg = '這張圖片讀不出來，換一張試試'; } re(); });
+  $$('[data-v]').forEach(b => b.addEventListener('click', () => { G.pick = +b.dataset.v; G.base = Object.assign({}, G.variants[G.pick][1]); re(); }));
+  $$('[data-adj]').forEach(b => b.addEventListener('click', () => {
+    const k = b.dataset.adj, s = G.spec, toward = (h, t, n) => { const d = ((t - h + 540) % 360) - 180; return h + Math.sign(d) * Math.min(Math.abs(d), n); };
+    if (k === 'again') { const j = () => Math.random() * 30 - 15; s.h += j(); s.bh += j(); s.ah += j() * 2; s.s = Math.max(.1, Math.min(.6, s.s + (Math.random() * .16 - .08))); }
+    if (k === 'warm') { s.h = toward(s.h, 30, 18); s.bh = toward(s.bh, 20, 18); s.ah = toward(s.ah, 15, 18); }
+    if (k === 'cool') { s.h = toward(s.h, 215, 18); s.bh = toward(s.bh, 225, 18); s.ah = toward(s.ah, 200, 18); }
+    if (k === 'light') { s.s = Math.max(.08, s.s * .75); s.bs = Math.max(.25, s.bs * .85); s.as = Math.max(.25, s.as * .85); }
+    if (k === 'rich') { s.s = Math.min(.65, s.s * 1.25 + .03); s.bs = Math.min(.8, s.bs * 1.15); s.as = Math.min(.75, s.as * 1.15); }
+    tgMakeVariants(); re();
+  }));
+  $$('[data-c]').forEach(i => i.addEventListener('change', e => { const k = i.dataset.c; G.base[k] = e.target.value.toUpperCase(); if (G.locks[k]) G.locks[k] = G.base[k]; re(); }));
+  $$('[data-lk]').forEach(b => b.addEventListener('click', () => { const k = b.dataset.lk; G.locks[k] = G.locks[k] ? '' : G.base[k]; re(); }));
+  $('#tgdark').addEventListener('change', e => { G.spec.dark = e.target.checked; if (e.target.checked) { G.variants = tgVariants(G.spec); G.pick = 2; G.base = Object.assign({}, G.variants[2][1]); } else { G.base.dark = false; G.spec.dark = false; tgMakeVariants(); } re(); });
+  $$('[data-pt]').forEach(b => b.addEventListener('click', () => { G.pattern = b.dataset.pt; re(); }));
+  $('#tgill').addEventListener('change', async e => { const f = e.target.files[0]; if (!f) return; try { G.illustration = await tgShrink(f); } catch (er) { toast('這張圖片讀不出來，換一張試試', 'err'); } re(); });
+  const rm = $('[data-ill]'); if (rm) rm.addEventListener('click', () => { G.illustration = ''; re(); });
+  $('[data-export]').addEventListener('click', () => { const c = tgCode(tgTheme('草稿')); modal('主題碼', `<p class="small muted">複製起來存著，或貼到之後的對話。貼回「貼上主題碼」就能還原。</p><textarea class="in" readonly rows="4" style="font-family:monospace">${esc(c)}</textarea>`, [{ l: '複製', v: 1 }, { l: '關閉', v: null, c: 'l' }]).then(v => { if (v) navigator.clipboard && navigator.clipboard.writeText(c).then(() => toast('已複製主題碼')).catch(() => { }); }); });
+  $$('[data-save]').forEach(b => b.addEventListener('click', () => tgSave(b.dataset.save)));
+}
+/* 小插圖縮到 240px 以內，存成文字放在試算表（一格最多 5 萬字） */
+async function tgShrink(file) {
+  const img = await new Promise((res, rej) => { const r = new FileReader(); r.onload = () => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = r.result; }; r.onerror = rej; r.readAsDataURL(file); });
+  for (const m of [240, 180, 140, 110]) {
+    const k = Math.min(1, m / Math.max(img.width, img.height)), cv = document.createElement('canvas'); cv.width = Math.round(img.width * k); cv.height = Math.round(img.height * k);
+    cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+    for (const fmt of ['image/webp', 'image/png']) { const u = cv.toDataURL(fmt, .85); if (u.startsWith('data:' + fmt) && u.length < 45000) return u; }
+  }
+  throw new Error('too big');
+}
+function tgTheme(status) {
+  const G = TG.G, R = tgBuild(G.base);
+  return { id: G.id, sort: G.sort, name: G.name, kind: G.kind, how: G.how, price: G.kind === 'reward' ? G.price : 0, pattern: G.pattern, active: status === '上架', colors: R.colors, source: G.source, status, illustration: G.illustration };
+}
+async function tgSave(status) {
+  const G = TG.G; G.name = ($('#tgname2').value || '').trim(); G.how = $('#tghow').value.trim();
+  if (!G.name) { $('#tgerr').textContent = '請填主題名稱'; return; }
+  const t = tgTheme(status);
+  try {
+    const r = await api.call('adminSaveTheme', { theme: t }); G.id = r.theme.id;
+    if (G.ruleId) { const rule = JSON.parse(JSON.stringify(TG.rules.find(x => x.id === G.ruleId))); delete rule.text; delete rule.owners; rule.reward = Object.assign({}, rule.reward || {}, { theme: G.id }); await api.call('adminSaveRule', { rule }); }
+    toast(status === '上架' ? '已上架' : '已存成草稿'); location.hash = '#/themes';
+  } catch (e) { $('#tgerr').textContent = e.message; }
 }
 
 /* ================= 設定 ================= */
@@ -764,6 +1039,7 @@ function route() {
   if (h === '#/players') return pPlayers();
   if (h === '#/rules') return pRules();
   if (h === '#/themes') return pThemes();
+  if ((m = h.match(/^#\/theme-new(?:\/(.+))?/))) return pThemeNew(m[1] ? decodeURIComponent(m[1]) : '');
   if (h === '#/settings') return pSettings();
   if ((m = h.match(/^#\/cal(?:\/(\w+))?/))) return pCal(m[1]);
   return pOverview();
