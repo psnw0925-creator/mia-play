@@ -1,0 +1,1078 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>2026 最後 31 天・倒數撕日曆｜Mia 小遊戲</title>
+<meta name="theme-color" content="#FDE6DB">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="年末撕日曆">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700&family=Nunito:wght@700;800&family=Cormorant+Garamond:wght@600&display=swap">
+<script src="../../config.js"></script>
+<style>
+:root{color-scheme:light;
+  --bg1:#FFF4EE;--bg2:#FDE6DB;--bg3:#F8D3C3;--primary:#B5523B;--on:#fff;--ink:#3B302A;--sub:#6E6159;--card:rgba(255,255,255,.9);--line:rgba(181,82,59,.16);--soft:#FBE1D6;--accent-ink:#8A3A24;
+  --brown:#5A4632;--gold:#C9A35A;--paper:#fff;
+  --sans:'Noto Sans TC',system-ui,-apple-system,sans-serif;--serif:'Noto Serif TC',serif;--num:'Nunito',var(--sans)}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);color:var(--ink);font-size:15px;line-height:1.7;min-height:100vh;background:linear-gradient(180deg,var(--bg1),var(--bg2) 55%,var(--bg3)) fixed;background-color:var(--bg2);overflow-x:hidden}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+a{color:inherit}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.wrap{max-width:480px;margin:0 auto;padding:0 16px}
+.hd{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg1) 85%,transparent);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.hd .wrap{display:flex;align-items:center;gap:6px;height:54px}
+.hd .back{min-height:44px;min-width:44px;display:inline-flex;align-items:center;justify-content:center;border-radius:999px;text-decoration:none;color:var(--accent-ink)}
+.hd b{font-family:var(--serif);font-size:17px;color:var(--brown);flex:1}
+.hd nav{display:flex;gap:2px}
+.hd nav button{min-height:40px;padding:0 10px;border-radius:999px;font-size:13.5px;color:var(--sub);position:relative}
+.hd nav button.on{background:var(--soft);color:var(--accent-ink);font-weight:700}
+.dot{position:absolute;top:6px;right:4px;width:8px;height:8px;border-radius:50%;background:#D9534F}
+.demo{font-size:11px;font-weight:700;background:#FFF1C9;color:#6B4A00;border-radius:999px;padding:3px 9px;white-space:nowrap}
+main{padding:14px 0 40px}
+.stack{display:flex;flex-direction:column;gap:12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 16px}
+.mut{color:var(--sub)}.small{font-size:13px}.tiny{font-size:12px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:48px;padding:0 20px;border-radius:999px;background:var(--primary);color:var(--on);font-weight:700;font-size:15px;width:100%;text-decoration:none}
+.btn2{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 14px;border-radius:999px;border:1.5px solid var(--primary);background:#fff;color:var(--accent-ink);font-weight:700;font-size:14px;text-decoration:none}
+.lnk{min-height:44px;color:var(--accent-ink);font-weight:700;font-size:13.5px;text-decoration:underline}
+.btn[disabled],.btn2[disabled]{opacity:.5;pointer-events:none}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.notice{background:#FFF7E6;border:1px solid #EFD9A8;color:#5E4512;border-radius:14px;padding:10px 12px;font-size:13px;display:flex;gap:8px;align-items:flex-start}
+.notice button{color:#5E4512;font-weight:700;text-decoration:underline;white-space:nowrap}
+/* 撕頁 */
+.binder{height:30px;background:#8A4A39;border-radius:14px 14px 0 0;display:flex;justify-content:space-around;align-items:center;padding:0 34px;position:relative;z-index:3}
+.ring{width:12px;height:12px;border-radius:50%;background:var(--bg1);border:2px solid #5A2E22}
+.pad{position:relative}
+.pg{background:var(--paper);border:1px solid #EBD9CF;border-top:0;padding:18px 20px 22px;display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;touch-action:none;user-select:none;-webkit-user-select:none;position:relative;z-index:2}
+.under{position:absolute;left:0;right:0;top:30px;bottom:-8px;background:#fff;border:1px solid #EBD9CF;border-top:0;z-index:1;box-shadow:0 6px 0 -2px #F3E3DA,0 12px 0 -4px #EBD3C7;display:flex;align-items:flex-start;justify-content:center;padding-top:30px}
+.under span{font-family:var(--num);font-weight:800;font-size:60px;color:#E8D5CC}
+.date{font-family:var(--num);font-weight:800;font-size:96px;line-height:1;color:var(--primary)}
+.cd{display:inline-flex;align-items:center;min-height:28px;padding:0 12px;border-radius:999px;background:var(--soft);color:var(--accent-ink);font-weight:700;font-size:13px}
+.pull{color:var(--accent-ink);font-weight:700;display:flex;flex-direction:column;align-items:center;gap:2px;margin-top:10px}
+.pull svg{animation:bob 1.6s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(6px)}}
+.tearing{transition:transform .7s cubic-bezier(.5,0,.8,.6),opacity .7s;transform:translate(40px,520px) rotate(-14deg)!important;opacity:0}
+.qcard{background:#fff;border:1px solid #EBD9CF;border-radius:20px;padding:26px 22px;display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;animation:rise .45s ease-out}
+@keyframes rise{from{opacity:0;transform:translateY(16px)}}
+.qt{font-family:var(--serif);font-size:21px;font-weight:700;color:var(--brown);line-height:1.5}
+.guide{font-size:14px;color:var(--sub)}
+/* 彈珠與糖罐 */
+.m{display:inline-block;width:30px;height:30px;border-radius:50%;background:radial-gradient(circle at 32% 28%,#fff 0 13%,var(--c) 46%,var(--d) 100%);flex:none}
+.pick{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.pk{min-height:88px;border-radius:16px;border:1.5px solid #EBD9CF;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:13px;color:#4A433B}
+.pk .m{width:40px;height:40px}
+.pk.sel{border:2px solid var(--primary);background:var(--bg1)}
+.jarbox{position:relative;width:240px;margin:0 auto}
+.lid{width:170px;height:20px;margin:0 auto -2px;background:var(--gold);border-radius:8px}
+.jar{width:240px;min-height:230px;border:3px solid rgba(138,74,57,.35);border-radius:34px 34px 54px 54px;background:rgba(255,255,255,.6);padding:16px;display:flex;flex-wrap:wrap-reverse;align-content:flex-start;gap:5px;justify-content:center}
+.jar.small{width:170px;min-height:150px;border-radius:26px 26px 40px 40px;padding:10px}
+.jar .it{border-radius:50%;line-height:0}
+.jar button.it:focus-visible{outline:2px solid var(--primary)}
+.drop{position:absolute;left:50%;top:-40px;margin-left:-15px;animation:drop .8s cubic-bezier(.5,0,.9,.6) forwards;z-index:5}
+@keyframes drop{0%{transform:translateY(0)}70%{transform:translateY(200px)}85%{transform:translateY(184px)}100%{transform:translateY(196px);opacity:0}}
+.shake{animation:sh .5s}@keyframes sh{25%{transform:rotate(-3deg)}75%{transform:rotate(3deg)}}
+/* 寫紀錄 */
+textarea{width:100%;min-height:170px;border-radius:14px;border:1px solid #E1CFC4;padding:12px;font:15px/1.75 var(--sans);color:var(--ink);background:#fff;resize:vertical}
+.vs{border:0;display:flex;flex-direction:column;gap:6px}
+.vs legend{font-weight:700;font-size:14px;margin-bottom:6px;color:var(--brown)}
+.opt{display:flex;gap:10px;align-items:flex-start;background:#fff;border:1.5px solid #E6DED0;border-radius:14px;padding:10px 12px;font-size:14px;line-height:1.5;min-height:48px;cursor:pointer}
+.opt.on{border:2px solid var(--primary);background:#FFF8F4}
+.opt input{margin-top:4px;accent-color:var(--primary);width:18px;height:18px;flex:none}
+.opt.off{opacity:.55;cursor:not-allowed}
+.toast{position:fixed;left:50%;bottom:calc(22px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:90;background:#2F5E47;color:#fff;border-radius:14px;padding:10px 16px;font-size:14px;max-width:92vw;box-shadow:0 8px 24px rgba(0,0,0,.2)}
+.toast.err{background:#8A2F25}
+/* 盲盒 */
+.blind{width:170px;height:170px;margin:4px auto 0;position:relative}
+.bx{position:absolute;left:35px;top:78px;width:100px;height:74px;background:#F6E7C8;border:2px solid var(--gold);border-radius:8px}
+.bl{position:absolute;left:25px;top:62px;width:120px;height:22px;background:#E9D2A3;border:2px solid var(--gold);border-radius:6px;transition:transform .5s}
+.opened .bl{transform:rotate(-22deg) translate(-12px,-26px)}
+.candy{position:absolute;left:47px;top:-6px;z-index:3;opacity:0;transform:translateY(60px) scale(.4);transition:all .6s cubic-bezier(.3,1.6,.6,1)}
+.opened .candy{opacity:1;transform:none}
+.shaking{animation:sh2 .9s}@keyframes sh2{10%,50%,90%{transform:rotate(-6deg)}30%,70%{transform:rotate(6deg)}}
+.lineq{background:#fff;border:1px solid #E6DED0;border-radius:16px;padding:12px 14px;text-align:left}
+.cpn{background:#fff;border:2px solid var(--gold);border-radius:14px;display:grid;grid-template-columns:1fr 92px;overflow:hidden;text-align:left}
+.cpn .l{padding:14px;display:flex;flex-direction:column;gap:2px;border-right:2px dashed var(--gold)}
+.cpn .r{background:#F6E7C8;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:var(--num);color:#8A4A39}
+.warn{background:#FFF8E8;border:1px solid #EBD9AE;border-radius:14px;padding:12px 14px;color:#6B5222;display:flex;flex-direction:column;gap:6px}
+.softw{background:#F3EEF9;border:1px solid #D9CCEC;border-radius:14px;padding:12px 14px;color:#4B3D66;display:flex;flex-direction:column;gap:6px}
+mark{background:#FCE3A6;border-radius:4px;padding:0 2px;color:inherit}
+.softw+.card mark{background:#E9DFF7}
+/* 月曆 */
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+.wd{font-size:12px;color:var(--sub);text-align:center;font-weight:700}
+.c{min-height:60px;border-radius:10px;background:#fff;border:1px solid #EFE2D9;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:4px;gap:2px;font-size:11px}
+.c b{font-family:var(--num);font-size:15px;color:var(--brown)}
+.c .m{width:18px;height:18px}
+.c em{font-style:normal;font-size:10.5px;font-weight:700;color:var(--accent-ink)}
+.c.e{background:transparent;border:0}
+.c.w{background:var(--soft);border-color:#F0C8B6}
+.c.x{border:1.5px dashed var(--primary)}
+.c.t{border:2px solid var(--primary)}
+.c.f{background:rgba(255,255,255,.45)}.c.f b{color:#A79E93}
+.lg{display:flex;flex-wrap:wrap;gap:6px 12px;font-size:12px;color:var(--sub)}
+.lg span{display:inline-flex;align-items:center;gap:4px}
+.sw{width:14px;height:14px;border-radius:4px;display:inline-block}
+/* 收藏 */
+.col{display:grid;grid-template-columns:repeat(6,1fr);gap:5px}
+.cat{background:#fff;border:1px solid #EBD9CF;border-radius:12px;min-height:66px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:11px;color:var(--sub);gap:2px;text-align:center}
+.cat.lock{opacity:.4}
+.stat3{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
+.stat3 div{background:#fff;border:1px solid #E6DED0;border-radius:14px;padding:8px}
+.stat3 b{display:block;font-family:var(--num);font-size:24px;color:var(--primary);line-height:1.2}
+/* 悄悄話、貼紙 */
+.paper{background:#FFFDF8;border:1px solid #EBD9AE;border-radius:6px;padding:22px 20px 18px;position:relative;box-shadow:0 8px 18px -10px rgba(90,46,34,.35);transform:rotate(-1.2deg);animation:unfold .5s ease-out}
+@keyframes unfold{from{transform:rotate(-1.2deg) scaleY(.2);opacity:0}}
+.paper:before{content:"";position:absolute;left:0;right:0;top:50%;border-top:1px dashed #EAD9C3}
+.stk{display:inline-flex;flex-direction:column;align-items:center;gap:2px;font-size:11.5px;color:#4A433B;min-width:48px;min-height:52px}
+.stk i{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid #fff;box-shadow:0 1px 3px rgba(90,46,34,.2)}
+.stk.on i{outline:3px solid var(--primary);outline-offset:1px}
+.sgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px 2px;justify-items:center}
+.env{display:inline-flex;align-items:center;gap:6px;background:#fff;color:var(--primary);border:2px solid var(--primary);border-radius:999px;padding:4px 12px 4px 8px;font-size:13px;font-weight:700;min-height:36px}
+.wall{background:#fff;border:1px solid #EBD9CF;border-radius:16px;padding:12px 14px;display:flex;flex-direction:column;gap:6px}
+.chip{display:inline-flex;align-items:center;gap:4px;min-height:26px;padding:0 9px;border-radius:999px;background:var(--soft);color:var(--accent-ink);font-size:12px;font-weight:700;white-space:nowrap}
+.chip.g{background:#F6E7C8;color:#6B4A1E}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.fbtn{min-height:36px;padding:0 12px;border-radius:999px;border:1px solid #E6DED0;background:#fff;color:var(--sub);font-size:13px;font-weight:700}
+.fbtn.on{background:var(--soft);color:var(--accent-ink);border-color:var(--soft)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:9px 0;border-bottom:1px solid #EFE8DC;font-size:13.5px}
+.row:last-child{border-bottom:0}
+.tag{display:inline-flex;align-items:center;min-height:22px;padding:0 8px;border-radius:999px;font-size:11.5px;font-weight:700;background:#ECEEF2;color:#5B6372;white-space:nowrap}
+.tag.me{background:#F6E7C8;color:#6B4A1E}
+/* 對話框 */
+.mb{position:fixed;inset:0;z-index:80;background:rgba(30,20,15,.45);display:flex;align-items:flex-end;justify-content:center}
+.md{background:#fff;width:100%;max-width:520px;border-radius:22px 22px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom,0px));max-height:90vh;overflow:auto;display:flex;flex-direction:column;gap:12px;color:#3B302A}
+.md h3{font-family:var(--serif);font-size:18px;color:var(--brown)}
+.rule{display:flex;gap:10px;align-items:flex-start;font-size:14px}
+.rule b{flex:none;width:24px;height:24px;border-radius:50%;background:var(--soft);color:var(--primary);display:flex;align-items:center;justify-content:center;font-family:var(--num)}
+.ck{display:flex;gap:10px;align-items:center;min-height:44px;font-weight:700;color:var(--brown)}
+.ck input{width:20px;height:20px;accent-color:var(--primary)}
+.rs label{display:flex;gap:10px;align-items:center;min-height:44px;border:1px solid #E6DED0;border-radius:12px;padding:0 12px;margin-bottom:6px}
+.spin{display:flex;justify-content:center;padding:60px 0}.spin i{width:30px;height:30px;border-radius:50%;border:3px solid var(--soft);border-top-color:var(--primary);animation:spn 1s linear infinite}
+@keyframes spn{to{transform:rotate(360deg)}}
+.ft{padding:16px 0 calc(24px + env(safe-area-inset-bottom,0px));font-size:12px;color:var(--sub);text-align:center}
+/* 2026.11.22 調整：與自己對話、滑桿、拖曳糖果、盲盒稀有度、圖鑑 */
+.talk{display:flex;align-items:center;gap:10px;font-family:var(--serif);font-size:14px;color:var(--accent-ink);letter-spacing:.08em}
+.talk:before,.talk:after{content:"";width:28px;height:1px;background:#E1BFAF}
+.qcard textarea{min-height:130px;background:#FFFBF8;text-align:left}
+.vwrap{width:100%;display:flex;flex-direction:column;gap:8px;text-align:left;margin-top:4px}
+.vsl{position:relative;display:grid;grid-template-columns:repeat(3,1fr);background:#F6E3D9;border-radius:999px;padding:4px;min-height:52px;touch-action:none}
+.vsl .th{position:absolute;top:4px;bottom:4px;left:4px;width:calc((100% - 8px)/3);border-radius:999px;background:var(--primary);box-shadow:0 2px 8px rgba(138,74,57,.35);transform:translateX(calc(var(--i,0)*100%));transition:transform .28s cubic-bezier(.3,1.3,.5,1);cursor:grab}
+.vsl button{position:relative;z-index:1;font-weight:700;font-size:13.5px;color:#8A7466;border-radius:999px;min-height:44px;transition:color .2s}
+.vsl button.on{color:var(--on)}
+.vsl button.off{color:#C2B4AA;text-decoration:line-through}
+.vdesc{font-size:13px;color:var(--sub);text-align:center;background:var(--bg1);border-radius:12px;padding:8px 10px;min-height:38px}
+.jarbox:has(.lid.open){padding-top:30px}
+.lid.open{transform:translate(-28px,-2px) rotate(-14deg);transform-origin:left bottom}
+.jarbox.sm{width:190px}.jarbox.sm .lid{width:130px}
+.jar.mouth{border-top-color:transparent;position:relative}
+.jar.mouth:before{content:"";position:absolute;left:24px;right:24px;top:-3px;height:3px;border-radius:3px;background:rgba(138,74,57,.35)}
+.jarbtn{display:block;margin:0 auto;padding:6px 10px;border-radius:24px}
+.jarbox{transition:transform .2s}
+.jarbox.hot .jar{box-shadow:0 0 0 4px rgba(181,82,59,.12)}
+.jarbox.over{transform:scale(1.04)}.jarbox.over .jar{box-shadow:0 0 0 6px rgba(181,82,59,.25);background:#fff}
+.pk{touch-action:none;user-select:none;-webkit-user-select:none;transition:transform .15s}
+.pk.lift{transform:scale(.94);opacity:.6}
+.ghost{position:fixed;left:0;top:0;z-index:70;pointer-events:none;filter:drop-shadow(0 10px 10px rgba(90,46,34,.28))}
+.okm{background:#2F5E47;color:#fff;border-radius:14px;padding:10px 14px;font-size:14px;font-weight:700}
+.badge{display:inline-flex;align-items:center;min-height:22px;padding:0 9px;border-radius:999px;font-size:11.5px;font-weight:700}
+.b1{background:#ECEEF2;color:#5B6372}.b2{background:#FDE6DB;color:#8A3A24}.b3{background:#F6E7C8;color:#6B4A1E}
+.blind .glow{position:absolute;left:50%;top:40px;width:190px;height:190px;margin:-95px 0 0 -95px;border-radius:50%;opacity:0;transition:opacity .6s .2s;background:radial-gradient(circle,#FFD9E4 0,rgba(255,200,215,.55) 40%,rgba(255,200,215,0) 70%);z-index:0}
+.box-gold .blind .glow{background:conic-gradient(from 0deg,rgba(255,236,170,0),rgba(255,226,140,.8),rgba(255,236,170,0) 25%,rgba(255,226,140,.8) 50%,rgba(255,236,170,0) 75%,rgba(255,226,140,.8));-webkit-mask:radial-gradient(circle,#000 30%,transparent 70%);mask:radial-gradient(circle,#000 30%,transparent 70%);animation:spin 6s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.opened .glow{opacity:1}
+.box-rare .candy,.box-gold .candy{left:37px;top:-26px}
+.sp{position:absolute;font-style:normal;color:#E0B12A;font-size:18px;opacity:0;z-index:4}
+.opened .sp{animation:tw 1.6s ease-in-out infinite}
+.s1{left:6px;top:-10px}.s2{right:4px;top:4px;animation-delay:.4s!important}.s3{left:20px;top:60px;animation-delay:.8s!important}.s4{right:18px;top:-30px;animation-delay:1.2s!important}
+@keyframes tw{0%,100%{opacity:0;transform:scale(.6)}50%{opacity:1;transform:scale(1.15)}}
+body.goldbg{background:linear-gradient(180deg,#FFF8E6,#FBE7C0 60%,#F3D18E) fixed}
+.tipx{position:absolute;z-index:60;background:#3A2E25;color:#fff;font-size:13px;border-radius:10px;padding:6px 11px;white-space:nowrap;pointer-events:none}
+.tipx:after{content:"";position:absolute;left:50%;bottom:-6px;margin-left:-6px;border:6px solid transparent;border-bottom:0;border-top-color:#3A2E25}
+.jar .it.sw{border-radius:8px;line-height:0}
+.sec{display:flex;justify-content:space-between;align-items:center;font-weight:700;font-size:14px;color:var(--brown)}
+.sec em{font-style:normal;font-weight:400;font-size:12px;color:var(--sub)}
+.g6{display:grid;grid-template-columns:repeat(6,1fr);margin-top:8px}
+.dd{display:flex;flex-direction:column;align-items:center;font-size:11.5px;color:var(--sub);gap:2px}
+.dd small{font-size:10.5px;color:var(--accent-ink)}
+.dex{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.dx{background:#fff;border:1px solid #EFE2D9;border-radius:14px;display:flex;flex-direction:column;align-items:center;padding:8px 2px 6px;font-size:12px;color:var(--ink);gap:2px;min-height:92px}
+.dx small{font-size:11px;color:var(--accent-ink);font-weight:700}
+.dx.off{color:#B5AAA0;cursor:default}
+.dx.rare{background:#FFF7F2;border-color:#F0C8B6}
+.dx.gold{background:linear-gradient(160deg,#FFF9E0,#FCEBB5);border-color:#E3BC54}
+svg.lk{filter:grayscale(1) brightness(1.35) contrast(.5) blur(2.2px);opacity:.42}
+.dx .art{position:relative;display:flex;align-items:center;justify-content:center;width:52px;height:46px}
+.dx .qm{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:20px;font-weight:700;color:#A3968B;letter-spacing:1px;text-shadow:0 0 6px #fff,0 0 10px #fff}
+.dx.off>span:last-child{font-size:11px;color:#B5AAA0}
+a:focus-visible,button:focus-visible,textarea:focus-visible,input:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div id="app"><div class="spin" role="status"><i></i><span class="sr">載入中</span></div></div>
+<script>
+/* 2026 倒數撕日曆：31 天的問題、引導、今天的一句（Mia 確認版 2026.11.22） */
+var CAL_PAGES = [
+{
+"cd": "還有 31 天",
+"q": "翻開今年，哪個畫面最先浮現？",
+"g": "把第一個想起的片刻寫下來吧。",
+"l": "第一個浮現的畫面，通常藏著今年最在意的事。記住它，接下來幾天會用得到。"
+},
+{
+"cd": "還有 30 天",
+"q": "這一年，我最常為什麼忙碌？",
+"g": "可以從平常的一天回想起。",
+"l": "看見自己把時間給了哪裡，明年才能更有意識地分配。"
+},
+{
+"cd": "還有 29 天",
+"q": "今年，有哪天讓我想再過一次？",
+"g": "記下那天發生的事和心情。",
+"l": "那天讓你喜歡的元素，明年可以刻意多安排一點。"
+},
+{
+"cd": "還有 28 天",
+"q": "這一年，有哪件事改變了我？",
+"g": "寫下那件事帶來的影響。",
+"l": "改變不一定舒服，但它讓你更認識現在的自己。"
+},
+{
+"cd": "還有 27 天",
+"q": "今年，我為自己做過什麼選擇？",
+"g": "想想一次由自己決定的時刻。",
+"l": "每一次自己做的決定，都是在練習為人生掌舵。"
+},
+{
+"cd": "還有 26 天",
+"q": "今年，有哪次我比從前更自在？",
+"g": "試著寫下那時候的自己。",
+"l": "比從前自在，是一點一點練出來的，這份進步是真的。"
+},
+{
+"cd": "還有 25 天",
+"q": "今年，我的身體過得好嗎？",
+"g": "想想身體曾給過我哪些提醒。",
+"l": "身體的提醒值得被認真對待，挑一個明天就能開始照顧的地方。"
+},
+{
+"cd": "還有 24 天",
+"q": "這一年，我休息得夠嗎？",
+"g": "回想睡眠、用餐和休息的日常。",
+"l": "好好休息不是偷懶，是讓自己走得更遠的準備。這週挑一個晚上早點睡吧。"
+},
+{
+"cd": "還有 23 天",
+"q": "今年，什麼時候我最容易煩躁？",
+"g": "寫下情緒常出現的情境。",
+"l": "知道自己在什麼情境容易煩躁，下次就能早一步照顧自己。"
+},
+{
+"cd": "還有 22 天",
+"q": "今年，我把哪些心事藏了起來？",
+"g": "如果願意，就讓它留在這裡。",
+"l": "謝謝你願意寫下來。說得出口，是整理的第一步。"
+},
+{
+"cd": "還有 21 天",
+"q": "這一年，什麼時候我感覺安心？",
+"g": "寫下一個能慢慢放鬆的片刻。",
+"l": "讓你安心的人事物，是你隨時可以主動回去的地方。"
+},
+{
+"cd": "還有 20 天",
+"q": "今年，什麼事讓我覺得有意義？",
+"g": "最想分享的是哪一件事？",
+"l": "覺得有意義的事，往往指向你真正重視的方向。"
+},
+{
+"cd": "還有 19 天",
+"q": "今年，想起家人時我有什麼感覺？",
+"g": "寫下浮現的人、事或心情。",
+"l": "不管浮現的是溫暖還是複雜，誠實面對感受，就是在理解自己。"
+},
+{
+"cd": "還有 18 天",
+"q": "今年，哪段陪伴讓我覺得溫暖？",
+"g": "把最想記住的互動留下來。",
+"l": "有空的話，把今天想起的溫暖告訴那個人吧。"
+},
+{
+"cd": "還有 17 天",
+"q": "今年，我曾在哪裡勉強自己？",
+"g": "想想一次沒說出真心話的時刻。",
+"l": "看見自己在哪裡勉強，明年就多了一次說真話的機會。"
+},
+{
+"cd": "還有 16 天",
+"q": "今年，有哪些時候我需要幫忙？",
+"g": "也寫下當時有沒有說出口。",
+"l": "需要幫忙不代表不夠好，開口求助也是一種能力。"
+},
+{
+"cd": "還有 15 天",
+"q": "今年，錢花在讓我安心的地方嗎？",
+"g": "看看主要花費和自己的需要。",
+"l": "錢流向哪裡，常常透露出你在意什麼。看清楚了，就能調整。"
+},
+{
+"cd": "還有 14 天",
+"q": "今年，有什麼雜事總讓我掛心？",
+"g": "列出一件想好好處理的事。",
+"l": "掛心的事寫下來就輕了一半，挑個時間把它完成吧。"
+},
+{
+"cd": "還有 13 天",
+"q": "今年的工作，有什麼值得記住？",
+"g": "寫下一件完成的事或學到的能力。",
+"l": "你完成的事和學到的能力，都會跟著你走進明年。"
+},
+{
+"cd": "還有 12 天",
+"q": "今年，哪份努力值得我抱抱自己？",
+"g": "寫下一件別人不一定知道的付出。",
+"l": "別人不一定看見，但你知道自己付出了多少。這份努力值得被記住。"
+},
+{
+"cd": "還有 11 天",
+"q": "今年，有什麼事和預想的不一樣？",
+"g": "寫下發生的事，還有當時的心情。",
+"l": "事情偏離計畫時你怎麼應對，比計畫本身更能看出你的韌性。"
+},
+{
+"cd": "還有 10 天",
+"q": "今年遇到的難題，我能調整什麼？",
+"g": "也寫下不在自己掌握內的部分。",
+"l": "分清楚能調整和不能掌握的部分，力氣就能用在對的地方。"
+},
+{
+"cd": "還有 9 天",
+"q": "今年，有什麼困擾一再出現？",
+"g": "整理常出現的情境或自己的反應。",
+"l": "重複出現的困擾是一個訊號，看懂它，就有機會換一種做法。"
+},
+{
+"cd": "還有 8 天",
+"q": "今年，哪件事我做得比以前好了？",
+"g": "即使只有一點點，也值得寫下。",
+"l": "一點點的進步也是進步，那是你一次次練習換來的。"
+},
+{
+"cd": "還有 7 天",
+"q": "這一年，哪些小事慢慢有了變化？",
+"g": "想想重複做過的事帶來什麼影響。",
+"l": "重複做的小事會累積成力量。明年想繼續累積哪一件？"
+},
+{
+"cd": "還有 6 天",
+"q": "今年，什麼讓我還願意再試一次？",
+"g": "記下支持自己的理由或陪伴。",
+"l": "記住支持你的理由，下次想放棄時，拿出來看看。"
+},
+{
+"cd": "還有 5 天",
+"q": "今年，我曾為什麼選擇停一下？",
+"g": "寫下暫停或轉彎時，想照顧的需要。",
+"l": "懂得停下來調整方向，是為了更穩地往前走。"
+},
+{
+"cd": "還有 4 天",
+"q": "這一年，有什麼遺憾還在心裡？",
+"g": "讓它先被寫下來，就很好。",
+"l": "遺憾寫下來，就能慢慢看清它想提醒你什麼。"
+},
+{
+"cd": "還有 3 天",
+"q": "今年沒完成的事，我還想繼續嗎？",
+"g": "挑一件事，寫下現在真正的想法。",
+"l": "想繼續，就給它一個新的起點；決定放下，也是清楚的選擇。"
+},
+{
+"cd": "還有 2 天",
+"q": "今年，有什麼想帶給明年的我？",
+"g": "可能是一份經驗、習慣或支持。",
+"l": "你想帶走的，就是明年最好的隨身行李。"
+},
+{
+"cd": "最後 1 天",
+"q": "走到年末，我想對自己說什麼？",
+"g": "寫下一句最想送給自己的話。",
+"l": "謝謝你陪自己走完這 31 天。帶著你寫下的一切，2027 見。"
+}
+];
+
+/* 盲盒小物（2026.11.22 調整）：一般 9 款、稀有貓咪棒棒糖 6 款、超稀有金色貓咪糖 */
+var CAL_SWEETS = {
+  common: ['彩色巧克力豆', '漩渦棒棒糖', '條紋包裝糖', '點點包裝糖', '圓頂棒棒糖', '拐杖糖', '小軟糖', '扭扭糖條', '小包糖'],
+  rare: ['橘貓棒棒糖', '三花棒棒糖', '黑貓棒棒糖', '奶油白棒棒糖', '灰虎斑棒棒糖', '暹羅棒棒糖'],
+  gold: '金色貓咪糖',
+  ticket: '票券糖',
+  empty: '空盒',
+  legacy: { '橘貓': '橘貓棒棒糖', '三花': '三花棒棒糖', '黑貓': '黑貓棒棒糖', '奶油白': '奶油白棒棒糖', '金色招財貓': '金色貓咪糖' }
+};
+
+
+
+(function () {
+'use strict';
+const CFG = window.MIA_PLAY_CONFIG || {};
+const IS_DEMO = false;
+const HOME = IS_DEMO ? '../../index.html' : '../../';
+const SELF_URL = (CFG.PLAY_URL || '') + 'games/year-end-2026/';
+const $ = (s, r) => (r || document).querySelector(s);
+const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const U = {
+  rid(n) { const a = 'abcdefghijkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let s = ''; for (const x of crypto.getRandomValues(new Uint8Array(n))) s += a[x % a.length]; return s; },
+  ls: { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) { } }, del(k) { try { localStorage.removeItem(k); } catch (e) { } } },
+  ss: { get(k) { try { return sessionStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { sessionStorage.setItem(k, v); } catch (e) { } }, del(k) { try { sessionStorage.removeItem(k); } catch (e) { } } },
+  iso() { return new Date().toISOString(); },
+  len(s) { return Array.from(String(s || '')).length; },
+  vibrate(ms) { try { navigator.vibrate && navigator.vibrate(ms); } catch (e) { } }
+};
+function toast(msg, kind) { const t = document.createElement('div'); t.className = 'toast' + (kind === 'err' ? ' err' : ''); t.setAttribute('role', 'status'); t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 3400); }
+class ApiError extends Error { constructor(c, m, d) { super(m || '系統忙碌中，請稍後再試'); this.code = c; this.data = d; } }
+const errToast = e => toast((e && e.message) || '系統忙碌中，請稍後再試', 'err');
+function modal(title, html, acts, onOpen) {
+  return new Promise(res => {
+    const bg = document.createElement('div'); bg.className = 'mb';
+    bg.innerHTML = `<div class="md" role="dialog" aria-modal="true" aria-label="${esc(title)}"><h3>${esc(title)}</h3>${html}<div class="stack" style="gap:8px">${(acts || [{ l: '關閉', v: null, c: 'btn2' }]).map((a, i) => `<button class="${a.c || 'btn'}" data-i="${i}">${esc(a.l)}</button>`).join('')}</div></div>`;
+    const close = v => { bg.remove(); res(v); };
+    bg.addEventListener('click', e => { if (e.target === bg) close(null); const b = e.target.closest('[data-i]'); if (b) { const a = (acts || [{ v: null }])[+b.dataset.i]; if (a.check && !a.check(bg)) return; close(typeof a.v === 'function' ? a.v(bg) : a.v); } });
+    document.body.appendChild(bg); if (onOpen) onOpen(bg, close); const f = $('button,textarea,input', bg); if (f) f.focus();
+  });
+}
+
+/* ---------- 登入、訪客、主題：和大廳共用 ---------- */
+const Session = {
+  own: IS_DEMO ? 'miaplay.demo.session' : 'miaplay.session', shared: IS_DEMO ? 'miaplay.demo.shared' : 'mia.session',
+  read(k) { let s = null; try { s = JSON.parse(U.ls.get(k) || 'null'); } catch (e) { } if (s && s.expiresAt && s.expiresAt < U.iso()) return null; return s && s.token ? s : null; },
+  get() { const o = this.read(this.own); if (o) return o; const s = this.read(this.shared); if (s && U.ss.get('miaplay.skip') === s.token) return null; return s; },
+  setOwn(s) { U.ls.set(this.own, JSON.stringify(s)); U.ss.del('miaplay.skip'); },
+  drop() { if (this.read(this.own)) { U.ls.del(this.own); return; } const s = this.read(this.shared); if (s) U.ss.set('miaplay.skip', s.token); },
+  token() { const s = this.get(); return s ? s.token : ''; }, user() { const s = this.get(); return s ? s.user : null; }
+};
+const Guest = { id() { let g = U.ls.get('miaplay.guest'); if (!g) { g = U.rid(16); U.ls.set('miaplay.guest', g); } return g; } };
+const Entry = { get() { try { return JSON.parse(U.ss.get('miaplay.entry') || 'null') || { source: 'direct', ref: '' }; } catch (e) { return { source: 'direct', ref: '' }; } } };
+const api = {
+  async call(action, data, opts) {
+    const token = Session.token(); data = Object.assign({ guestId: Guest.id() }, data || {});
+    try {
+      if (IS_DEMO) return await MOCK.call(action, data, token).catch(e => { throw new ApiError(e.code || 'INTERNAL', e.message, e.data); });
+      if (!/^https:\/\//.test(CFG.PLAY_GAS_URL || '')) throw new ApiError('CONFIG', '網站還沒設定完成（PLAY_GAS_URL）');
+      const r = await fetch(CFG.PLAY_GAS_URL, { method: 'POST', redirect: 'follow', body: JSON.stringify({ action, token, data }) });
+      const j = await r.json(); if (!j.ok) throw new ApiError(j.error && j.error.code, j.error && j.error.message, j.error && j.error.data);
+      return j.data;
+    } catch (e) {
+      if (!(e instanceof ApiError)) e = new ApiError('INTERNAL', '無法連線，請稍後再試');
+      if (['AUTH_EXPIRED', 'AUTH_INVALID', 'AUTH_REQUIRED'].includes(e.code) && token && !(opts && opts.retried)) { Session.drop(); toast('LINE 登入已過期，先用訪客身分'); return api.call(action, data, { retried: true }); }
+      throw e;
+    }
+  }
+};
+const LineAuth = {
+  start() {
+    if (IS_DEMO) return demoLogin();
+    const state = U.rid(12), nonce = U.rid(12);
+    U.ss.set('miaplay.oauth', JSON.stringify({ state, nonce, returnHash: location.hash || '' }));
+    const p = new URLSearchParams({ response_type: 'code', client_id: CFG.LINE_LOGIN_CHANNEL_ID, redirect_uri: SELF_URL, state, scope: 'openid profile', nonce, bot_prompt: 'aggressive' });
+    location.href = 'https://access.line.me/oauth2/v2.1/authorize?' + p;
+  },
+  async handleReturn() {
+    const qs = new URLSearchParams(location.search); if (!qs.get('code') && !qs.get('error')) return;
+    let st = {}; try { st = JSON.parse(U.ss.get('miaplay.oauth') || '{}'); } catch (e) { }
+    U.ss.del('miaplay.oauth'); history.replaceState(null, '', location.pathname + (st.returnHash || ''));
+    if (qs.get('error') || qs.get('state') !== st.state) return toast('LINE 登入未完成，請再試一次', 'err');
+    try { const r = await api.call('authLine', { code: qs.get('code'), redirectUri: SELF_URL, nonce: st.nonce }); Session.setOwn({ token: r.token, user: r.user, expiresAt: r.expiresAt }); toast('已用 LINE 帳號保存'); } catch (e) { errToast(e); }
+  }
+};
+function demoLogin() {
+  modal('展示：切換身分', `<p class="small mut">展示模式不會連線 LINE。</p>`, [
+    { l: '陳映彤（已在預約網站登入過）', v: 'c' }, { l: '林小晴（第一次來，用小遊戲自己的登入）', v: 'f' }, { l: '訪客', v: 'g', c: 'btn2' }, { l: '取消', v: null, c: 'btn2' }]).then(v => {
+    if (!v) return; U.ls.del(Session.own); U.ls.del(Session.shared); U.ss.del('miaplay.skip');
+    if (v === 'c') U.ls.set(Session.shared, JSON.stringify({ token: 'demo-customer', user: DEMO_USERS['demo-customer'], expiresAt: '2999-01-01T00:00:00Z' }));
+    if (v === 'f') U.ls.set(Session.own, JSON.stringify({ token: 'demo-friend', user: DEMO_USERS['demo-friend'], expiresAt: '2999-01-01T00:00:00Z' }));
+    load();
+  });
+}
+const Theme = {
+  apply(t) {
+    if (!t || !t.colors) return; const c = t.colors, r = document.documentElement.style;
+    const map = { bg1: '--bg1', bg2: '--bg2', bg3: '--bg3', primary: '--primary', onPrimary: '--on', ink: '--ink', sub: '--sub', card: '--card', line: '--line', soft: '--soft', accentInk: '--accent-ink' };
+    for (const k in map) if (c[k]) r.setProperty(map[k], c[k]);
+  },
+  boot() { try { const t = JSON.parse(U.ls.get('miaplay.theme') || 'null'); if (t && !(t.colors && t.colors.dark)) this.apply(t); } catch (e) { } }
+};
+
+/* ---------- 圖示：每天的糖果（圓形）、盲盒小物、貼紙 ---------- */
+const MARBLE = { '蜜桃': ['#F6A98F', '#D9785C'], '薄荷': ['#9ED8C3', '#5FAF94'], '薰衣草': ['#C7B4E6', '#9177C2'], '檸檬': ['#F5DE7A', '#D1B13E'], '晴空': ['#A9CDEE', '#6B9FD0'], '奶茶': ['#D9BC9C', '#A9865F'] };
+const marble = (n, size) => { const c = MARBLE[n] || MARBLE['蜜桃']; return `<span class="m" style="--c:${c[0]};--d:${c[1]};${size ? `width:${size}px;height:${size}px` : ''}" aria-hidden="true"></span>`; };
+const SW = (typeof CAL_SWEETS !== 'undefined' ? CAL_SWEETS : null) || { common: [], rare: [], gold: '金色貓咪糖', ticket: '票券糖', empty: '空盒', legacy: {} };
+const boxName = n => (SW.legacy && SW.legacy[n]) || n || '';
+const rarity = n => { n = boxName(n); return n === SW.gold ? 'gold' : SW.rare.includes(n) ? 'rare' : n === SW.ticket ? 'ticket' : n === SW.empty ? 'empty' : 'common'; };
+let SWID = 0;
+const OL = 'stroke-width="2.2" stroke-linejoin="round"';
+const CATS = { '橘貓': ['#F4A45B', '#C9732C', ''], '三花': ['#FFF7EE', '#BFA38A', 'calico'], '黑貓': ['#3E3A3A', '#1E1B1B', 'black'], '奶油白': ['#FFF3DC', '#D8B98E', ''], '灰虎斑': ['#B4B6BA', '#7D8086', 'tabby'], '暹羅': ['#F6E7D2', '#B89A78', 'siamese'] };
+function catHead(c, d, mark, cy, r) {
+  const cx = 32; let s = `<path d="M${cx - 15} ${cy - 6} L${cx - 13} ${cy - 22} L${cx - 3} ${cy - 15}Z M${cx + 15} ${cy - 6} L${cx + 13} ${cy - 22} L${cx + 3} ${cy - 15}Z" fill="${c}" stroke="${d}" ${OL}/><circle cx="${cx}" cy="${cy}" r="${r}" fill="${c}" stroke="${d}" ${OL}/>`;
+  if (mark === 'calico') s += `<path d="M${cx - 14} ${cy - 8} q6 -6 12 -6 q-2 8 -12 10Z" fill="#E99A4E"/><path d="M${cx + 5} ${cy - 15} q8 2 11 8 q-7 2 -11 -2Z" fill="#3E3A3A"/>`;
+  if (mark === 'tabby') s += `<path d="M${cx - 5} ${cy - 15} l2 6 M${cx} ${cy - 16} l0 7 M${cx + 5} ${cy - 15} l-2 6" stroke="#6E7177" stroke-width="2.2" stroke-linecap="round"/>`;
+  if (mark === 'siamese') s += `<ellipse cx="${cx}" cy="${cy + 4}" rx="10" ry="8" fill="#7A5A44" opacity=".8"/>`;
+  const eye = mark === 'black' ? '#F5D04A' : '#3A2E25';
+  s += `<circle cx="${cx - 6}" cy="${cy}" r="2.4" fill="${eye}"/><circle cx="${cx + 6}" cy="${cy}" r="2.4" fill="${eye}"/><path d="M${cx - 2} ${cy + 5} q2 2 4 0" stroke="${mark === 'black' ? '#F5D04A' : '#8A5A44'}" stroke-width="1.6" fill="none"/><ellipse cx="${cx - 9}" cy="${cy + 6}" rx="3" ry="1.8" fill="#F4A9A0" opacity=".7"/><ellipse cx="${cx + 9}" cy="${cy + 6}" rx="3" ry="1.8" fill="#F4A9A0" opacity=".7"/>`;
+  return s;
+}
+function wrapped(c, d, pat, id) {
+  const p = pat === 'stripe' ? [24, 32, 40, 48].map(x => `<path d="M${x} 21 l-6 22" stroke="#fff" stroke-width="2.5" opacity=".7"/>`).join('') : [[22, 28], [31, 36], [38, 26], [46, 34], [27, 24]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="2.6" fill="#FFE27A"/>`).join('');
+  return `<path d="M14 32 L2 22 L6 32 L2 42Z" fill="${c}" stroke="${d}" ${OL}/><path d="M50 32 L62 22 L58 32 L62 42Z" fill="${c}" stroke="${d}" ${OL}/><rect x="13" y="20" width="38" height="24" rx="12" fill="${c}" stroke="${d}" ${OL}/><clipPath id="${id}"><rect x="13" y="20" width="38" height="24" rx="12"/></clipPath><g clip-path="url(#${id})">${p}</g>`;
+}
+const SWEET = {
+  '彩色巧克力豆': () => [['#F2C230', '#C99A12', 18, 22], ['#3DA0E0', '#1F78B4', 40, 18], ['#E04848', '#A92E2E', 30, 36], ['#4CB46A', '#2F8A4A', 14, 44], ['#9A5BC4', '#6E3A96', 46, 42]].map(([c, d, x, y]) => `<circle cx="${x}" cy="${y}" r="9" fill="${c}" stroke="${d}" ${OL}/><ellipse cx="${x - 3}" cy="${y - 3}" rx="3" ry="2" fill="#fff" opacity=".6"/>`).join(''),
+  '漩渦棒棒糖': () => `<rect x="30" y="36" width="4" height="26" fill="#fff" stroke="#D2477F" stroke-width="1.6"/><circle cx="32" cy="24" r="19" fill="#F27BA8" stroke="#D2477F" ${OL}/><circle cx="32" cy="24" r="13" fill="none" stroke="#fff" stroke-width="3" opacity=".8"/><circle cx="32" cy="24" r="7" fill="none" stroke="#fff" stroke-width="3" opacity=".8"/><circle cx="32" cy="24" r="2" fill="#fff"/>`,
+  '條紋包裝糖': id => wrapped('#4AA3E0', '#1F6FA8', 'stripe', id),
+  '點點包裝糖': id => wrapped('#E84545', '#A92E2E', 'dot', id),
+  '圓頂棒棒糖': () => `<rect x="30" y="36" width="4" height="26" fill="#fff" stroke="#2B6E9E" stroke-width="1.6"/><circle cx="32" cy="22" r="17" fill="#62A8DE" stroke="#2B6E9E" ${OL}/><rect x="13" y="18" width="38" height="9" rx="3" fill="#62A8DE" stroke="#2B6E9E" ${OL}/><ellipse cx="25" cy="12" rx="5" ry="3" fill="#fff" opacity=".5"/>`,
+  '拐杖糖': () => { const d = 'M24 60 L24 20 A10 10 0 0 1 44 20 L44 26'; return `<path d="${d}" fill="none" stroke="#C2296E" stroke-width="10" stroke-linecap="round"/><path d="${d}" fill="none" stroke="#F7B3CF" stroke-width="6.5" stroke-linecap="round"/><path d="${d}" fill="none" stroke="#E0408A" stroke-width="6.5" stroke-dasharray="4 5"/>`; },
+  '小軟糖': () => `<path d="M6 46 Q6 22 22 22 Q38 22 38 46Z" fill="#E84545" stroke="#A92E2E" stroke-width="2.2"/><path d="M28 54 Q28 32 43 32 Q58 32 58 54Z" fill="#F7CF3B" stroke="#C99A12" stroke-width="2.2"/><ellipse cx="15" cy="30" rx="4" ry="2.5" fill="#fff" opacity=".55"/><ellipse cx="37" cy="40" rx="4" ry="2.5" fill="#fff" opacity=".55"/>`,
+  '扭扭糖條': () => `<rect x="30" y="40" width="4" height="22" fill="#fff" stroke="#C99A12" stroke-width="1.6"/><rect x="22" y="4" width="20" height="38" rx="6" fill="#FFE08A" stroke="#D9A21E" stroke-width="2.2"/><path d="M22 14 q10 -6 20 2 M22 26 q10 -6 20 2 M22 38 q10 -6 20 2" stroke="#F2A81E" stroke-width="3" fill="none"/>`,
+  '小包糖': () => { let t = 'M14 12 ', b = ''; for (let i = 0, x = 14; x < 52; i++, x += 4) t += `L${x} ${i % 2 ? 8 : 12} `; for (let i = 0, x = 50; x > 12; i++, x -= 4) b += `L${x} ${i % 2 ? 56 : 52} `; return `<path d="${t}L50 52 ${b}Z" fill="#E8337A" stroke="#A8205A" ${OL}/><path d="M14 16 H50 M14 48 H50" stroke="#fff" stroke-width="2" opacity=".6"/><circle cx="32" cy="32" r="9" fill="#FCE4EE"/>`; },
+  '票券糖': () => `<path d="M6 16 h52 v10 a6 6 0 0 0 0 12 v10 h-52 v-10 a6 6 0 0 0 0-12z" fill="#E7C46A" stroke="#B8902F" ${OL}/><path d="M42 18v28" stroke="#B8902F" stroke-dasharray="3 3"/><circle cx="24" cy="32" r="6" fill="#B5523B"/>`,
+  '空盒': () => `<rect x="8" y="14" width="48" height="36" rx="3" fill="#FFFDF8" stroke="#C9A35A" stroke-width="2"/><path d="M16 24h32M16 32h26M16 40h18" stroke="#C9A35A" stroke-width="2" stroke-linecap="round"/>`
+};
+function sweet(name, size, lock) {
+  name = boxName(name); size = size || 32; const id = 'sw' + (++SWID); let inner;
+  if (name === SW.gold) {
+    inner = `<defs><linearGradient id="${id}g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#FFF3B0"/><stop offset=".45" stop-color="#F2C94C"/><stop offset="1" stop-color="#B8860B"/></linearGradient></defs><path d="M14 34 L2 24 L6 34 L2 44Z" fill="url(#${id}g)" stroke="#9A6E08" ${OL}/><path d="M50 34 L62 24 L58 34 L62 44Z" fill="url(#${id}g)" stroke="#9A6E08" ${OL}/>` + catHead(`url(#${id}g)`, '#9A6E08', '', 34, 18) + `<path d="M50 8 l2 5 5 2 -5 2 -2 5 -2 -5 -5 -2 5 -2Z" fill="#FFF7CC" stroke="#E0B12A" stroke-width="1"/><path d="M10 12 l1.3 3 3 1.3 -3 1.3 -1.3 3 -1.3 -3 -3 -1.3 3 -1.3Z" fill="#FFF7CC"/><ellipse cx="25" cy="25" rx="5" ry="2.6" fill="#fff" opacity=".7"/>`;
+  } else if (SW.rare.includes(name)) {
+    const k = name.replace('棒棒糖', ''), c = CATS[k] || CATS['橘貓'];
+    inner = `<rect x="30" y="40" width="4" height="22" fill="#fff" stroke="#C9A35A" stroke-width="1.6"/>` + catHead(c[0], c[1], c[2], 27, 17) + `<ellipse cx="24" cy="16" rx="4" ry="2.4" fill="#fff" opacity=".55"/>`;
+  } else inner = (SWEET[name] || SWEET['空盒'])(id);
+  return `<svg width="${size}" height="${size}" viewBox="0 0 64 64" aria-hidden="true"${lock ? ' class="lk"' : ''}>${inner}</svg>`;
+}
+const STK = {
+  '抱抱': ['#F6A98F', '<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/>'],
+  '摸摸頭': ['#C7B4E6', '<path d="M6 13c0-4 3-7 6-7s6 3 6 7"/><path d="M4 16h16"/>'],
+  '我懂': ['#9ED8C3', '<path d="M5 12l4 4 10-10"/>'],
+  '好厲害': ['#E3C14F', '<path d="M12 3l2.6 6 6.4.6-4.9 4.2 1.5 6.2L12 16.8 6.4 20l1.5-6.2L3 9.6 9.4 9z"/>'],
+  '陪著你': ['#A9CDEE', '<circle cx="9" cy="12" r="4"/><circle cx="15" cy="12" r="4"/>'],
+  '拍拍手': ['#D9BC9C', '<path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5L18 18M18 6l-2.5 2.5M8.5 15.5L6 18"/>'],
+  '我也是': ['#E7A0B4', '<path d="M7 11v8H4v-8z"/><path d="M7 11l4-7c1.5 0 2.5 1 2 3l-1 3h6a2 2 0 0 1 2 2.3l-1 5.5A2 2 0 0 1 17 19H7"/>'],
+  '喜歡': ['#F2A65A', '<path d="M12 19s-6-3.6-6-8.2A3.3 3.3 0 0 1 12 9a3.3 3.3 0 0 1 6 1.8C18 15.4 12 19 12 19z"/><path d="M18 4l1 2M21 7l-2 .5M15 3.5l.5 2"/>'],
+  '看見了': ['#8E9AA6', '<path d="M2 12s3.5-6 10-6 10 6 10 6-3.5 6-10 6S2 12 2 12z"/><circle cx="12" cy="12" r="2.5"/>']
+};
+const stkIcon = (n, s) => `<i style="background:${(STK[n] || STK['抱抱'])[0]}${s ? `;width:${s}px;height:${s}px` : ''}"><svg width="${s ? s / 2 : 20}" height="${s ? s / 2 : 20}" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${(STK[n] || STK['抱抱'])[1]}</svg></i>`;
+const envIcon = '<svg width="20" height="15" viewBox="0 0 18 14" aria-hidden="true"><rect x="1" y="1" width="16" height="12" rx="2" fill="#FDE6DB" stroke="#B5523B"/><path d="M1.5 2l7.5 6 7.5-6" fill="none" stroke="#B5523B"/></svg>';
+const WEEK = ['日', '一', '二', '三', '四', '五', '六'];
+const wk = p => WEEK[(p + 1) % 7];
+const PAGE = p => CAL_PAGES[p - 1];
+
+/* ---------- 訪客「只給自己」只存在這支手機 ---------- */
+const Local = {
+  key: IS_DEMO ? 'miaplay.demo.cal.local' : 'miaplay.cal.local',
+  all() { try { return JSON.parse(U.ls.get(this.key) || '{}'); } catch (e) { return {}; } },
+  get(p) { return this.all()[p] || null; },
+  set(p, content) { const a = this.all(); a[p] = { content, at: U.iso() }; U.ls.set(this.key, JSON.stringify(a)); },
+  del(p) { const a = this.all(); delete a[p]; U.ls.set(this.key, JSON.stringify(a)); }
+};
+/* 登入後：把手機裡「只給自己」的內容上傳到帳號（標「承諾不看」） */
+async function syncLocal() {
+  if (!Session.user()) return; const a = Local.all(), keys = Object.keys(a); if (!keys.length) return;
+  for (const p of keys) { try { await api.call('calSave', { page: +p, content: a[p].content, vis: '只給自己' }); Local.del(p); } catch (e) { } }
+}
+
+/* ---------- 狀態與畫面 ---------- */
+const S = { d: null, view: 'today', flow: null };
+const entryOf = p => S.d && S.d.entries.find(e => e.page === p);
+const contentOf = e => e ? (e.content != null ? e.content : ((Local.get(e.page) || {}).content || '')) : '';
+
+function header() {
+  const unread = S.d ? S.d.entries.filter(e => e.unread).length : 0;
+  const b = (v, l) => `<button data-go="${v}" class="${S.view === v ? 'on' : ''}"${S.view === v ? ' aria-current="page"' : ''}>${l}${v === 'jar' && unread ? '<span class="dot" aria-label="有新的悄悄話"></span>' : ''}</button>`;
+  return `<header class="hd"><div class="wrap"><a class="back" href="${HOME}" aria-label="回 Mia 小遊戲大廳"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a><b>年末撕日曆</b>${IS_DEMO ? '<button class="demo" data-demo>展示</button>' : ''}
+    <nav>${b('today', '今天')}${b('jar', '糖罐')}${b('wall', '心聲牆')}</nav></div></header>`;
+}
+function footer() {
+  const L = [[CFG.MAIN_URL, 'Mia 客製化療癒服務'], [CFG.LINE_OA_ID ? 'https://line.me/R/ti/p/' + encodeURIComponent(CFG.LINE_OA_ID) : '', '官方 LINE'], [CFG.CARE_URL, 'Mia 陪伴']].filter(x => x[0]);
+  return `<footer class="ft"><div class="wrap">${L.map(([u, t]) => `<a href="${esc(u)}" target="_blank" rel="noopener">${t}</a>`).join('・')}</div></footer>`;
+}
+function mount(inner) {
+  document.body.classList.remove('goldbg'); $$('.tipx').forEach(t => t.remove());
+  $('#app').innerHTML = header() + `<main><div class="wrap">${inner}</div></main>${footer()}`;
+  $$('[data-go]').forEach(b => b.addEventListener('click', () => go(b.dataset.go)));
+  $$('[data-demo]').forEach(b => b.addEventListener('click', demoMenu));
+  $$('[data-login]').forEach(b => b.addEventListener('click', () => LineAuth.start()));
+}
+function go(v) { S.view = v; S.flow = null; if (v === 'jar') S.jarTab = 'jar'; if (location.hash !== '#' + v) history.replaceState(null, '', '#' + v); render(); window.scrollTo(0, 0); }
+async function refresh() { try { S.d = await api.call('calToday', {}); } catch (e) { } }
+async function load() {
+  try { await syncLocal(); S.d = await api.call('calToday', {}); }
+  catch (e) { return mount(`<div class="card"><p>${esc(e.message)}</p><button class="btn2" style="margin-top:10px" onclick="location.reload()">重新整理</button></div>`); }
+  render();
+}
+function render() {
+  const d = S.d; if (!d) return;
+  if (d.phase === 'before') return viewBefore();
+  if (d.phase === 'sealed') return viewSealed();
+  if (S.flow) return S.flow();
+  if (S.view === 'jar') return viewJar();
+  if (S.view === 'calendar') return viewCalendar();
+  if (S.view === 'wall') return viewWall();
+  return viewToday();
+}
+
+/* ---------- 還沒開始、已封存 ---------- */
+function viewBefore() {
+  const days = Math.max(1, Math.ceil((new Date('2026-12-01T00:00:00+08:00') - new Date(d0())) / 86400000));
+  mount(`<div class="stack"><div class="pad"><div class="binder"><span class="ring"></span><span class="ring"></span><span class="ring"></span><span class="ring"></span><span class="ring"></span></div>
+    <div class="pg" style="border-radius:0 0 18px 18px"><span class="mut" style="letter-spacing:2px">2026　DEC</span><span class="date">01</span><span class="cd">還有 ${days} 天開始</span>
+    <p style="margin-top:10px">12 月 1 日起，每天撕一頁、回答一個問題，<br>把 2026 一點一點收進玻璃罐。</p></div></div>
+    <a class="btn2" href="${HOME}">回大廳</a></div>`);
+}
+function d0() { return S.d && S.d.now ? S.d.now : new Date().toISOString(); }
+function viewSealed() { mount(`<div class="card stack" style="text-align:center"><b class="qt">糖罐已經收起來了</b><p class="mut">7/1 再一起把它挖出來。</p><a class="btn2" href="${HOME}">回大廳</a></div>`); }
+
+/* ---------- 今天 ---------- */
+function viewToday() {
+  const d = S.d, t = d.today, e = entryOf(t), ph = d.phase;
+  const missed = []; for (let p = 1; p <= t; p++) if (!entryOf(p) && (p < t || ph === 'jan')) missed.push(p);
+  const unread = d.entries.filter(x => x.unread);
+  const jarMini = `<div class="card" style="display:flex;align-items:center;gap:12px"><div style="display:flex;gap:2px">${d.entries.slice(-3).map(x => marble(x.marble, 20)).join('') || marble('蜜桃', 20)}</div><span>罐子裡有 <b style="color:var(--primary)">${d.stats.torn}</b> 顆糖・寫了 ${d.stats.written} 篇</span><button class="lnk" style="margin-left:auto" data-go="jar">我的糖罐</button></div>`;
+  const env = unread.length ? `<button class="env" data-open="${unread[0].page}">${envIcon}${unread.length} 則悄悄話</button>` : '';
+  const guestNote = d.guest ? `<div class="notice"><span>你目前是訪客。紀錄存在這支手機，用 LINE 帳號比較不怕遺失。</span><button data-login>用 LINE 帳號</button></div>` : '';
+  if (ph === 'jan') {
+    mount(`<div class="stack">${env}${guestNote}<div class="card stack" style="text-align:center"><b class="qt">31 頁都已經翻完了</b><p class="mut">還沒撕的頁，可以到月曆補撕到 1/31。</p><button class="btn" data-go="calendar">看 31 天月曆・補撕</button></div>${jarMini}</div>`);
+    return bindToday();
+  }
+  if (e) {
+    const done = e.chars > 0;
+    mount(`<div class="stack">${env}${guestNote}
+      <div class="qcard" style="animation:none"><span class="cd">12/${String(t).padStart(2, '0')}・${esc(PAGE(t).cd)}</span><span class="qt">${esc(PAGE(t).q)}</span><span class="guide">${esc(PAGE(t).g)}</span>
+        <span class="small mut">${done ? '今天寫好了' + (e.box && rarity(e.box) !== 'empty' ? '，拆到「' + esc(boxName(e.box)) + '」' : '') : '今天的糖果已經放進罐子，紀錄完成了'}</span>
+        <button class="btn" data-write="${t}">${done ? '看看・修改今天寫的' : '想寫幾句？寫一個字就能拆盲盒'}</button></div>
+      ${jarMini}${missed.length ? `<p class="small mut" style="text-align:center">錯過的 ${missed.map(p => '12/' + String(p).padStart(2, '0')).slice(0, 3).join('、')}${missed.length > 3 ? ' 等 ' + missed.length + ' 頁' : ''} 還沒撕，可以到<button class="lnk" data-go="calendar" style="min-height:auto">月曆</button>補撕</p>` : ''}</div>`);
+    return bindToday();
+  }
+  mount(`<div class="stack">${env}
+    <div class="pad" id="pad"><div class="binder"><span class="ring"></span><span class="ring"></span><span class="ring"></span><span class="ring"></span><span class="ring"></span></div>
+      <div class="under" aria-hidden="true"><span>${t < 31 ? String(t + 1).padStart(2, '0') : ''}</span></div>
+      <div class="pg" id="sheet" role="button" tabindex="0" aria-label="撕下今天這頁（按住往下拉，或按 Enter）">
+        <span class="mut" style="font-size:14px;letter-spacing:2px">2026　DEC</span><span class="date">${String(t).padStart(2, '0')}</span><span class="mut">星期${wk(t)}</span>
+        <span class="cd">${t === 31 ? '今年最後 1 天' : '今年還有 ' + (32 - t) + ' 天'}</span>
+        <span class="pull"><svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14"/><path d="M6 13l6 6 6-6"/></svg>按住頁面往下拉，撕下今天</span>
+      </div></div>
+    <div style="height:8px"></div>${jarMini}
+    ${missed.length ? `<p class="small mut" style="text-align:center">錯過的 ${missed.slice(0, 3).map(p => '12/' + String(p).padStart(2, '0')).join('、')}${missed.length > 3 ? ' 等 ' + missed.length + ' 頁' : ''} 還沒撕，可以到<button class="lnk" data-go="calendar" style="min-height:auto">月曆</button>補撕</p>` : ''}</div>`);
+  bindToday(); bindTear(t);
+}
+function bindToday() {
+  $$('[data-write]').forEach(b => b.addEventListener('click', () => startWrite(+b.dataset.write)));
+  $$('[data-open]').forEach(b => b.addEventListener('click', () => openEntry(+b.dataset.open)));
+}
+function bindTear(page) {
+  const el = $('#sheet'); if (!el) return; let y0 = null, dy = 0, done = false;
+  const tear = () => { if (done) return; done = true; U.vibrate(30); el.classList.add('tearing'); setTimeout(() => flowQuestion(page), 650); };
+  el.addEventListener('pointerdown', e => { y0 = e.clientY; dy = 0; el.setPointerCapture(e.pointerId); el.style.transition = 'none'; });
+  el.addEventListener('pointermove', e => { if (y0 == null || done) return; dy = Math.max(0, e.clientY - y0); el.style.transform = `translateY(${dy * .6}px) rotate(${-dy / 40}deg)`; if (dy > 130) tear(); });
+  const up = () => { if (y0 == null || done) return; y0 = null; if (dy > 90) return tear(); el.style.transition = 'transform .3s'; el.style.transform = ''; };
+  el.addEventListener('pointerup', up); el.addEventListener('pointercancel', up);
+  el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); tear(); } });
+}
+
+/* ---------- 撕下之後：同一頁寫字＋給誰看 → 拖糖果進罐子（完成今天）→ 盲盒 ---------- */
+const VIS = ['只給自己', '開一扇小窗', '放上心聲牆'];
+function visDesc(v) {
+  const w = S.d.wall;
+  if (v === '只給自己') return S.d.guest ? '這一頁只屬於你，只存在這支手機' : '這一頁只屬於你';
+  if (v === '開一扇小窗') return 'Mia 路過時可能看見，偶爾留句悄悄話';
+  return w.unavailable ? '這篇目前沒辦法放上心聲牆' : !w.open ? '心聲牆暫時休息中' : '匿名，大家都能讀、送你貼紙（最多 300 字）';
+}
+function writeBlock(cur, vis0, hasBox) {
+  const w = S.d.wall, wallOff = !w.open || w.unavailable; if (vis0 === '放上心聲牆' && wallOff) vis0 = '只給自己';
+  const i0 = Math.max(0, VIS.indexOf(vis0));
+  return `<label for="ans" class="sr">寫下你的回答</label><textarea id="ans" maxlength="2000" placeholder="想到什麼就寫什麼……">${esc(cur)}</textarea>
+    <div class="tiny mut" style="text-align:right;width:100%"><span id="cnt">${U.len(cur)}</span> 字${hasBox ? '' : '・寫一個字就能拆盲盒'}</div>
+    <div class="vwrap"><b class="small" style="color:var(--brown)" id="vlab">這一頁要給誰看？</b>
+      <div class="vsl" id="vsl" role="radiogroup" aria-labelledby="vlab" data-i="${i0}"><span class="th" style="--i:${i0}"></span>
+        ${VIS.map((v, i) => `<button type="button" role="radio" data-v="${i}" aria-checked="${i === i0}" tabindex="${i === i0 ? 0 : -1}" class="${i === i0 ? 'on' : ''}${i === 2 && wallOff ? ' off' : ''}"${i === 2 && wallOff ? ' aria-disabled="true"' : ''}>${v}</button>`).join('')}</div>
+      <div class="vdesc" id="vdesc" aria-live="polite">${esc(visDesc(VIS[i0]))}</div></div>`;
+}
+function bindWrite() {
+  const ta = $('#ans'), sl = $('#vsl'), th = $('.th', sl), bs = $$('button', sl);
+  ta.addEventListener('input', () => { $('#cnt').textContent = U.len(ta.value); });
+  const set = (i, focus) => {
+    if (bs[i].classList.contains('off')) { $('#vdesc').textContent = visDesc(VIS[i]); return; }
+    sl.dataset.i = i; th.style.setProperty('--i', i);
+    bs.forEach((b, j) => { b.classList.toggle('on', j === i); b.setAttribute('aria-checked', j === i); b.tabIndex = j === i ? 0 : -1; });
+    $('#vdesc').textContent = visDesc(VIS[i]); if (focus) bs[i].focus(); U.vibrate(8);
+  };
+  bs.forEach((b, i) => b.addEventListener('click', () => set(i)));
+  sl.addEventListener('keydown', e => { const i = +sl.dataset.i; if (e.key === 'ArrowRight' || e.key === 'ArrowDown') { e.preventDefault(); let n = Math.min(2, i + 1); if (bs[n].classList.contains('off')) n = i; set(n, true); } if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') { e.preventDefault(); set(Math.max(0, i - 1), true); } });
+  let drag = false; const at = x => { const r = sl.getBoundingClientRect(); return Math.max(0, Math.min(2, Math.floor((x - r.left) / (r.width / 3)))); };
+  th.addEventListener('pointerdown', e => { drag = true; th.setPointerCapture(e.pointerId); });
+  th.addEventListener('pointermove', e => { if (!drag) return; const i = at(e.clientX); if (i !== +sl.dataset.i && !bs[i].classList.contains('off')) set(i); });
+  th.addEventListener('pointerup', () => { drag = false; }); th.addEventListener('pointercancel', () => { drag = false; });
+  return () => ({ content: ta.value, vis: VIS[+sl.dataset.i] });
+}
+async function checkWall(dr) {
+  if (dr.vis !== '放上心聲牆' || !dr.content.trim()) return true;
+  if (U.len(dr.content.trim()) > 300) { toast('放上心聲牆最多 300 字', 'err'); return false; }
+  if (!S.d.wall.agreed && !dr.agree) { const ok = await agreement(); if (!ok) return false; dr.agree = true; }
+  return true;
+}
+function flowQuestion(page, draft) {
+  draft = draft || { content: '', vis: '只給自己' };
+  S.flow = () => flowQuestion(page, draft);
+  const late = page < S.d.today || S.d.phase === 'jan';
+  mount(`<div class="stack"><div class="qcard"><span class="cd">${late ? '補撕・' : ''}12/${String(page).padStart(2, '0')}・第 ${page} 頁</span>
+    <span class="talk">每天一次，和自己說說話</span>
+    <span class="qt">${esc(PAGE(page).q)}</span><span class="guide">${esc(PAGE(page).g)}</span>
+    ${writeBlock(draft.content, draft.vis, false)}</div>
+    ${S.d.guest ? '<p class="tiny mut">你是訪客：選「只給自己」只存在這支手機；選另外兩種才會上傳這一篇。</p>' : ''}
+    <button class="btn" id="tocandy">選一顆糖果放進罐子・${late ? '補好這一頁' : '完成今天'}</button>
+    <p class="small mut" style="text-align:center;margin-top:-4px">放進糖果，${late ? '這一頁就補好了' : '今天的紀錄就完成了'}</p></div>`);
+  const get = bindWrite();
+  $('#tocandy').addEventListener('click', async () => { const dr = Object.assign(draft, get()); if (!(await checkWall(dr))) return; flowCandy(page, dr); });
+}
+function jarHtml(id, items, small) {
+  return `<div class="jarbox${small ? ' sm' : ''}" id="${id}"><div class="lid open"></div><div class="jar mouth${small ? ' small' : ''}" id="${id}-in">${items}</div></div>`;
+}
+function flowCandy(page, draft) {
+  S.flow = () => flowCandy(page, draft);
+  const today = page === S.d.today && S.d.phase === 'dec';
+  const jar = S.d.entries.slice(-12).map(x => `<span class="it">${marble(x.marble, 24)}</span>`).join('');
+  mount(`<div class="stack"><div style="display:flex;justify-content:space-between;align-items:center"><b class="qt" style="font-size:19px">${today ? '今天' : '12/' + page + ' '}想放哪一顆？</b><button class="lnk" id="backq">回上一步</button></div>
+    <div class="pick" role="radiogroup" aria-label="糖果口味">${Object.keys(MARBLE).map(n => `<button class="pk" role="radio" aria-checked="false" data-m="${n}">${marble(n, 40)}${n}</button>`).join('')}</div>
+    <p class="tiny mut" style="text-align:center" id="hint">長按糖果，拖到罐口放開<br>（也可以點一下糖果，再點罐子）</p>
+    <button class="jarbtn" id="jarb" aria-label="把選好的糖果放進罐子">${jarHtml('jb', jar, true)}</button>
+    <p class="small mut" style="text-align:center">${draft.content.trim() ? '放進糖果就完成，接著拆今天的盲盒' : '放進糖果，' + (today ? '今天的紀錄就完成了' : '這一頁就補好了')}</p></div>`);
+  $('#backq').addEventListener('click', () => flowQuestion(page, draft));
+  let pick = '', busy = false;
+  const jb = $('#jb'), jarRect = () => { const r = jb.getBoundingClientRect(); return { l: r.left - 20, r: r.right + 20, t: r.top - 40, b: r.bottom }; };
+  const over = (x, y) => { const r = jarRect(); return x > r.l && x < r.r && y > r.t && y < r.b; };
+  const select = b => { pick = b.dataset.m; $$('.pk').forEach(x => { x.classList.toggle('sel', x === b); x.setAttribute('aria-checked', x === b); }); jb.classList.add('hot'); $('#hint').textContent = '好，點罐子或把糖果拖進去'; };
+  $$('.pk').forEach(b => {
+    let t0 = null, ghost = null, sx = 0, sy = 0, timer = null;
+    const begin = (x, y) => { if (ghost || busy) return; select(b); ghost = document.createElement('span'); ghost.className = 'ghost'; ghost.innerHTML = marble(b.dataset.m, 46); document.body.appendChild(ghost); moveG(x, y); U.vibrate(15); b.classList.add('lift'); };
+    const moveG = (x, y) => { ghost.style.transform = `translate(${x - 23}px,${y - 23}px) scale(1.15)`; jb.classList.toggle('over', over(x, y)); };
+    b.addEventListener('pointerdown', e => { if (busy) return; t0 = Date.now(); sx = e.clientX; sy = e.clientY; b.setPointerCapture(e.pointerId); timer = setTimeout(() => begin(sx, sy), 220); });
+    b.addEventListener('pointermove', e => { if (t0 == null) return; if (!ghost && Math.hypot(e.clientX - sx, e.clientY - sy) > 8) { clearTimeout(timer); begin(e.clientX, e.clientY); } if (ghost) { e.preventDefault(); moveG(e.clientX, e.clientY); } });
+    const end = e => {
+      clearTimeout(timer); if (t0 == null) return; t0 = null; b.classList.remove('lift');
+      if (!ghost) return select(b);
+      const g = ghost; ghost = null; jb.classList.remove('over');
+      if (e && e.type === 'pointerup' && over(e.clientX, e.clientY)) return drop(b.dataset.m, e.clientX, e.clientY, g);
+      const r = b.getBoundingClientRect(); g.animate([{ transform: g.style.transform }, { transform: `translate(${r.left + r.width / 2 - 23}px,${r.top + 20}px) scale(1)` }], { duration: 260, easing: 'ease-out' }).onfinish = () => g.remove();
+    };
+    b.addEventListener('pointerup', end); b.addEventListener('pointercancel', end);
+    b.addEventListener('click', e => { if (e.detail === 0) select(b); });   /* 鍵盤 */
+  });
+  $('#jarb').addEventListener('click', () => { if (!pick || busy) { if (!pick) toast('先選一顆糖果'); return; } const r = $(`.pk[data-m="${pick}"]`).getBoundingClientRect(); drop(pick, r.left + r.width / 2, r.top + r.height / 2); });
+  async function drop(name, x, y, g) {
+    if (busy) return; busy = true; $$('.pk').forEach(b => b.disabled = true);
+    if (!g) { g = document.createElement('span'); g.className = 'ghost'; g.innerHTML = marble(name, 46); document.body.appendChild(g); }
+    const inner = $('#jb-in'), jr = inner.getBoundingClientRect(), cx = jr.left + jr.width / 2 - 23, mouth = jr.top - 30, rest = jr.bottom - 40, rx = cx + (Math.random() * 50 - 25);
+    const call = api.call('calMarble', { page, marble: name });
+    const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const T = (px, py, s, r) => `translate(${px}px,${py}px) scale(${s}) rotate(${r || 0}deg)`;
+    const anim = reduce ? null : g.animate([
+      { transform: T(x - 23, y - 23, 1.15), easing: 'ease-out' },
+      { transform: T(cx, mouth, 1), offset: .25, easing: 'ease-in' },
+      { transform: T(cx, rest, .9), offset: .5, easing: 'ease-out' },
+      { transform: T(cx + (rx - cx) * .4, rest - 36, .9, 60), offset: .64, easing: 'ease-in' },
+      { transform: T(cx + (rx - cx) * .7, rest, .9, 120), offset: .76, easing: 'ease-out' },
+      { transform: T(cx + (rx - cx) * .85, rest - 12, .9, 170), offset: .86, easing: 'ease-in' },
+      { transform: T(rx, rest, .9, 240), offset: 1 }], { duration: 1250, fill: 'forwards' });
+    setTimeout(() => { U.vibrate(25); inner.classList.add('shake'); }, reduce ? 0 : 640);
+    setTimeout(() => U.vibrate(10), reduce ? 0 : 950);
+    let r; try { r = await call; } catch (e) { g.remove(); busy = false; $$('.pk').forEach(b => b.disabled = false); return errToast(e); }
+    if (anim) await anim.finished.catch(() => { });
+    const sp = document.createElement('span'); sp.className = 'it'; sp.innerHTML = marble(name, 24); inner.appendChild(sp); g.remove();
+    S.d.entries = S.d.entries.filter(x => x.page !== page).concat([r.entry]).sort((a, b) => a.page - b.page); S.d.stats.torn = r.count;
+    (r.newTitles || []).forEach((t, i) => setTimeout(() => toast('解鎖新稱號：' + t.name), 1200 + i * 1500));
+    if (!U.ls.get('miaplay.cal.homeTip')) { U.ls.set('miaplay.cal.homeTip', '1'); S.homeTip = true; }
+    const okMsg = (today ? '今天的紀錄完成了' : '這一頁補好了') + '・罐子裡第 ' + r.count + ' 顆';
+    await new Promise(res => setTimeout(res, 350));
+    if (draft.content.trim()) return save(page, draft.content, draft.vis, { agree: draft.agree, okMsg });
+    refresh(); flowDone(page, okMsg);
+  }
+}
+function homeTipHtml() { const on = S.homeTip; S.homeTip = false; return on ? `<div class="notice"><span>想每天一點就開？把這頁加到手機主畫面：iPhone 按分享鍵 →「加入主畫面」；Android 按右上角選單 →「加到主畫面」。</span><button data-x>知道了</button></div>` : ''; }
+function bindTip() { const x = $('[data-x]'); if (x) x.addEventListener('click', () => { S.homeTip = false; x.closest('.notice').remove(); }); }
+function flowDone(page, okMsg) {
+  S.flow = () => flowDone(page, okMsg);
+  mount(`<div class="stack" style="text-align:center">${homeTipHtml()}
+    <div class="card stack" style="align-items:center;padding:24px 16px">${marble(entryOf(page) ? entryOf(page).marble : '蜜桃', 56)}<b class="qt" style="font-size:20px">${esc(okMsg.split('・')[0])}</b><span class="mut small">${esc(okMsg.split('・')[1] || '')}</span></div>
+    <button class="btn" data-write="${page}">想寫幾句？寫一個字就能拆盲盒</button>
+    <div class="g2"><button class="btn2" data-go="jar">看我的糖罐</button><a class="btn2" href="${HOME}">回大廳</a></div></div>`);
+  bindTip(); $$('[data-write]').forEach(b => b.addEventListener('click', () => startWrite(+b.dataset.write)));
+}
+/* 之後再寫或修改 */
+function startWrite(page) {
+  S.flow = () => startWrite(page);
+  const e = entryOf(page) || {}, cur = contentOf(e);
+  mount(`<div class="stack"><div class="qcard" style="animation:none"><span class="cd">12/${String(page).padStart(2, '0')}・第 ${page} 頁</span><span class="talk">每天一次，和自己說說話</span>
+    <span class="qt">${esc(PAGE(page).q)}</span><span class="guide">${esc(PAGE(page).g)}</span>${writeBlock(cur, e.vis || '只給自己', !!e.box)}</div>
+    ${S.d.guest && !e.box ? '<p class="tiny mut">你是訪客：選「只給自己」只存在這支手機；選另外兩種才會上傳這一篇。</p>' : ''}
+    ${e.wallStatus === '評估中' ? '<div class="card small"><b>這篇正在評估中</b><br>評估完成後就會出現在心聲牆上，通常 1–2 天內。</div>' : ''}
+    <button class="btn" id="send">${e.box ? '儲存' : '送出，拆一個盲盒'}</button>
+    <button class="lnk" style="align-self:center" id="skip">${e.chars ? '不改了' : '今天先不寫'}</button></div>`);
+  const get = bindWrite();
+  $('#skip').addEventListener('click', () => { S.flow = null; go('today'); });
+  $('#send').addEventListener('click', async () => { const dr = get(); if (!(await checkWall(dr))) return; save(page, dr.content, dr.vis, { agree: dr.agree }); });
+}
+async function save(page, content, vis, opt) {
+  opt = opt || {}; const d = S.d, e = entryOf(page) || {};
+  if (!String(content).trim() && !e.box) return toast('寫一個字以上就能拆盲盒', 'err');
+  const guestSelf = d.guest && vis === '只給自己';
+  const btn = $('#send'); if (btn) btn.disabled = true;
+  let r;
+  try { r = await api.call('calSave', { page, content: guestSelf ? '' : content, chars: U.len(content.trim()), vis, agree: !!opt.agree }); }
+  catch (er) {
+    if (btn) btn.disabled = false;
+    if (er.code === 'CAL_AGREE') { d.wall.agreed = false; const ok = await agreement(); if (ok) return save(page, content, vis, Object.assign(opt, { agree: true })); }
+    errToast(er); return opt.okMsg ? flowDone(page, opt.okMsg) : null;
+  }
+  if (opt.agree) d.wall.agreed = true;
+  const keepLocal = d.guest && (r.entry.vis === '只給自己' || !r.entry.vis);
+  if (keepLocal) Local.set(page, content.trim()); else Local.del(page);
+  S.d.entries = S.d.entries.filter(x => x.page !== page).concat([r.entry]).sort((a, b) => a.page - b.page);
+  if (r.collection) S.d.collection = r.collection;
+  S.d.stats.written = S.d.entries.filter(x => x.chars > 0).length;
+  (r.newTitles || []).forEach((t, i) => setTimeout(() => toast('解鎖新稱號：' + t.name), 2400 + i * 1500));
+  refresh();
+  if (r.box) return showBox(page, r, content, opt.okMsg);
+  if (r.blocked) return showBlocked(page, content, r.blocked);
+  if (opt.okMsg) return flowDone(page, opt.okMsg);
+  toast(r.review ? '已送出，這篇正在評估中' : '已儲存'); S.flow = null; go(S.view === 'today' ? 'today' : S.view);
+}
+function agreement() {
+  return modal('心聲牆的小約定', `<p class="small mut">這面牆是大家安心說話的地方。放上去之前，請先答應這幾件事：</p>
+    <div class="stack" style="gap:8px">${['不放自己或別人的電話、LINE ID、地址、網址等個人資料', '不罵人、不騷擾、不指名道姓批評任何人', '不廣告、不推銷、不拉人加群組', '不放違法、色情或威脅別人的內容', '抱怨、氣話和針對人的負面話，留給自己寫、自己看就好'].map((t, i) => `<div class="rule"><b>${i + 1}</b><span>${t}</span></div>`).join('')}</div>
+    <p class="tiny mut">不符合約定的內容不會出現在牆上，嚴重時這個帳號會暫停放上心聲牆。心聲牆也可能偶爾休息一下。</p>
+    <label class="ck"><input type="checkbox" id="agr">我知道了，會好好遵守</label><span class="tiny" id="agre" style="color:#8A2F25"></span>`,
+    [{ l: '放上心聲牆', v: true, check: bg => { if ($('#agr', bg).checked) return true; $('#agre', bg).textContent = '請先勾選「我知道了」'; return false; } }, { l: '取消', v: false, c: 'btn2' }]);
+}
+
+/* 盲盒 */
+function showBox(page, r, content, okMsg) {
+  S.flow = () => showBox(page, r, content, okMsg);
+  const b = r.box, kind = b.kind, ticket = kind === 'ticket';
+  const col = S.d.collection || { cats: {} }, haveRare = Object.keys(col.cats || {}).filter(k => col.cats[k] > 0).length;
+  const title = kind === 'empty' ? '打開是一張小紙條' : ticket ? '好幸運！拆到票券糖' : kind === 'gold' ? b.name : kind === 'rare' ? b.name : '抽到「' + b.name + '」';
+  const badge = kind === 'rare' ? '<span class="badge b2">稀有・6 款之一</span>' : kind === 'gold' ? '<span class="badge b3">超稀有</span>' : '';
+  const sub = kind === 'rare' ? `貓咪棒棒糖收集 ${haveRare} / 6・已放進你的糖罐` : kind === 'gold' ? '閃閃發亮的，已經放進你的糖罐' : kind === 'common' ? '已放進你的糖罐' : '';
+  const art = kind === 'empty' ? sweet('空盒', 76) : sweet(b.name, kind === 'common' ? 76 : 96);
+  mount(`<div class="stack box-${kind}" style="text-align:center">${okMsg ? `<div class="okm">${esc(okMsg)}</div>` : ''}${homeTipHtml()}
+    <b class="qt" style="margin-top:6px">拆開看看…</b>
+    <div class="blind shaking" id="bl">${kind === 'rare' || kind === 'gold' ? '<span class="glow"></span>' : ''}${kind === 'gold' ? '<i class="sp s1">✦</i><i class="sp s2">✦</i><i class="sp s3">✧</i><i class="sp s4">✦</i>' : ''}<div class="candy">${art}</div><div class="bx"></div><div class="bl"></div></div>
+    <div id="res" style="opacity:0;transition:opacity .4s" class="stack">
+      ${badge ? `<span>${badge}</span>` : ''}<b class="qt" style="font-size:21px">${esc(title)}</b>${sub ? `<span class="mut small">${esc(sub)}</span>` : ''}
+      ${kind === 'empty' ? '<div class="lineq small">今天的糖果還在路上，明天再來拆一次。</div>' : ''}
+      ${ticket ? couponCard(b.coupon) + '<div class="warn small">請先下載券圖自己保存。預約時出示券號就能使用，一張券只能用一次。</div><button class="btn" data-dl>下載券圖</button>' : ''}
+      <div class="lineq"><b>今天的一句</b><br><span>${esc(r.line || PAGE(page).l)}</span></div>
+      ${r.blocked ? '<button class="btn" data-blk>看看這篇為什麼沒放上牆</button>' : ''}
+      <div class="g2"><button class="btn2" data-go="jar">看我的糖罐</button><a class="btn2" href="${HOME}">回大廳</a></div></div></div>`);
+  if (kind === 'gold') document.body.classList.add('goldbg');
+  bindTip();
+  setTimeout(() => { const bl = $('#bl'); if (bl) { bl.classList.remove('shaking'); bl.classList.add('opened'); U.vibrate(kind === 'gold' ? [60, 90, 60] : kind === 'rare' ? [40, 60, 40] : 40); } }, 950);
+  setTimeout(() => { const x = $('#res'); if (x) x.style.opacity = 1; }, 1400);
+  const dl = $('[data-dl]'); if (dl) dl.addEventListener('click', () => couponImage(b.coupon));
+  const bk = $('[data-blk]'); if (bk) bk.addEventListener('click', () => showBlocked(page, content, r.blocked));
+}
+function couponCard(c) {
+  return `<div class="cpn"><div class="l"><span style="font-family:var(--serif);font-weight:700;color:var(--brown);font-size:16px">Mia 療癒折抵券</span><span class="mut tiny">${esc(c.plans)}</span>
+    <span style="font-family:var(--num);font-weight:800;color:#B5523B;letter-spacing:1px;margin-top:4px">${esc(c.code)}</span><span class="mut" style="font-size:11px">效期至 ${esc(String(c.expiresAt).replace(/-/g, '/'))}・可轉送・認券不認人</span></div>
+    <div class="r"><span style="font-size:12px">折抵</span><b style="font-size:30px;line-height:1">${c.amount}</b><span style="font-size:12px">元</span></div></div>`;
+}
+async function couponImage(c) {
+  try { await document.fonts.ready; } catch (e) { }
+  const W = 1080, H = 1920, cv = document.createElement('canvas'); cv.width = W; cv.height = H; const x = cv.getContext('2d');
+  const g = x.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#FFF4EE'); g.addColorStop(1, '#F8D3C3'); x.fillStyle = g; x.fillRect(0, 0, W, H);
+  const rr = (X, Y, w, h, r) => { x.beginPath(); x.moveTo(X + r, Y); x.arcTo(X + w, Y, X + w, Y + h, r); x.arcTo(X + w, Y + h, X, Y + h, r); x.arcTo(X, Y + h, X, Y, r); x.arcTo(X, Y, X + w, Y, r); x.closePath(); };
+  x.textAlign = 'center'; x.fillStyle = '#5A4632'; x.font = '700 64px "Noto Serif TC",serif'; x.fillText('Mia 療癒折抵券', W / 2, 430);
+  x.fillStyle = '#fff'; rr(110, 520, W - 220, 760, 40); x.fill(); x.strokeStyle = '#C9A35A'; x.lineWidth = 6; x.stroke();
+  x.fillStyle = '#B5523B'; x.font = '800 260px "Nunito",sans-serif'; x.fillText(String(c.amount), W / 2, 860); x.font = '700 60px "Noto Sans TC",sans-serif'; x.fillText('元', W / 2 + 250, 860);
+  x.fillStyle = '#8A4A39'; x.font = '800 80px "Nunito",sans-serif'; x.fillText(c.code, W / 2, 1010);
+  x.fillStyle = '#6E6159'; x.font = '500 40px "Noto Sans TC",sans-serif'; x.fillText('可用於：' + c.plans, W / 2, 1100); x.fillText('效期至 ' + String(c.expiresAt).replace(/-/g, '/') + '・可轉送・認券不認人', W / 2, 1170);
+  x.font = '500 38px "Noto Sans TC",sans-serif'; x.fillText('預約時出示券號，一張券只能用一次', W / 2, 1420); x.fillText('2026 最後 31 天・倒數撕日曆', W / 2, 1490);
+  const blob = await new Promise(r => cv.toBlob(r, 'image/png')), src = URL.createObjectURL(blob), file = new File([blob], c.code + '.png', { type: 'image/png' });
+  const canFile = navigator.canShare && navigator.canShare({ files: [file] });
+  const v = await modal('你的折抵券', `<img src="${src}" alt="折抵券 ${esc(c.code)}" style="width:min(64vw,240px);margin:0 auto;border-radius:12px;box-shadow:0 6px 20px rgba(0,0,0,.15)"><p class="tiny mut" style="text-align:center">在 LINE 裡打開時，請長按圖片儲存</p>`,
+    (canFile ? [{ l: '存到相簿或傳給朋友', v: 'share' }] : []).concat([{ l: '下載圖片', v: 'dl', c: canFile ? 'btn2' : 'btn' }, { l: '關閉', v: null, c: 'btn2' }]));
+  if (v === 'share') { try { await navigator.share({ files: [file] }); } catch (e) { } }
+  if (v === 'dl') { const a = document.createElement('a'); a.href = src; a.download = c.code + '.png'; document.body.appendChild(a); a.click(); a.remove(); }
+}
+
+/* 心聲牆沒有通過 */
+function hl(text, hits) {
+  let out = '', i = 0; (hits || []).forEach(h => { out += esc(text.slice(i, h[0])) + '<mark>' + esc(text.slice(h[0], h[1])) + '</mark>'; i = h[1]; }); return out + esc(text.slice(i));
+}
+function showBlocked(page, content, b) {
+  S.flow = () => showBlocked(page, content, b);
+  const unsafe = b.kind === 'unsafe';
+  mount(`<div class="stack"><b class="qt" style="font-size:19px;text-align:left">${unsafe ? '這篇先不放上牆' : '這段很適合留給自己'}</b>
+    ${unsafe ? `<div class="warn"><b>裡面有不適合公開的內容</b><span class="small">為了保護你，含有${b.cat === 'privacy' ? '電話、連結等個人資料' : '推銷或不適合公開'}的文字不會放上心聲牆。</span></div>`
+      : `<div class="softw"><b>想說的話，這裡都接得住</b><span class="small">這段比較像想好好抒發的心情。心聲牆是大家互相打氣的地方，抱怨和氣話先不放上去；留給自己寫、自己看，一樣很好。</span></div>`}
+    <div class="card"><span class="tiny mut">你寫的內容</span><div style="white-space:pre-wrap">${hl(content, b.hits)}</div></div>
+    <span class="mut small">你可以：</span>
+    ${unsafe ? '<button class="btn" data-a="edit">刪掉標黃色的部分再放上牆</button>' : '<button class="btn" data-a="self">留給自己（只給自己）</button>'}
+    <button class="btn2" data-a="win">改成開一扇小窗</button>
+    ${unsafe ? '<button class="btn2" data-a="self">改成只給自己</button>' : '<button class="btn2" data-a="edit">修改後再放上牆</button><button class="lnk" style="align-self:center" data-a="retry">再放一次試試</button>'}
+    <span class="tiny mut" style="text-align:center">這一頁已經好好保存，糖果也照樣能拆。</span></div>`);
+  $$('[data-a]').forEach(btn => btn.addEventListener('click', async () => {
+    const a = btn.dataset.a;
+    if (a === 'edit') { const e = entryOf(page); if (e) e.vis = '放上心聲牆'; S.d.entries = S.d.entries.slice(); return startWrite(page); }
+    if (a === 'self' || a === 'win') return save(page, content, a === 'self' ? '只給自己' : '開一扇小窗');
+    if (a === 'retry') {
+      try { const r = await api.call('calRetryWall', { page, content }); S.d.entries = S.d.entries.filter(x => x.page !== page).concat([r.entry]).sort((x, y) => x.page - y.page); Local.del(page); }
+      catch (e) { return errToast(e); }
+      S.flow = null;
+      mount(`<div class="stack"><b class="qt" style="font-size:19px;text-align:left">放上心聲牆</b><div class="card" style="background:#F5F6F8"><b>這篇正在評估中</b><p class="small">評估完成後就會出現在心聲牆上，通常 1–2 天內。這段時間你隨時可以在糖罐裡看到它。</p></div><button class="btn" data-go="jar">好</button></div>`);
+    }
+  }));
+}
+
+/* ---------- 打開一頁（自己的紀錄＋悄悄話） ---------- */
+async function openEntry(page) {
+  let r; try { r = await api.call('calEntry', { page, read: true }); } catch (e) { return errToast(e); }
+  const e = r.entry, content = contentOf(e), local = S.d.entries.find(x => x.page === page); if (local) local.unread = false;
+  const hasW = e.miaAt;
+  const paper = hasW ? `<div class="paper"><div style="display:flex;gap:10px;align-items:center;margin-bottom:10px">${e.miaSticker ? `<span class="stk">${stkIcon(e.miaSticker)}${esc(e.miaSticker)}</span><span class="tiny mut">Mia 貼了一張貼紙</span>` : ''}</div>
+      ${e.miaWhisper ? `<p style="font-family:var(--serif);font-size:15px;color:#3E352C;line-height:1.8;margin-bottom:10px">${esc(e.miaWhisper)}</p>` : ''}<p style="text-align:right;font-size:13px;color:#8A4A39;font-weight:700">— Mia</p></div>
+    <div class="card"><b class="small">回一張貼紙給 Mia</b><div class="sgrid" style="margin-top:8px">${S.d.stickers.map(s => `<button class="stk ${e.playerSticker === s ? 'on' : ''}" data-rs="${esc(s)}" aria-pressed="${e.playerSticker === s}">${stkIcon(s)}${esc(s)}</button>`).join('')}</div><p class="tiny mut" style="margin-top:6px">不用打字，貼一張就好。「看見了」＝讀到了、沒有特別想說的</p></div>` : '';
+  const wallNote = e.vis === '放上心聲牆' && e.wallStatus === '已收下' ? '<div class="card small" style="background:#F5F6F8">這篇暫時沒有放在心聲牆上，內容仍然好好留在你的糖罐裡。</div>' : e.wallStatus === '評估中' ? '<div class="card small" style="background:#F5F6F8">這篇正在評估中，評估完成後就會出現在心聲牆上。</div>' : '';
+  await modal(hasW ? '小窗邊的悄悄話' : '12/' + String(page).padStart(2, '0') + ' 的這一頁', `
+    <div class="card" style="gap:2px"><span class="tiny mut">12/${String(page).padStart(2, '0')}・${esc(PAGE(page).q)}</span><div style="white-space:pre-wrap;margin-top:4px">${content ? esc(content) : '<span class="mut">（這一頁沒有寫字）</span>'}</div>
+      <div class="chips" style="margin-top:8px">${e.box && rarity(e.box) !== 'empty' ? `<span class="chip g">${esc(boxName(e.box))}</span>` : ''}${e.vis ? `<span class="tag me">${esc(e.vis)}</span>` : ''}${e.vis === '放上心聲牆' && e.stickerTotal ? `<span class="chip">收到貼紙 ${e.stickerTotal}</span>` : ''}${e.tear === '補撕' ? '<span class="tag">補撕</span>' : ''}</div></div>
+    ${wallNote}${paper}${r.entry.line ? `<div class="lineq small"><b>今天的一句</b><br>${esc(r.entry.line)}</div>` : ''}`,
+    [{ l: '修改內容或給誰看', v: 'edit' }, { l: '關閉', v: null, c: 'btn2' }],
+    (bg) => $$('[data-rs]', bg).forEach(b => b.addEventListener('click', async () => {
+      try { await api.call('calReplySticker', { page, sticker: b.dataset.rs }); $$('[data-rs]', bg).forEach(x => { x.classList.toggle('on', x === b); x.setAttribute('aria-pressed', x === b); }); toast('已回貼紙「' + b.dataset.rs + '」給 Mia'); } catch (er) { errToast(er); }
+    }))).then(v => { if (v === 'edit') startWrite(page); else render(); });
+}
+
+/* ---------- 糖罐（糖罐／圖鑑） ---------- */
+const md = p => '12/' + String(p).padStart(2, '0');
+function tipAt(el, text) {
+  $$('.tipx').forEach(t => t.remove());
+  const t = document.createElement('div'); t.className = 'tipx'; t.setAttribute('role', 'status'); t.textContent = text; document.body.appendChild(t);
+  const r = el.getBoundingClientRect(); t.style.left = Math.max(8, Math.min(innerWidth - t.offsetWidth - 8, r.left + r.width / 2 - t.offsetWidth / 2)) + 'px'; t.style.top = (r.top + scrollY - t.offsetHeight - 10) + 'px';
+  setTimeout(() => document.addEventListener('click', function off(e) { if (e.target === el || el.contains(e.target)) return; t.remove(); document.removeEventListener('click', off); }), 0);
+}
+function viewJar() {
+  const d = S.d, tab = S.jarTab || 'jar', c = d.collection || { cats: {}, common: {}, gold: 0, ticket: 0, items: [] };
+  const items = d.entries.map(e => `<button class="it" data-open="${e.page}" aria-label="${md(e.page)} 的糖果，看那天寫的${e.unread ? '，有悄悄話' : ''}" style="position:relative">${marble(e.marble, 28)}${e.unread ? '<span class="dot" style="top:-2px;right:-2px"></span>' : ''}</button>`
+    + (e.box && rarity(e.box) !== 'empty' ? `<button class="it sw" data-when="${md(e.page)} 抽到" aria-label="${esc(boxName(e.box))}，${md(e.page)} 抽到">${sweet(e.box, rarity(e.box) === 'common' ? 30 : 34)}</button>` : '')).join('');
+  const unread = d.entries.filter(e => e.unread);
+  const owned = SW.common.filter(k => (c.common || {})[k] > 0).length + SW.rare.filter(k => (c.cats || {})[k] > 0).length + (c.gold ? 1 : 0);
+  const tabs = `<div class="chips" role="tablist">${[['jar', '糖罐'], ['dex', '圖鑑 ' + owned + '/' + (SW.common.length + SW.rare.length + 1)]].map(([k, l]) => `<button class="fbtn ${tab === k ? 'on' : ''}" role="tab" aria-selected="${tab === k}" data-tab="${k}">${l}</button>`).join('')}</div>`;
+  let body;
+  if (tab === 'dex') {
+    const when = n => (c.items || []).filter(x => x.name === n).map(x => md(x.page)).join('、');
+    const dx = (n, cnt, cls) => `<button class="dx ${cls || ''} ${cnt ? '' : 'off'}" ${cnt ? `data-when="${esc(when(n))} 抽到"` : 'disabled'} aria-label="${cnt ? esc(n) + '，有 ' + cnt + ' 個' : '還沒抽到'}"><span class="art">${sweet(n, 44, !cnt)}${cnt ? '' : '<b class="qm" aria-hidden="true">？？</b>'}</span><span>${cnt ? esc(n) : '還沒抽到'}</span>${cnt > 1 ? `<small>×${cnt}</small>` : ''}</button>`;
+    const daily = Object.keys(MARBLE).map(n => { const k = d.entries.filter(e => e.marble === n).length; return `<div class="dd">${marble(n, 28)}<span>${n}</span>${k ? `<small>${k} 顆</small>` : ''}</div>`; }).join('');
+    body = `<div class="card"><div class="sec">每天的糖果 <em>自己選口味</em></div><div class="g6">${daily}</div></div>
+      <div class="sec">盲盒小物 <span class="badge b1">一般・${SW.common.length} 款</span></div><div class="dex">${SW.common.map(n => dx(n, (c.common || {})[n] || 0)).join('')}</div>
+      <div class="sec">貓咪棒棒糖 <span class="badge b2">稀有・${SW.rare.length} 款</span></div><div class="dex">${SW.rare.map(n => dx(n, (c.cats || {})[n] || 0, 'rare')).join('')}</div>
+      <div class="sec">金色貓咪糖 <span class="badge b3">超稀有</span></div><div class="dex" style="grid-template-columns:1fr">${dx(SW.gold, c.gold || 0, 'gold')}</div>
+      <p class="tiny mut" style="text-align:center">點抽到的小物，可以看是哪一天抽到的</p>`;
+  } else {
+    body = `${jarHtml('jarv', items || '<span class="mut small" style="align-self:center;margin:auto">還沒有糖，去撕第一頁吧</span>')}
+      <p class="tiny mut" style="text-align:center">點糖果看那天寫的內容；點盲盒小物看哪一天抽到</p>
+      <div class="stat3"><div><span class="tiny mut">撕了</span><b>${d.stats.torn}</b><span class="tiny mut">/ 31 頁</span></div><div><span class="tiny mut">寫了</span><b>${d.stats.written}</b><span class="tiny mut">篇</span></div><div><span class="tiny mut">連續</span><b>${d.stats.streak}</b><span class="tiny mut">天</span></div></div>
+      ${d.coupons.length ? `<div class="card stack"><b class="small">我的折抵券</b>${d.coupons.map(cp => couponCard(cp) + `<div class="g2"><span class="tag ${cp.status === '未使用' ? 'me' : ''}" style="justify-self:start;align-self:center">${esc(cp.status)}</span><button class="btn2" data-cp="${esc(cp.code)}">下載券圖</button></div>`).join('')}</div>` : ''}
+      <button class="btn2" data-go="calendar">看 31 天月曆・補撕</button>`;
+  }
+  mount(`<div class="stack">
+    ${unread.length ? `<button class="env" style="align-self:flex-start" data-open="${unread[0].page}">${envIcon}你有 ${unread.length} 則悄悄話</button>` : ''}
+    ${tabs}${body}
+    ${d.guest ? '<div class="notice"><span>你目前是訪客，糖罐只存在這支手機。</span><button data-login>用 LINE 帳號保存</button></div>' : ''}</div>`);
+  $$('[data-tab]').forEach(b => b.addEventListener('click', () => { S.jarTab = b.dataset.tab; viewJar(); }));
+  $$('[data-open]').forEach(b => b.addEventListener('click', () => openEntry(+b.dataset.open)));
+  $$('[data-when]').forEach(b => b.addEventListener('click', () => tipAt(b, b.dataset.when)));
+  $$('[data-cp]').forEach(b => b.addEventListener('click', () => couponImage(d.coupons.find(x => x.code === b.dataset.cp))));
+}
+
+/* ---------- 31 天月曆 ---------- */
+function viewCalendar() {
+  const d = S.d, t = d.today, jan = d.phase === 'jan';
+  let cells = '<span class="c e"></span><span class="c e"></span>';
+  for (let p = 1; p <= 31; p++) {
+    const e = entryOf(p);
+    if (e) cells += `<button class="c ${e.chars > 0 ? 'w' : ''}" data-open="${p}" aria-label="12/${p} 已撕${e.chars ? '，有寫' : ''}"><b>${p}</b>${marble(e.marble, 18)}${e.tear === '補撕' ? '<em>補</em>' : ''}</button>`;
+    else if (p === t && !jan) cells += `<button class="c t" data-today aria-label="12/${p} 今天"><b>${p}</b><em>今天</em></button>`;
+    else if (p < t || jan) cells += `<button class="c x" data-miss="${p}" aria-label="12/${p} 錯過，可補撕"><b>${p}</b><em>可補撕</em></button>`;
+    else cells += `<button class="c f" data-future="${p}" aria-label="12/${p} 還沒到"><b>${p}</b></button>`;
+  }
+  mount(`<div class="stack"><div style="display:flex;justify-content:space-between;align-items:center"><b class="qt" style="font-size:19px">2026 年 12 月</b><span class="mut small">${d.stats.torn} / 31</span></div>
+    <div class="cal"><span class="wd">日</span><span class="wd">一</span><span class="wd">二</span><span class="wd">三</span><span class="wd">四</span><span class="wd">五</span><span class="wd">六</span>${cells}</div>
+    <div class="lg"><span><i class="sw" style="background:var(--soft);border:1px solid #F0C8B6"></i>撕了也寫了</span><span><i class="sw" style="background:#fff;border:1px solid #EFE2D9"></i>只撕頁</span><span><i class="sw" style="border:1.5px dashed var(--primary)"></i>錯過，可補撕</span><span><i class="sw" style="border:2px solid var(--primary)"></i>今天</span></div>
+    <div id="pick"></div><p class="tiny mut">補撕一樣放糖果、一樣能寫，只是不算進「連續天數」。錯過的頁可以補到 1/31。</p></div>`);
+  $$('[data-open]').forEach(b => b.addEventListener('click', () => openEntry(+b.dataset.open)));
+  $$('[data-today]').forEach(b => b.addEventListener('click', () => go('today')));
+  $$('[data-future]').forEach(b => b.addEventListener('click', () => toast('12/' + b.dataset.future + ' 再見')));
+  $$('[data-miss]').forEach(b => b.addEventListener('click', () => {
+    const p = +b.dataset.miss;
+    $('#pick').innerHTML = `<div class="card stack"><b>12/${String(p).padStart(2, '0')}・還沒撕</b><span class="small mut">${esc(PAGE(p).q)}</span><button class="btn" data-late="${p}">補撕這一頁</button></div>`;
+    $('[data-late]').addEventListener('click', () => flowQuestion(p));
+  }));
+}
+
+/* ---------- 心聲牆 ---------- */
+async function viewWall(filter) {
+  filter = filter || S.wallFilter || 'all'; S.wallFilter = filter;
+  mount('<div class="spin" role="status"><i></i><span class="sr">載入中</span></div>');
+  let r; try { r = await api.call('calWall', { filter }); } catch (e) { return mount(`<div class="card">${esc(e.message)}</div>`); }
+  if (r.closed) {
+    return mount(`<div class="stack"><div class="card stack" style="align-items:center;text-align:center;padding:28px 16px"><svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>
+      <b class="qt" style="font-size:18px">心聲牆暫時休息中</b><span class="mut">牆上的心情都好好收著，休息完就會回來。</span></div>
+      <div class="card"><b class="small">今天想寫的話，一樣可以留下</b><p class="small">選「只給自己」或「開一扇小窗」，糖果照樣能拆。</p></div><button class="btn" data-go="today">去撕今天這頁</button></div>`);
+  }
+  const f = (k, l) => `<button class="fbtn ${filter === k ? 'on' : ''}" data-f="${k}" aria-pressed="${filter === k}">${l}</button>`;
+  mount(`<div class="stack"><div style="display:flex;justify-content:space-between;align-items:center"><b class="qt" style="font-size:19px">大家的年末</b><button class="lnk" data-rules>小約定</button></div>
+    <p class="tiny mut">匿名。只能送貼紙、不能留言；覺得不適合可以回報。</p>
+    <div class="chips">${f('all', '全部')}${f('today', '今天這題')}${f('mine', '我寫的')}</div>
+    ${r.items.length ? r.items.map(it => `<div class="wall" data-id="${esc(it.id)}"><span class="tiny mut">12/${String(it.page).padStart(2, '0')}・${esc(it.q)}</span><span style="white-space:pre-wrap">${esc(it.content)}</span>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:6px;flex-wrap:wrap"><span class="chips">${Object.keys(it.stickers).filter(k => it.stickers[k] > 0).map(k => `<span class="chip">${esc(k)} ${it.stickers[k]}</span>`).join('') || '<span class="tiny mut">還沒有貼紙</span>'}</span>${it.mine && it.miaReplied ? '<span class="chip g">Mia 回應了</span>' : ''}</div>
+      ${it.mine ? (it.miaReplied ? `<button class="lnk" style="align-self:flex-start;min-height:32px" data-mine="${it.page}">這是你寫的・點開看回應</button>` : '<span class="tiny mut">這是你寫的</span>') : `<div style="display:grid;grid-template-columns:1fr auto;gap:8px"><button class="btn2" data-stk="${esc(it.id)}">${it.mySticker ? '已送「' + esc(it.mySticker) + '」・換一張' : '送一張貼紙'}</button><button class="btn2" style="border-color:#C9BFB5;color:#6E6159" data-rep="${esc(it.id)}" ${it.reported ? 'disabled' : ''}>${it.reported ? '已回報' : '回報'}</button></div>`}</div>`).join('')
+      : '<div class="card mut small">這裡還沒有內容。寫紀錄時選「放上心聲牆」，就會匿名出現在這裡。</div>'}</div>`);
+  $$('[data-f]').forEach(b => b.addEventListener('click', () => viewWall(b.dataset.f)));
+  $$('[data-mine]').forEach(b => b.addEventListener('click', () => openEntry(+b.dataset.mine)));
+  $('[data-rules]').addEventListener('click', () => modal('心聲牆的小約定', `<div class="stack" style="gap:8px">${['不放自己或別人的電話、LINE ID、地址、網址等個人資料', '不罵人、不騷擾、不指名道姓批評任何人', '不廣告、不推銷、不拉人加群組', '不放違法、色情或威脅別人的內容', '抱怨、氣話和針對人的負面話，留給自己寫、自己看就好'].map((t, i) => `<div class="rule"><b>${i + 1}</b><span>${t}</span></div>`).join('')}</div>`));
+  $$('[data-stk]').forEach(b => b.addEventListener('click', () => modal('送一張貼紙', `<div class="sgrid">${r.stickers.map(s => `<button class="stk" data-s="${esc(s)}">${stkIcon(s)}${esc(s)}</button>`).join('')}</div>`, [{ l: '取消', v: null, c: 'btn2' }],
+    (bg, close) => $$('[data-s]', bg).forEach(x => x.addEventListener('click', async () => { close(null); try { await api.call('calWallSticker', { entryId: b.dataset.stk, sticker: x.dataset.s }); toast('已送出「' + x.dataset.s + '」'); viewWall(filter); } catch (e) { errToast(e); } })))));
+  $$('[data-rep]').forEach(b => b.addEventListener('click', async () => {
+    const v = await modal('回報這一篇', `<p class="small mut">為什麼想回報？回報不會公開是誰。</p><div class="rs" role="radiogroup" aria-label="回報原因">${r.reports.map((x, i) => `<label><input type="radio" name="rr" value="${esc(x)}" ${i ? '' : 'checked'}>${esc(x)}</label>`).join('')}</div>`,
+      [{ l: '送出回報', v: bg => ($('input[name=rr]:checked', bg) || {}).value }, { l: '取消', v: null, c: 'btn2' }]);
+    if (!v) return; try { await api.call('calReport', { entryId: b.dataset.rep, reason: v }); toast('謝謝你，已經收到'); viewWall(filter); } catch (e) { errToast(e); }
+  }));
+}
+
+/* ---------- 展示模式 ---------- */
+function demoMenu() {
+  const cur = S.d ? S.d.now.slice(0, 10) : '';
+  modal('展示模式', `<p class="small mut">資料只存在這個瀏覽器，不會動到正式資料。現在的展示日期：${esc(cur)}</p>
+    <label class="small" for="dd" style="font-weight:700">換展示日期</label><input id="dd" type="date" min="2026-11-25" max="2027-02-05" value="${esc(cur)}" style="min-height:44px;border:1px solid #E1CFC4;border-radius:12px;padding:0 10px">`,
+    [{ l: '換到這一天', v: bg => ({ date: $('#dd', bg).value }) }, { l: '切換身分', v: 'who', c: 'btn2' }, { l: '把心聲牆關起來／打開（模擬後台）', v: 'wall', c: 'btn2' }, { l: '重設展示資料', v: 'reset', c: 'btn2' }, { l: '關閉', v: null, c: 'btn2' }]).then(async v => {
+    if (!v) return;
+    if (v === 'who') return demoLogin();
+    if (v === 'reset') { MOCK.reset(); U.ls.del(Local.key); U.ls.del('miaplay.cal.homeTip'); return load(); }
+    if (v === 'wall') { const st = await MOCK.call('adminCalSettings', {}, 'demo-admin'); await MOCK.call('adminCalWall', { op: st.settings.wallOpen ? 'close' : 'open' }, 'demo-admin'); toast(st.settings.wallOpen ? '心聲牆已關起來' : '心聲牆已打開'); return load(); }
+    if (v.date) { MOCK.setDate(v.date); S.flow = null; return load(); }
+  });
+}
+
+/* ---------- 開始 ---------- */
+(async function boot() {
+  Theme.boot();
+  if (!IS_DEMO) await LineAuth.handleReturn();
+  const h = (location.hash || '').slice(1); if (['jar', 'calendar', 'wall', 'today'].includes(h)) S.view = h;
+  await load();
+})();
+})();
+</script>
+</body>
+</html>

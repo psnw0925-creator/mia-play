@@ -8,17 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700&family=Cormorant+Garamond:wght@500;600&display=swap">
-<script>
-/* ===== Mia 小遊戲・互動後台 C-1.0.0-測試版 1：設定只要改這一段 ===== */
-window.MIA_PLAY_CONFIG = {
-  PLAY_GAS_URL: 'https://script.google.com/macros/s/AKfycbyKo4Ac2EnY6PF6tdM0bGmJno5e95-sEUbpG8x4v8vKHNxJzLpixhb_gUDq8m5K9PgYSQ/exec',   // 互動網站自己的 Apps Script 網址（和 index.html 相同）
-  LINE_LOGIN_CHANNEL_ID: '2012624805',
-  SITE_URL: 'https://psnw0925-creator.github.io/mia-play/admin.html',   // 這個後台的網址
-  PLAY_URL: 'https://psnw0925-creator.github.io/mia-play/',             // 互動網站（客人頁）
-  MAIN_ADMIN_URL: 'https://psnw0925-creator.github.io/mia-booking/admin.html',
-  CARE_ADMIN_URL: 'https://psnw0925-creator.github.io/mia-care/admin.html'
-};
-</script>
+<script src="config.js"></script>
 <style>
 :root{color-scheme:light;
   --bg:#F7F4F1;--paper:#fff;--ink:#2F2A27;--sub:#6B625C;--line:#E7DFD9;--line2:#D9CEC6;
@@ -74,7 +64,17 @@ tr:last-child td{border-bottom:0}
 .bar .tr{height:12px;border-radius:6px;background:#F3ECE8;overflow:hidden}.bar .tr i{display:block;height:100%;background:var(--pri)}
 .hm{display:grid;grid-template-columns:44px repeat(5,minmax(0,1fr));gap:4px;font-size:12px;text-align:center}
 .hm span{padding:7px 0;border-radius:6px}
+.tabs{display:flex;gap:4px;flex-wrap:wrap;margin:-4px 0 14px;border-bottom:1px solid var(--line)}
+.tabs a{min-height:40px;display:inline-flex;align-items:center;padding:0 14px;text-decoration:none;color:var(--sub);font-weight:700;font-size:14px;border-bottom:3px solid transparent;margin-bottom:-1px}
+.tabs a.on{color:var(--pri2);border-bottom-color:var(--pri)}
+.stks{display:flex;flex-wrap:wrap;gap:6px}
+.stkb{min-height:34px;padding:0 12px;border-radius:999px;border:1px solid var(--line2);background:#fff;font-size:13px}
+.stkb.on{background:var(--pri);color:#fff;border-color:var(--pri);font-weight:700}
+.wi{border-top:1px solid var(--line);padding:10px 0}
+.wi:first-of-type{border-top:0}
+.cpbox{border:2px solid #C9A35A;border-radius:14px;padding:14px;margin-top:10px;background:#FFFCF5;display:flex;flex-direction:column;gap:4px}
 .f{display:flex;flex-direction:column;gap:4px;margin-bottom:12px}
+.cvs{display:flex;flex-wrap:wrap;gap:8px}.cv{display:flex;align-items:center;gap:6px;font-size:13px;border:1px solid var(--line2);border-radius:999px;padding:4px 10px 4px 4px;cursor:pointer;min-height:36px}.cv input{position:absolute;opacity:0}.cv span{width:26px;height:26px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px var(--line2)}.cv:has(input:checked){border-color:#B5523B;box-shadow:0 0 0 2px rgba(181,82,59,.2);font-weight:700}.cv:has(input:focus-visible){outline:2px solid #B5523B}
 .f label,.lbl{font-size:12.5px;font-weight:700;color:var(--sub)}
 .f input,.f select,.f textarea,.in{border:1px solid var(--line2);border-radius:10px;padding:8px 10px;background:#fff;min-height:40px;width:100%}
 .f textarea{min-height:70px;resize:vertical}
@@ -124,6 +124,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 'use strict';
 const CFG = window.MIA_PLAY_CONFIG || {};
 const IS_DEMO = false;
+const ADMIN_URL = (CFG.PLAY_URL || '') + 'admin.html';
 const $ = (s, r) => (r || document).querySelector(s);
 const $$ = (s, r) => Array.from((r || document).querySelectorAll(s));
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -136,6 +137,8 @@ const U = {
   dl(name, text, type) { const b = new Blob([text], { type: type || 'application/json' }); const a = document.createElement('a'); a.href = URL.createObjectURL(b); a.download = name; document.body.appendChild(a); a.click(); a.remove(); }
 };
 const TYPES = { quiz: '測驗', trivia: '問答', poll: '心情投票' };
+const COVERS = { navy: '深夜藍', plum: '梅子紫', forest: '森林綠', wine: '酒紅', teal: '湖水青', cocoa: '可可棕' };
+const COVER_BG = { navy: '#24314F', plum: '#4A2F45', forest: '#2E4A3E', wine: '#5A2A30', teal: '#1F4A52', cocoa: '#4A3528' };
 const ST = { open: ['開放中', 'c-open'], upcoming: ['排定上架', 'c-up'], ended: ['待結算', 'c-ended'], closed: ['已收起', 'c-closed'], draft: ['草稿', 'c-draft'] };
 const chip = st => `<span class="chip ${ST[st] ? ST[st][1] : ''}">${ST[st] ? ST[st][0] : esc(st)}</span>`;
 function toast(m, k) { const t = document.createElement('div'); t.className = 'toast' + (k === 'err' ? ' err' : ''); t.setAttribute('role', 'status'); t.textContent = m; document.body.appendChild(t); setTimeout(() => t.remove(), 3200); }
@@ -188,7 +191,7 @@ const LineAuth = {
   start() {
     const state = U.rid(12), nonce = U.rid(12);
     U.ss.set('miaplay.admin.oauth', JSON.stringify({ state, nonce, back: location.hash || '#/' }));
-    const p = new URLSearchParams({ response_type: 'code', client_id: CFG.LINE_LOGIN_CHANNEL_ID, redirect_uri: CFG.SITE_URL, state, scope: 'openid profile', nonce });
+    const p = new URLSearchParams({ response_type: 'code', client_id: CFG.LINE_LOGIN_CHANNEL_ID, redirect_uri: ADMIN_URL, state, scope: 'openid profile', nonce });
     location.href = 'https://access.line.me/oauth2/v2.1/authorize?' + p;
   },
   async handleReturn() {
@@ -198,21 +201,21 @@ const LineAuth = {
     history.replaceState(null, '', location.pathname + (st.back || '#/'));
     if (qs.get('error') || qs.get('state') !== st.state) return toast('LINE 登入未完成，請再試一次', 'err');
     try {
-      const r = await api.call('authLine', { code: qs.get('code'), redirectUri: CFG.SITE_URL, nonce: st.nonce });
+      const r = await api.call('authLine', { code: qs.get('code'), redirectUri: ADMIN_URL, nonce: st.nonce });
       Session.setOwn({ token: r.token, user: r.user, expiresAt: r.expiresAt }); U.ss.del('miaplay.admin.skip');
     } catch (e) { errToast(e); }
   }
 };
 
 /* ---------- 版面 ---------- */
-const NAV = [['#/', '本週總覽'], ['#/games', '遊戲清單'], ['#/templates', '範本庫'], ['#/bank', '題庫'], ['#/data', '數據分析'], ['#/players', '玩家'], ['#/rules', '稱號與獎勵'], ['#/themes', '主題樣式'], ['#/settings', '設定']];
+const NAV = [['#/', '本週總覽'], ['#/games', '遊戲清單'], ['#/templates', '範本庫'], ['#/bank', '題庫'], ['#/data', '數據分析'], ['#/players', '玩家'], ['#/cal', '年末撕日曆'], ['#/rules', '稱號與獎勵'], ['#/themes', '主題樣式'], ['#/settings', '設定']];
 const App = {
   needLogin: '',
   mount(title, inner, on, tools) {
     const u = Session.user() || {};
     $('#app').innerHTML = `<div class="A"><aside class="side" aria-label="後台選單"><a class="logo" href="#/"><span class="pearl" aria-hidden="true"></span><span><b>Mia</b><small>互動後台</small></span></a>
       <nav class="nav">${NAV.map(([h, l]) => `<a href="${h}" class="${on === h ? 'on' : ''}"${on === h ? ' aria-current="page"' : ''}>${l}</a>`).join('')}</nav>
-      <div class="sw"><a href="${esc(CFG.PLAY_URL)}" target="_blank" rel="noopener">→ 打開小遊戲</a><a href="${esc(CFG.MAIN_ADMIN_URL)}">→ 預約後台</a><a href="${esc(CFG.CARE_ADMIN_URL)}">→ 陪伴後台</a><span class="small muted" style="padding:4px 12px">${esc(u.displayName || '')}・管理員</span></div></aside>
+      <div class="sw"><a href="${esc(CFG.PLAY_URL)}"${IS_DEMO ? "" : " target=\"_blank\" rel=\"noopener\""}>→ 打開小遊戲</a><a href="${esc(CFG.MAIN_ADMIN_URL)}">→ 預約後台</a><a href="${esc(CFG.CARE_ADMIN_URL)}">→ 陪伴後台</a><span class="small muted" style="padding:4px 12px">${esc(u.displayName || '')}・管理員</span></div></aside>
       <main class="main"><div class="ph"><h1>${esc(title)}</h1>${IS_DEMO ? '<span class="demo">展示模式</span>' : ''}${tools || ''}</div>${inner}</main></div>`;
     window.scrollTo(0, 0);
   },
@@ -331,6 +334,7 @@ const Edit = {
         <div class="row"><div class="f" style="flex:2"><label for="e-title">遊戲名稱</label><input id="e-title" class="in" value="${esc(g.title)}" placeholder="例如：你的療癒色彩是什麼？"></div><div class="f"><label for="e-week">週次標示</label><input id="e-week" class="in" value="${esc(g.week || '')}" placeholder="例如：第 4 週"></div><div class="f"><label>類型</label><input class="in" value="${TYPES[g.type]}" disabled></div></div>
         <div class="row"><div class="f"><label for="e-st">開放時間</label><input id="e-st" type="datetime-local" class="in" value="${esc(String(g.startAt).slice(0, 16))}"></div><div class="f"><label for="e-en">收起時間</label><input id="e-en" type="datetime-local" class="in" value="${esc(String(g.endAt).slice(0, 16))}"></div></div>
         <div class="f"><label for="e-intro">開場說明</label><textarea id="e-intro" placeholder="一兩句話告訴玩家怎麼玩">${esc(c.intro || '')}</textarea></div>
+        <div class="f"><span class="lbl" id="cv-l">大廳封面底色</span><div class="cvs" role="radiogroup" aria-labelledby="cv-l">${[['', '自動輪流']].concat(Object.keys(COVERS).map(k => [k, COVERS[k]])).map(([k, n]) => `<label class="cv"><input type="radio" name="cv" value="${k}" ${(c.cover || '') === k ? 'checked' : ''}><span style="background:${k ? COVER_BG[k] : 'repeating-linear-gradient(135deg,#24314F 0 8px,#4A2F45 8px 16px,#2E4A3E 16px 24px)'}"></span>${n}</label>`).join('')}</div></div>
         ${g.type === 'poll' ? `<div class="f"><label for="e-thanks">投完顯示的一句話</label><input id="e-thanks" class="in" value="${esc(c.thanks || '')}"></div>` : ''}
         <label class="sw2"><input type="checkbox" id="e-pub" ${g.published ? 'checked' : ''}> 公開（到了開放時間就出現在大廳）</label></div>
       ${results}
@@ -344,7 +348,7 @@ const Edit = {
     g.title = $('#e-title').value.trim(); g.week = $('#e-week').value.trim();
     const st = $('#e-st').value, en = $('#e-en').value;
     g.startAt = st ? st + ':00+08:00' : ''; g.endAt = en ? en + ':00+08:00' : '';
-    c.intro = $('#e-intro').value.trim(); if ($('#e-thanks')) c.thanks = $('#e-thanks').value.trim();
+    c.intro = $('#e-intro').value.trim(); c.cover = ($('input[name=cv]:checked') || {}).value || ''; if ($('#e-thanks')) c.thanks = $('#e-thanks').value.trim();
     g.published = $('#e-pub').checked; g.notes = $('#e-notes').value;
     $$('[data-q]').forEach(el => { c.questions[+el.dataset.q].q = el.value; });
     $$('[data-o]').forEach(el => { const [i, j] = el.dataset.o.split(':').map(Number); const op = c.questions[i].options[j]; if (typeof op === 'string') c.questions[i].options[j] = el.value; else op.t = el.value; });
@@ -593,6 +597,160 @@ async function pSettings() {
 }
 
 /* ---------- 路由 ---------- */
+/* ================= 年末撕日曆（2026 倒數撕日曆後台） ================= */
+const CALTABS = [['overview', '總覽'], ['entries', '大家的年末'], ['wall', '心聲牆管理'], ['box', '盲盒與獎勵'], ['coupon', '折抵券核銷'], ['settings', '設定']];
+const CALSW = (typeof CAL_SWEETS !== 'undefined' && CAL_SWEETS) || { common: ['彩色巧克力豆', '漩渦棒棒糖', '條紋包裝糖', '點點包裝糖', '圓頂棒棒糖', '拐杖糖', '小軟糖', '扭扭糖條', '小包糖'], rare: ['橘貓棒棒糖', '三花棒棒糖', '黑貓棒棒糖', '奶油白棒棒糖', '灰虎斑棒棒糖', '暹羅棒棒糖'], gold: '金色貓咪糖', ticket: '票券糖', empty: '空盒', legacy: {} };
+const calMD = d => String(d || '').slice(5, 10).replace('-', '/');
+const calWhen = iso => iso ? String(iso).slice(5, 16).replace('-', '/').replace('T', ' ') : '';
+function calMount(tab, inner, tools) {
+  App.mount('年末撕日曆', `<div class="tabs" role="tablist">${CALTABS.map(([k, l]) => `<a role="tab" href="#/cal/${k}" class="${tab === k ? 'on' : ''}" aria-selected="${tab === k}">${l}</a>`).join('')}</div>${inner}`, '#/cal', tools);
+}
+async function pCal(tab) {
+  tab = CALTABS.some(t => t[0] === tab) ? tab : 'overview';
+  App.loading('年末撕日曆', '#/cal');
+  try { return await ({ overview: calOverview, entries: calEntries, wall: calWall, box: calBox, coupon: calCoupon, settings: calSettings })[tab](); }
+  catch (e) { App.fail(e, '年末撕日曆', '#/cal'); }
+}
+/* ----- 總覽 ----- */
+async function calOverview() {
+  const o = await api.call('adminCalOverview');
+  const w = o.vis.self + o.vis.win + o.vis.wall || 1, pct = n => Math.round(n / w * 100);
+  calMount('overview', `
+    ${o.preview ? `<div class="card" style="background:#FFF8E6;border-color:#EFD9A8"><b>預覽日期開啟中：${esc(o.preview)}</b><span class="small">只有管理員看到的是這一天，玩家照真實日期。到「設定」可以關掉。</span></div>` : ''}
+    <div class="k4"><div class="k"><span>今天（第 ${o.today || '—'} 頁）撕頁</span><b>${o.todayTorn}</b> 人</div><div class="k"><span>今天寫了紀錄</span><b>${o.todayWritten}</b> 人</div><div class="k"><span>參加的人</span><b>${o.players}</b> 人</div><div class="k"><span>等你回應</span><b>${o.waiting}</b> 則 <a class="small" href="#/cal/entries">去看</a></div></div>
+    <div class="two"><div class="card"><h2>寫了要給誰看<span class="r small muted">共 ${o.written} 篇・平均 ${o.avgChars} 字</span></h2>
+      <div class="bars">${[['只給自己', o.vis.self], ['開一扇小窗', o.vis.win], ['放上心聲牆', o.vis.wall]].map(([l, n]) => `<div class="bar"><span>${l}</span><span class="tr"><i style="width:${pct(n)}%"></i></span><span class="num">${n} 篇・${pct(n)}%</span></div>`).join('')}</div>
+      <p class="small muted" style="margin-top:8px">「只給自己」的紀錄只算篇數和字數，內容不會出現在後台任何地方。</p></div>
+      <div class="card"><h2>心聲牆</h2><p>${o.wallOpen ? '<span class="chip c-open">開放中</span>' : '<span class="chip c-closed">休息中</span>'}　評估清單 <b>${o.review}</b> 篇</p><p class="small muted" style="margin-top:6px">到「心聲牆管理」放上去、收下或關閉整面牆。</p>
+      <h2 style="margin-top:14px">連續 7 天都有撕</h2><p><b class="num">${o.streak7}</b> 人拿到「每天見」</p></div></div>
+    <div class="card"><h2>每一頁的狀況</h2><div class="tw"><table><thead><tr><th>頁</th><th>問題</th><th>撕了</th><th>當天／補撕</th><th>有寫</th><th>平均字數</th></tr></thead><tbody>
+      ${o.pages.map(p => `<tr${p.page === o.today ? ' style="background:#FFF7F2"' : ''}><td class="num">${p.page}</td><td>${esc(p.q)}</td><td class="num">${p.torn}</td><td class="num">${p.same}／${p.late}</td><td class="num">${p.written}</td><td class="num">${p.avg || '—'}</td></tr>`).join('')}</tbody></table></div></div>`);
+}
+/* ----- 大家的年末：小窗與心聲牆的紀錄，回貼紙和悄悄話 ----- */
+async function calEntries(filter, page) {
+  filter = filter || App.calF || 'waiting'; App.calF = filter; page = page != null ? page : (App.calP || '');
+  const d = await api.call('adminCalEntries', { filter, page: page || undefined });
+  const fb = (k, l) => `<button class="btn s ${filter === k ? '' : 'l'}" data-f="${k}" aria-pressed="${filter === k}">${l}</button>`;
+  const card = e => `<div class="card ce" data-id="${esc(e.id)}">
+    <div class="small muted">${calMD(e.date)}・第 ${e.page} 頁・${esc(e.q)}・${e.chars} 字</div>
+    <div class="acts" style="margin:6px 0">${e.vis === '放上心聲牆' ? `<span class="chip c-tag">心聲牆・${esc(e.wallStatus || '')}${e.stickerTotal ? '・貼紙 ' + e.stickerTotal : ''}</span>` : '<span class="chip c-up">開一扇小窗</span>'}${e.reports ? `<span class="chip" style="background:var(--badbg);color:var(--bad)">被回報 ${e.reports}</span>` : ''}${e.miaAt ? `<span class="chip c-open">已回應 ${calWhen(e.miaAt)}${e.read ? '・已讀' : ''}</span>` : ''}${e.playerSticker ? `<span class="chip c-star">對方回貼「${esc(e.playerSticker)}」</span>` : ''}</div>
+    <p style="white-space:pre-wrap;font-size:15px;line-height:1.8">${esc(e.content)}</p>
+    <div class="stks" role="radiogroup" aria-label="選一張貼紙">${d.stickers.map(s => `<button class="stkb ${e.miaSticker === s ? 'on' : ''}" data-s="${esc(s)}" aria-pressed="${e.miaSticker === s}">${esc(s)}</button>`).join('')}</div>
+    <div class="f" style="margin:8px 0 6px"><label>悄悄話（60 字內，署名 — Mia）</label><input class="in wh" maxlength="60" value="${esc(e.miaWhisper)}" placeholder="可以只貼貼紙，不一定要寫"><span class="small muted"><span class="cnt">${Array.from(e.miaWhisper || '').length}</span> / 60</span></div>
+    <div class="acts"><button class="btn s l" disabled title="需要設定 AI 金鑰後才會開啟">幫我想 3 句・尚未開啟</button><span style="flex:1"></span>
+      ${e.vis === '放上心聲牆' && e.wallStatus === '顯示中' ? '<button class="btn s d" data-down>從牆上收下</button>' : ''}<button class="btn s" data-send>${e.miaAt ? '更新回應' : '送出'}</button></div></div>`;
+  calMount('entries', `<div class="card" style="padding:12px 14px"><div class="acts" style="align-items:center">${fb('waiting', '還沒回應')}${fb('all', '全部')}${fb('window', '只看小窗')}${fb('wall', '只看心聲牆')}
+      <label class="small muted" style="margin-left:auto" for="pgsel">頁數</label><select id="pgsel" class="in" style="width:auto;min-height:34px"><option value="">全部</option>${Array.from({ length: 31 }, (_, i) => `<option value="${i + 1}" ${+page === i + 1 ? 'selected' : ''}>第 ${i + 1} 頁</option>`).join('')}</select></div>
+      <p class="small muted" style="margin-top:8px">這裡只有「開一扇小窗」和「放上心聲牆」的紀錄；「只給自己」不會出現。送出後對方的糖罐會出現小信封，心聲牆上只有作者本人看得到「Mia 回應了」。</p></div>
+    ${d.items.length ? d.items.map(card).join('') : `<div class="card muted">${filter === 'waiting' ? '目前沒有等你回應的紀錄。' : '這裡還沒有紀錄。'}</div>`}`);
+  $$('[data-f]').forEach(b => b.addEventListener('click', () => { App.loading('年末撕日曆', '#/cal'); calEntries(b.dataset.f).catch(e => App.fail(e)); }));
+  $('#pgsel').addEventListener('change', e => { App.calP = e.target.value; calEntries(filter, e.target.value).catch(er => App.fail(er)); });
+  $$('.ce').forEach(c => {
+    let st = ($('.stkb.on', c) || {}).dataset ? $('.stkb.on', c).dataset.s : '';
+    $$('.stkb', c).forEach(b => b.addEventListener('click', () => { st = st === b.dataset.s ? '' : b.dataset.s; $$('.stkb', c).forEach(x => { x.classList.toggle('on', x.dataset.s === st); x.setAttribute('aria-pressed', x.dataset.s === st); }); }));
+    const wh = $('.wh', c); wh.addEventListener('input', () => { $('.cnt', c).textContent = Array.from(wh.value).length; });
+    $('[data-send]', c).addEventListener('click', async () => { try { await api.call('adminCalWhisper', { entryId: c.dataset.id, sticker: st, text: wh.value }); toast('已送出，對方下次打開會看到小信封'); calEntries(filter, page); } catch (e) { errToast(e); } });
+    const dn = $('[data-down]', c); if (dn) dn.addEventListener('click', async () => {
+      const r = await modal('從牆上收下這一篇', '<p>收下後這篇不會出現在心聲牆，內容仍留在作者的糖罐裡。這個帳號接下來 14 天放上心聲牆會先進評估清單。</p><div class="f"><label for="rs">原因（只記在處理紀錄）</label><input id="rs" class="in" placeholder="例如：推銷、指名批評"></div>', [{ l: '取消', v: null, c: 'l' }, { l: '收下', v: bg => ({ reason: $('#rs', bg).value }), c: 'd' }]);
+      if (!r) return; try { await api.call('adminCalWall', { op: 'takeDown', entryId: c.dataset.id, reason: r.reason }); toast('已收下'); calEntries(filter, page); } catch (e) { errToast(e); }
+    });
+  });
+}
+/* ----- 心聲牆管理 ----- */
+async function calWall(op, extra) {
+  const d = await api.call('adminCalWall', Object.assign({ op: op || 'list' }, extra || {}));
+  const w = await api.call('adminCalWords', {});
+  const item = (x, btns) => `<div class="wi" data-id="${esc(x.id)}" data-key="${esc(x.key)}"><div class="small muted">${calMD(x.date)}・第 ${x.page} 頁・${esc(x.q)}・${esc(x.who)}${x.reasons && x.reasons.length ? '・回報：' + esc(x.reasons.join('、')) : ''}</div><p style="white-space:pre-wrap;margin:4px 0 8px">${esc(x.content)}</p><div class="acts">${btns}</div></div>`;
+  const B = (o, l, c) => `<button class="btn s ${c || 'l'}" data-op="${o}">${l}</button>`;
+  calMount('wall', `
+    <div class="card"><h2>心聲牆：${d.open ? '<span class="chip c-open">開放中</span>' : '<span class="chip c-closed">休息中</span>'}<span class="r">${d.open ? '<button class="btn s d" data-wall="close">把整面牆關起來</button>' : '<button class="btn s" data-wall="open">重新打開</button>'}</span></h2>
+      <p class="small muted">目前牆上 ${d.showing} 篇。關起來時大家會看到「心聲牆暫時休息中」，已上牆的內容不會刪。</p></div>
+    <div class="card"><h2>評估清單 ${d.review.length}<span class="r small muted">按了「再放一次試試」或冷靜期中的貼文</span></h2>${d.review.map(x => item(x, B('approve', '放上去', '') + B('reject', '先不放') + B('ban', '停止這個帳號上牆', 'd'))).join('') || '<p class="muted small">沒有要評估的貼文。</p>'}</div>
+    <div class="card"><h2>被回報的貼文 ${d.reported.length}<span class="r small muted">被回報 3 次會自動收下</span></h2>${d.reported.map(x => item(x, (x.wallStatus === '顯示中' ? B('takeDown', '收下', 'd') : B('restore', '放回牆上') + B('keepDown', '維持收下')) + B('ban', '停止這個帳號上牆', 'd') + '<button class="btn s g" data-word>把這個說法加入字庫</button>')).join('') || '<p class="muted small">沒有被回報的貼文。</p>'}</div>
+    <div class="two"><div class="card"><h2>冷靜期 ${d.cooling.length}</h2><p class="small muted">7 天內被攔下 3 次會進入 14 天冷靜期，這段時間放上心聲牆會先進評估清單。</p>${d.cooling.map(p => `<div class="acts" style="align-items:center;margin-top:6px"><span>${esc(p.who)}・到 ${calWhen(p.until)}</span><button class="btn s l" data-uncool="${esc(p.key)}">解除</button></div>`).join('')}</div>
+      <div class="card"><h2>停止上牆 ${d.banned.length}</h2><p class="small muted">停止後這個帳號只能選「只給自己」或「開一扇小窗」，可以隨時恢復。</p>${d.banned.map(p => `<div class="acts" style="align-items:center;margin-top:6px"><span>${esc(p.who)}</span><button class="btn s l" data-unban="${esc(p.key)}">恢復上牆</button></div>`).join('')}</div></div>
+    <div class="card"><h2>自動檢查與字庫</h2><p class="small muted">電話、LINE ID、網址等個資格式是內建的；下面可以自己加詞，同音、注音、拆字的寫法會一起擋。</p>
+      <div class="acts" style="margin:8px 0">${w.builtin.map(b => `<span class="chip c-tag">${esc(b.name)} 內建 ${b.count}</span>`).join('')}</div>
+      <div class="row"><div class="f"><label for="nw">新增字詞</label><input id="nw" class="in" maxlength="30" placeholder="例如：團購"></div><div class="f"><label for="nc">分類</label><select id="nc" class="in">${Object.keys(w.cats).map(k => `<option value="${k}">${esc(w.cats[k])}</option>`).join('')}</select></div><div class="f" style="flex:0;justify-content:flex-end"><button class="btn" data-addw>加入</button></div></div>
+      ${w.items.length ? `<div class="acts">${w.items.map(x => `<span class="chip c-tag">${esc(x.word)}・${esc(w.cats[x.category] || x.category)}<button aria-label="刪除 ${esc(x.word)}" data-rmw="${esc(x.id)}" style="margin-left:4px">✕</button></span>`).join('')}</div>` : ''}
+      <div class="f" style="margin-top:12px"><label for="ct">試試看一段文字會不會被擋</label><textarea id="ct" placeholder="貼上一段文字"></textarea></div><button class="btn s l" data-ck>檢查</button> <span id="ckr" class="small"></span></div>
+    <div class="card"><h2>處理紀錄<span class="r small muted">最近 100 筆</span></h2><div class="tw"><table><thead><tr><th>時間</th><th>動作</th><th>原因</th><th>說明</th><th>紀錄編號</th></tr></thead><tbody>${d.log.map(l => `<tr><td class="num">${calWhen(l.at)}</td><td>${esc(l.action)}</td><td>${esc(l.reason)}</td><td>${esc(l.detail)}</td><td class="small muted">${esc(l.entryId)}</td></tr>`).join('') || '<tr><td colspan="5" class="muted">還沒有紀錄</td></tr>'}</tbody></table></div></div>`);
+  const again = (o, x) => { App.loading('年末撕日曆', '#/cal'); calWall(o, x).catch(e => App.fail(e)); };
+  $$('[data-wall]').forEach(b => b.addEventListener('click', async () => { if (b.dataset.wall === 'close' && !(await modal('把心聲牆關起來', '<p>關起來後大家會看到「心聲牆暫時休息中」，寫紀錄時也不能選「放上心聲牆」。已上牆的內容會保留，重新打開就回來。</p>', [{ l: '取消', v: null, c: 'l' }, { l: '關起來', v: 1, c: 'd' }]))) return; again(b.dataset.wall); }));
+  $$('.wi [data-op]').forEach(b => b.addEventListener('click', async () => {
+    const it = b.closest('.wi'), op = b.dataset.op;
+    if (op === 'ban' && !(await modal('停止這個帳號上牆', '<p>停止後這個帳號寫紀錄時不能選「放上心聲牆」，評估中的貼文也會一起收下。之後可以在「停止上牆」恢復。</p>', [{ l: '取消', v: null, c: 'l' }, { l: '停止', v: 1, c: 'd' }]))) return;
+    again(op, { entryId: it.dataset.id });
+  }));
+  $$('[data-word]').forEach(b => b.addEventListener('click', async () => {
+    const r = await modal('把這個說法加入字庫', `<div class="f"><label for="aw">字詞</label><input id="aw" class="in" maxlength="30"></div><div class="f"><label for="ac">分類</label><select id="ac" class="in">${Object.keys(w.cats).map(k => `<option value="${k}">${esc(w.cats[k])}</option>`).join('')}</select></div>`, [{ l: '取消', v: null, c: 'l' }, { l: '加入並收下', v: bg => ({ word: $('#aw', bg).value.trim(), category: $('#ac', bg).value }) }]);
+    if (!r || !r.word) return; again('takeDown', { entryId: b.closest('.wi').dataset.id, addWord: r, reason: '加入字庫：' + r.word });
+  }));
+  $$('[data-uncool]').forEach(b => b.addEventListener('click', () => again('uncool', { key: b.dataset.uncool })));
+  $$('[data-unban]').forEach(b => b.addEventListener('click', () => again('unban', { key: b.dataset.unban })));
+  $('[data-addw]').addEventListener('click', async () => { const word = $('#nw').value.trim(); if (!word) return; try { await api.call('adminCalWords', { op: 'add', word, category: $('#nc').value }); toast('已加入字庫'); again(); } catch (e) { errToast(e); } });
+  $$('[data-rmw]').forEach(b => b.addEventListener('click', async () => { try { await api.call('adminCalWords', { op: 'remove', id: b.dataset.rmw }); again(); } catch (e) { errToast(e); } }));
+  $('[data-ck]').addEventListener('click', async () => { try { const r = await api.call('adminCalCheck', { text: $('#ct').value }); $('#ckr').innerHTML = r.ok ? '<span class="okt">可以放上心聲牆</span>' : `<span class="err">會被擋：${esc(r.catName)}${r.kind === 'soft' ? '（建議留給自己）' : ''}</span>`; } catch (e) { errToast(e); } });
+}
+/* ----- 盲盒與獎勵 ----- */
+async function calBox() {
+  const [o, st] = await Promise.all([api.call('adminCalOverview'), api.call('adminCalSettings', {})]);
+  const box = o.box || {}, sum = a => a.reduce((s, k) => s + (box[k] || 0), 0);
+  const groups = [['小紙條（空盒）', [CALSW.empty]], ['一般小物', CALSW.common], ['貓咪棒棒糖（稀有）', CALSW.rare], ['金色貓咪糖（超稀有）', [CALSW.gold]], ['票券糖（折抵券）', [CALSW.ticket]]];
+  const total = groups.reduce((s, g) => s + sum(g[1]), 0) || 1, pr = st.settings.prob || {}, pk = ['empty', 'common', 'rare', 'gold', 'ticket'];
+  const mt = Object.values(o.marbles || {}).reduce((a, b) => a + b, 0) || 1;
+  calMount('box', `
+    <div class="card"><h2>盲盒發出<span class="r small muted">共 ${total === 1 && !sum(groups[0][1]) ? 0 : total} 次</span></h2><div class="tw"><table><thead><tr><th>開到什麼</th><th>設定機率</th><th>實際發出</th><th>實際比例</th></tr></thead><tbody>
+      ${groups.map((g, i) => `<tr><td>${g[0]}</td><td class="num">${pr[pk[i]] != null ? pr[pk[i]] + '%' : '—'}</td><td class="num">${sum(g[1])}</td><td class="num">${Math.round(sum(g[1]) / total * 100)}%</td></tr>`).join('')}</tbody></table></div>
+      <p class="small muted" style="margin-top:8px">金色貓咪糖每人最多 1 次，之後抽到會改成稀有款。折抵券本月已發 <b>${o.coupons.month}</b> / ${o.coupons.cap} 張，發完改成金色貓咪糖（已有就改稀有款）。機率在「設定」調整。</p></div>
+    <div class="two"><div class="card"><h2>貓咪棒棒糖</h2><div class="bars">${CALSW.rare.map(k => `<div class="bar"><span>${esc(k.replace('棒棒糖', ''))}</span><span class="tr"><i style="width:${Math.min(100, (box[k] || 0) * 10)}%"></i></span><span class="num">${box[k] || 0}</span></div>`).join('')}</div></div>
+      <div class="card"><h2>一般小物</h2><div class="bars">${CALSW.common.map(k => `<div class="bar"><span>${esc(k)}</span><span class="tr"><i style="width:${Math.min(100, (box[k] || 0) * 10)}%"></i></span><span class="num">${box[k] || 0}</span></div>`).join('')}</div></div></div>
+    <div class="two"><div class="card"><h2>大家選的糖果口味</h2><div class="bars">${Object.keys(o.marbles || {}).map(k => `<div class="bar"><span>${esc(k)}</span><span class="tr"><i style="width:${Math.round(o.marbles[k] / mt * 100)}%"></i></span><span class="num">${o.marbles[k]}</span></div>`).join('')}</div></div>
+      <div class="card"><h2>折抵券</h2><p>已發 <b class="num">${o.coupons.total}</b> 張・已使用 <b class="num">${o.coupons.used}</b> 張</p><a class="btn s l" style="margin-top:8px" href="#/cal/coupon">去核銷</a>
+      <h2 style="margin-top:14px">登機證封號（依撕的頁數）</h2>${Object.keys(o.titles || {}).map(k => `<p class="small">${esc(k)}：<b>${o.titles[k]}</b> 人</p>`).join('') || '<p class="small muted">還沒有人</p>'}</div></div>`);
+}
+/* ----- 折抵券核銷 ----- */
+async function calCoupon(code) {
+  const list = await api.call('adminCalCoupons');
+  let found = null, ferr = '';
+  if (code) { try { found = (await api.call('adminCouponLookup', { code })).coupon; } catch (e) { ferr = e.message; } }
+  const stc = s => s === '未使用' ? 'c-open' : s === '已使用' ? 'c-closed' : 'c-draft';
+  calMount('coupon', `
+    <div class="card"><h2>查詢券號</h2><div class="row"><div class="f"><label for="cc">券號</label><input id="cc" class="in" value="${esc(code || '')}" placeholder="MIA-2026-XXXX" autocapitalize="characters"></div><div class="f" style="flex:0;justify-content:flex-end"><button class="btn" data-q>查詢</button></div></div>
+      ${ferr ? `<p class="err">${esc(ferr)}</p>` : ''}
+      ${found ? `<div class="cpbox"><div><b style="font-size:18px">${found.amount} 元折抵券</b>　<span class="chip ${stc(found.status)}">${esc(found.status)}</span></div>
+        <p class="small">券號 <b class="num">${esc(found.code)}</b>・抽中 ${esc(found.at)}・效期到 ${esc(found.expiresAt)}</p><p class="small">可用於：${esc(found.plans)}</p>
+        ${found.status === '已使用' ? `<p class="err">已在 ${esc(found.usedAt)} 用於「${esc(found.usedFor)}」</p>` : found.status === '過期' ? '<p class="err">這張券已經過期了</p>' : `
+        <div class="row" style="margin-top:8px"><div class="f"><label for="ud">使用日期</label><input id="ud" type="date" class="in" value="${new Date(Date.now() + 8 * 3600e3).toISOString().slice(0, 10)}"></div><div class="f"><label for="uf">用在哪個方案</label><select id="uf" class="in"><option value="">請選擇</option>${String(found.plans || '').split('、').map(p => `<option>${esc(p)}</option>`).join('')}</select></div><div class="f" style="flex:0;justify-content:flex-end"><button class="btn" data-use>標記已使用</button></div></div>`}</div>` : ''}</div>
+    <div class="card"><h2>所有折抵券 ${list.items.length}</h2><div class="tw"><table><thead><tr><th>券號</th><th>面額</th><th>抽中</th><th>效期到</th><th>狀態</th><th>使用</th></tr></thead><tbody>
+      ${list.items.map(c => `<tr><td><button class="btn g s" data-code="${esc(c.code)}">${esc(c.code)}</button></td><td class="num">${c.amount}</td><td class="num">${esc(c.at)}</td><td class="num">${esc(c.expiresAt)}</td><td><span class="chip ${stc(c.status)}">${esc(c.status)}</span></td><td class="small">${c.usedAt ? esc(c.usedAt) + '・' + esc(c.usedFor) : ''}</td></tr>`).join('') || '<tr><td colspan="6" class="muted">還沒有折抵券</td></tr>'}</tbody></table></div>
+      <p class="small muted" style="margin-top:8px">券可以轉送，認券不認人；一張只能用一次。</p></div>`);
+  const q = () => { const v = $('#cc').value.trim(); App.loading('年末撕日曆', '#/cal'); calCoupon(v).catch(e => App.fail(e)); };
+  $('[data-q]').addEventListener('click', q); $('#cc').addEventListener('keydown', e => { if (e.key === 'Enter') q(); });
+  $$('[data-code]').forEach(b => b.addEventListener('click', () => calCoupon(b.dataset.code).catch(e => App.fail(e))));
+  const u = $('[data-use]'); if (u) u.addEventListener('click', async () => { try { await api.call('adminCouponUse', { code: found.code, usedAt: $('#ud').value, usedFor: $('#uf').value }); toast('已標記使用'); calCoupon(found.code); } catch (e) { errToast(e); } });
+}
+/* ----- 設定 ----- */
+async function calSettings() {
+  const d = await api.call('adminCalSettings', {}), s = d.settings, pr = s.prob || {};
+  const P = [['empty', '小紙條（空盒）'], ['common', '一般小物'], ['rare', '貓咪棒棒糖（稀有）'], ['gold', '金色貓咪糖（超稀有）'], ['ticket', '票券糖（折抵券）']];
+  calMount('settings', `
+    <div class="card"><h2>盲盒機率<span class="r small" id="psum"></span></h2><div class="row">${P.map(([k, l]) => `<div class="f"><label for="p-${k}">${l}</label><input id="p-${k}" class="in pr" type="number" min="0" max="100" step="0.5" value="${pr[k] != null ? pr[k] : d.def.prob[k]}"></div>`).join('')}</div>
+      <div class="row"><div class="f"><label for="mc">折抵券每月上限（張）</label><input id="mc" class="in" type="number" min="0" value="${s.monthCap}"></div><div class="f"><label for="nt">負面字詞幾個以上就建議留給自己</label><input id="nt" class="in" type="number" min="1" value="${s.negThreshold}"></div></div>
+      <div class="acts"><button class="btn" data-sv>儲存</button><button class="btn l" data-def>恢復預設（40／45／12／2／1）</button></div></div>
+    <div class="card"><h2>預覽日期（只有管理員看得到）</h2><p class="small muted">想先看看 12/20 或 1 月的畫面，可以把自己的日期換過去，玩家不受影響。測試完記得關掉，並清除自己的測試紀錄。</p>
+      <div class="row"><div class="f"><label for="pv">預覽成這一天</label><input id="pv" type="date" class="in" min="2026-12-01" max="2027-01-31" value="${esc(s.previewDate || '')}"></div><div class="f" style="flex:0;justify-content:flex-end"><div class="acts"><button class="btn" data-pv>套用</button><button class="btn l" data-pvoff>關掉預覽</button></div></div></div>
+      <button class="btn d s" data-clear>清除我自己的測試紀錄</button></div>
+    <div class="card"><h2>期間</h2><p class="small">12/1 開始每天一頁；1/1–1/31 只能補撕；2/1 起糖罐封存，7/1 再打開。期間是固定的，不需要設定。</p></div>`);
+  const sum = () => { const t = P.reduce((a, [k]) => a + (+$('#p-' + k).value || 0), 0); $('#psum').innerHTML = Math.abs(t - 100) < .01 ? `<span class="okt">合計 100%</span>` : `<span class="err">合計 ${Math.round(t * 100) / 100}%，要剛好 100%</span>`; };
+  $$('.pr').forEach(i => i.addEventListener('input', sum)); sum();
+  $('[data-def]').addEventListener('click', () => { P.forEach(([k]) => { $('#p-' + k).value = d.def.prob[k]; }); sum(); });
+  $('[data-sv]').addEventListener('click', async () => { const prob = {}; P.forEach(([k]) => { prob[k] = +$('#p-' + k).value || 0; }); try { await api.call('adminCalSettings', { save: { prob, monthCap: +$('#mc').value, negThreshold: +$('#nt').value } }); toast('已儲存'); } catch (e) { errToast(e); } });
+  $('[data-pv]').addEventListener('click', async () => { try { await api.call('adminCalSettings', { save: { previewDate: $('#pv').value } }); toast('已套用，打開撕日曆就是這一天'); } catch (e) { errToast(e); } });
+  $('[data-pvoff]').addEventListener('click', async () => { try { await api.call('adminCalSettings', { save: { previewDate: '' } }); $('#pv').value = ''; toast('已關掉預覽'); } catch (e) { errToast(e); } });
+  $('[data-clear]').addEventListener('click', async () => { if (!(await modal('清除我自己的測試紀錄', '<p>會刪掉你這個管理員帳號在撕日曆裡的紀錄和抽到的折抵券，玩家的紀錄不受影響。</p>', [{ l: '取消', v: null, c: 'l' }, { l: '清除', v: 1, c: 'd' }]))) return; try { const r = await api.call('adminCalClearMine', {}); toast('已清除 ' + r.removed + ' 筆'); } catch (e) { errToast(e); } });
+}
+
 function route() {
   if (!Session.token()) return App.login();
   const h = location.hash || '#/'; let m;
@@ -607,6 +765,7 @@ function route() {
   if (h === '#/rules') return pRules();
   if (h === '#/themes') return pThemes();
   if (h === '#/settings') return pSettings();
+  if ((m = h.match(/^#\/cal(?:\/(\w+))?/))) return pCal(m[1]);
   return pOverview();
 }
 (async function boot() { if (!IS_DEMO) await LineAuth.handleReturn(); window.addEventListener('hashchange', route); route(); })();
