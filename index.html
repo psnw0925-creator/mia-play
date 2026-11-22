@@ -66,6 +66,7 @@ main{flex:1;padding:14px 0 36px}
 .calt .hdr{background:var(--primary);color:var(--on);border-radius:18px 18px 0 0;padding:10px 16px 8px;display:flex;justify-content:space-between;font-weight:800;font-size:12.5px;letter-spacing:.06em;font-family:'Nunito',var(--sans)}
 .calt .bd{display:flex;align-items:center;gap:14px;padding:12px 16px 16px}
 .calt .num{font-family:'Nunito',var(--sans);font-weight:800;font-size:64px;line-height:1;color:#3A2E25;width:86px;text-align:center;flex:none}
+.calt .num.od{font-size:40px;display:flex;flex-direction:column;align-items:center;gap:4px}.calt .num.od small{font-family:var(--sans);font-size:12px;font-weight:700;color:var(--primary);letter-spacing:.1em}
 .calt .tx{display:flex;flex-direction:column;gap:3px;flex:1}
 .calt .tx b{font-family:var(--serif);font-size:17px}
 .calt .tx span{font-size:12.5px;color:var(--sub)}
@@ -384,10 +385,10 @@ function coverCard(g, kicker, i) {
 }
 function calTile(pn) {
   const c = pn.card || {};
-  if (c.phase === 'before') return `<a class="calt" href="${esc(pn.url)}" aria-label="${esc(pn.title)}：12/1 開始，還有 ${c.startsIn} 天">
+  if (c.phase === 'before') return `<a class="calt" href="${esc(pn.url)}" aria-label="${esc(pn.title)}：即將開放，開放日 12 月 1 日，還有 ${c.startsIn} 天">
     <span class="rings" aria-hidden="true"><i></i><i></i></span>
-    <span class="hdr"><span>DEC 2026</span><span>即將開始</span></span>
-    <span class="bd"><span class="num">01</span><span class="tx"><b>12/1 開始・還有 ${c.startsIn} 天</b><span>${esc(pn.intro || '每天撕一頁，把 2026 收進玻璃罐')}</span><span class="go">先看看</span></span></span><span class="tear" aria-hidden="true"></span></a>`;
+    <span class="hdr"><span>DEC 2026</span><span>即將開放</span></span>
+    <span class="bd"><span class="num od"><small>開放日</small>12/1</span><span class="tx"><b>還有 ${c.startsIn} 天開放</b><span>${esc(pn.intro || '每天撕一頁，把 2026 收進玻璃罐')}</span><span class="go">先看看</span></span></span><span class="tear" aria-hidden="true"></span></a>`;
   const jan = c.phase === 'jan', day = jan ? 31 : (c.today || 1);
   const title = jan ? '31 頁都翻完了' : c.todayDone ? '今天這頁撕好了' : '今天這頁還沒撕';
   const sub = jan ? '錯過的可以補撕到 1/31' : '倒數 ' + c.daysLeft + ' 天・罐子裡 ' + (c.torn || 0) + ' 顆糖';
