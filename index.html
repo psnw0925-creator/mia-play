@@ -3,7 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Mia 小遊戲</title>
+<title>Mia 療癒小時光</title>
+<meta name="apple-mobile-web-app-title" content="療癒小時光">
+<meta name="application-name" content="Mia 療癒小時光">
 <meta name="description" content="每週一款療癒小遊戲，收集稱號、解鎖主題">
 <meta name="theme-color" content="#FDE6DB">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -223,7 +225,7 @@ function toast(msg, kind) {
   document.body.appendChild(t); setTimeout(() => t.remove(), 3200);
 }
 class ApiError extends Error { constructor(code, message, data) { super(message || '系統忙碌中，請稍後再試'); this.code = code; this.data = data; } }
-const errToast = e => toast((e && e.message) || '系統忙碌中，請稍後再試', 'err');
+const errToast = e => (typeof Maint !== 'undefined' && Maint.on) ? null : toast((e && e.message) || '系統忙碌中，請稍後再試', 'err');
 function modal({ title, html, acts }) {
   return new Promise(resolve => {
     const bg = document.createElement('div'); bg.className = 'modal-bg';
@@ -260,6 +262,59 @@ const Entry = {
   },
   get() { try { return JSON.parse(U.ss.get('miaplay.entry') || 'null') || { source: 'direct', ref: '' }; } catch (e) { return { source: 'direct', ref: '' }; } }
 };
+/* ---------- 維護中：交通錐＋掛牌（大廳、遊戲、撕日曆共用） ---------- */
+const Maint = {
+  on: false, timer: null,
+  fmt(iso) { if (!iso) return ''; const d = new Date(new Date(iso).getTime() + 8 * 3600e3), W = '日一二三四五六'; return (d.getUTCMonth() + 1) + '/' + d.getUTCDate() + '（' + W[d.getUTCDay()] + '）' + String(d.getUTCHours()).padStart(2, '0') + ':' + String(d.getUTCMinutes()).padStart(2, '0'); },
+  hm(iso) { const d = new Date(new Date(iso).getTime() + 8 * 3600e3); return String(d.getUTCHours()).padStart(2, '0') + ':' + String(d.getUTCMinutes()).padStart(2, '0'); },
+  css: `.mt{min-height:100vh;display:flex;flex-direction:column;align-items:center;text-align:center;padding:40px 20px 30px;gap:12px;font-family:'Noto Sans TC',system-ui,sans-serif;color:#3B302A;background:linear-gradient(180deg,#FFF4EE,#FDE6DB 60%,#F8D3C3)}
+.mt .art{display:flex;align-items:flex-end;justify-content:center;margin:10px 0 4px}.mt .art svg{max-width:46vw;height:auto}
+.mt h1{font-family:'Noto Serif TC',serif;font-size:24px;color:#5A4632}.mt p{color:#6E6159;font-size:14.5px;line-height:1.7}
+.mt .tm{background:#fff;border:1px solid #EBD9CF;border-radius:14px;padding:10px 20px}.mt .tm b{display:block;font-size:21px;color:#8A3A24}
+.mt button{min-height:46px;padding:0 28px;border-radius:999px;border:0;background:#B5523B;color:#fff;font:700 15px 'Noto Sans TC',sans-serif;cursor:pointer}
+.mt .lk{font-size:13px;color:#6E6159}.mt .lk a{color:#8A3A24}
+@keyframes mtw{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}.mt .sign{animation:mtw 3s ease-in-out infinite;transform-origin:50% 10%}
+@media (prefers-reduced-motion:reduce){.mt .sign{animation:none}}
+.mtbar{display:flex;gap:10px;align-items:center;background:repeating-linear-gradient(135deg,#FFF3C4 0 14px,#FFE9A8 14px 28px);border:1.5px solid #E7B94A;border-radius:14px;padding:10px 12px;color:#5E4512;font-size:13px;line-height:1.55}
+.mtbar b{display:block}.mtbar button{margin-left:auto;font-weight:700;color:#5E4512;text-decoration:underline;white-space:nowrap;background:none;border:0;cursor:pointer;min-height:36px}
+.mtadm{background:#2F2A27;color:#FFE9A8;font-size:13px;font-weight:700;text-align:center;padding:6px 10px}`,
+  cone(w) { return `<svg width="${w || 120}" viewBox="0 0 150 170" aria-hidden="true"><ellipse cx="75" cy="160" rx="60" ry="7" fill="rgba(90,46,34,.15)"/><rect x="20" y="146" width="110" height="14" rx="4" fill="#E06A3B"/><path d="M60 18 Q75 8 90 18 L118 146 H32 Z" fill="#F07D45"/><path d="M53 52 H97 L103 78 H47 Z" fill="#FFF4EE"/><path d="M42 102 H108 L113 124 H37 Z" fill="#FFF4EE"/><path d="M66 20 Q70 16 74 18 L60 140 H48 Z" fill="#fff" opacity=".18"/></svg>`; },
+  sign(t1, t2) { return `<svg class="sign" width="160" viewBox="0 0 190 170" aria-hidden="true"><path d="M40 165 L70 20 M150 165 L120 20" stroke="#C9A35A" stroke-width="6" stroke-linecap="round"/><path d="M95 18 L60 44 M95 18 L130 44" stroke="#8A7466" stroke-width="2"/><circle cx="95" cy="16" r="5" fill="#8A7466"/><rect x="34" y="44" width="122" height="66" rx="12" fill="#fff" stroke="#B5523B" stroke-width="3"/><text x="95" y="76" text-anchor="middle" font-family="Noto Serif TC,serif" font-size="23" font-weight="700" fill="#8A3A24">${t1}</text><text x="95" y="99" text-anchor="middle" font-family="Noto Sans TC,sans-serif" font-size="12" fill="#6E6159">${t2}</text></svg>`; },
+  style() { if (!document.getElementById('mtcss')) { const s = document.createElement('style'); s.id = 'mtcss'; s.textContent = this.css; document.head.appendChild(s); } },
+  links() { const L = [[CFG.CARE_URL, 'Mia 陪伴'], [CFG.LINE_OA_ID ? 'https://line.me/R/ti/p/' + encodeURIComponent(CFG.LINE_OA_ID) : '', '官方 LINE']].filter(x => x[0]); return L.length ? `<span class="lk">等待的時候，可以先去 ${L.map(([u, t]) => `<a href="${esc(u)}" target="_blank" rel="noopener">${t}</a>`).join('・')}</span>` : ''; },
+  /* m：後端回傳的維護資料；updating：後端暫時連不到（正在換程式） */
+  show(m, updating) {
+    if (this.on) return; this.on = true; this.style(); document.querySelectorAll('.mb,.toast,.ghost').forEach(x => x.remove());
+    const end = m && m.end ? this.fmt(m.end) : '';
+    document.getElementById('app').innerHTML = `<main class="mt" role="main"><div class="art">${this.sign(updating ? '更新中' : '維護中', updating ? '馬上就好' : '整理一下，馬上回來')}${this.cone(118)}</div>
+      <h1>${updating ? '正在更新' : '正在整理中'}</h1>
+      <p>${updating ? 'Mia 療癒小時光正在更新，<br>過幾分鐘再試試，好了會自動回來。' : 'Mia 療癒小時光在做一點小整理，<br>你的紀錄、糖罐和稱號都好好的。'}</p>
+      ${m && m.msg ? `<p>${esc(m.msg)}</p>` : ''}${end && !updating ? `<div class="tm"><span style="font-size:12.5px;color:#6E6159">預計完成</span><b>${end}</b></div>` : ''}
+      <button type="button" data-mtr>重新整理看看</button>${this.links()}</main>`;
+    document.querySelector('[data-mtr]').addEventListener('click', () => location.reload());
+    window.scrollTo(0, 0);
+    /* 定時再問一次：維護結束或後端恢復就自動回到原本的頁面 */
+    const every = updating ? 30000 : 60000;
+    this.timer = setInterval(async () => { try { const ok = await this.ping(); if (ok) location.reload(); } catch (e) { } }, every);
+  },
+  async ping() {
+    if (IS_DEMO) { const r = await MOCK.call('ping', {}, ''); return r.maint.phase !== 'on'; }
+    const r = await fetch(CFG.PLAY_GAS_URL, { method: 'POST', redirect: 'follow', body: JSON.stringify({ action: 'ping', token: '', data: {} }) });
+    const j = await r.json(); return !!(j.ok && j.data && (!j.data.maint || j.data.maint.phase !== 'on'));
+  },
+  /* 大廳用：開始前的預告條、管理員看到的維護中提示 */
+  bar(m) {
+    this.style(); if (!m) return '';
+    if (m.phase === 'on' && m.admin) return `<div class="mtadm" role="status">維護中・只有管理員看得到網站${m.end ? '（到 ' + this.fmt(m.end) + '）' : ''}</div>`;
+    if (m.phase !== 'notice') return '';
+    let seen = ''; try { seen = localStorage.getItem('miaplay.maintSeen') || ''; } catch (e) { }
+    if (seen === m.start) return '';
+    const day = this.fmt(m.start).replace(/\s?\d\d:\d\d$/, '');
+    return `<div class="mtbar" role="note">${this.cone(28)}<span><b>${day} ${this.hm(m.start)}–${this.hm(m.end)} 網站維護</b>這段時間暫停遊玩，紀錄都會好好保留${m.msg ? '・' + esc(m.msg) : ''}</span><button type="button" data-mtok="${esc(m.start)}">知道了</button></div>`;
+  },
+  bindBar() { const b = document.querySelector('[data-mtok]'); if (b) b.addEventListener('click', () => { try { localStorage.setItem('miaplay.maintSeen', b.dataset.mtok); } catch (e) { } b.closest('.mtbar').remove(); }); }
+};
+
 const api = {
   async call(action, data, opts) {
     const token = Session.token();
@@ -272,7 +327,8 @@ const api = {
       if (!j.ok) throw new ApiError(j.error && j.error.code || 'INTERNAL', j.error && j.error.message, j.error && j.error.data);
       return j.data;
     } catch (e) {
-      if (!(e instanceof ApiError)) e = new ApiError('INTERNAL', '無法連線，請稍後再試');
+      if (!(e instanceof ApiError)) { if (navigator.onLine !== false && !IS_DEMO) Maint.show(null, true); e = new ApiError('INTERNAL', '無法連線，請稍後再試'); }
+      if (e.code === 'MAINTENANCE') Maint.show(e.data || {});
       if (['AUTH_EXPIRED', 'AUTH_INVALID', 'AUTH_REQUIRED'].includes(e.code) && token && !(opts && opts.retried)) {
         Session.drop(); toast('LINE 登入已過期，先用訪客遊玩；可以點「用 LINE 帳號遊玩」重新登入');
         return api.call(action, data, { retried: true });
@@ -308,8 +364,8 @@ function login(returnHash) {
   if (IS_DEMO) {
     const bg = document.createElement('div'); bg.className = 'modal-bg';
     bg.innerHTML = `<div class="modal" role="dialog" aria-modal="true" aria-label="展示登入"><h3>展示登入</h3><p class="small" style="color:#6E6159">展示模式不會連線 LINE，選一個身分就能體驗。</p><div class="demo-pick">
-      <button data-u="demo-customer" data-k="shared"><span class="av">映</span><span><b>陳映彤</b><small>已在預約網站登入過：小遊戲直接認得。玩過兩週，這週玩一款就會解鎖「連續三週」</small></span></button>
-      <button data-u="demo-friend" data-k="own"><span class="av">晴</span><span><b>林小晴</b><small>第一次來的新朋友：用小遊戲自己的 LINE 登入，只記在互動網站</small></span></button>
+      <button data-u="demo-customer" data-k="shared"><span class="av">映</span><span><b>陳映彤</b><small>已在預約網站登入過：療癒小時光直接認得。玩過兩週，這週玩一款就會解鎖「連續三週」</small></span></button>
+      <button data-u="demo-friend" data-k="own"><span class="av">晴</span><span><b>林小晴</b><small>第一次來的新朋友：用療癒小時光自己的 LINE 登入，只記在互動網站</small></span></button>
       ${Session.user() ? '<button data-u=""><span class="av">✕</span><span><b>登出，改用訪客遊玩</b><small>看看訪客的畫面</small></span></button>' : ''}</div>
       <div class="acts"><button class="btn block line" data-x>取消</button></div></div>`;
     bg.addEventListener('click', e => {
@@ -348,13 +404,14 @@ const Layout = {
     const a = (h, l, k) => `<a href="${h}" class="${on === k ? 'on' : ''}"${on === k ? ' aria-current="page"' : ''}>${l}</a>`;
     const name = u && (u.displayName || u.name) || '';
     const pic = u && (u.pictureUrl || u.pic);
-    return `<header class="hd"><div class="wrap"><a class="logo" href="#/" aria-label="Mia 小遊戲 大廳"><span class="pearl" aria-hidden="true"></span><b>Mia</b><small>小遊戲</small></a>${IS_DEMO ? '<button class="demo-tag" data-demo>展示模式</button>' : ''}
+    return `<header class="hd"><div class="wrap"><a class="logo" href="#/" aria-label="Mia 療癒小時光 大廳"><span class="pearl" aria-hidden="true"></span><b>Mia</b><small>療癒小時光</small></a>${IS_DEMO ? '<button class="demo-tag" data-demo>展示模式</button>' : ''}
       <nav>${a('#/me', '我的成就', 'me')}${u ? `<button class="av" data-login aria-label="${esc(name)}"${IS_DEMO ? '' : ' tabindex="-1"'}>${pic ? `<img src="${esc(pic)}" alt="">` : esc((name || '我').slice(0, 1))}</button>` : ''}</nav></div></header>`;
   },
   footer(note) {
     return `<footer class="ft"><div class="wrap">${note ? esc(note) + '<br>' : ''}<a href="${esc(CFG.MAIN_URL)}">Mia 客製化療癒服務</a>${CFG.LINE_OA_ID ? `・<a href="https://line.me/R/ti/p/${encodeURIComponent(CFG.LINE_OA_ID)}" target="_blank" rel="noopener">官方 LINE</a>` : ''}${CFG.CARE_URL ? `・<a href="${esc(CFG.CARE_URL)}" target="_blank" rel="noopener">Mia 陪伴</a>` : ''}</div></footer>`;
   },
   mount(inner, on, note) {
+    if (typeof Maint !== 'undefined' && Maint.on) return;
     const app = $('#app');
     app.innerHTML = this.header(on) + `<main><div class="wrap">${inner}</div></main>` + this.footer(note);
     $$('[data-login]', app).forEach(b => b.addEventListener('click', e => { e.preventDefault(); if (IS_DEMO || !Session.user()) login(); }));
@@ -416,13 +473,13 @@ async function pageLobby() {
   const pins = (d.pinned || []).map(calTile).join('');
   const none = !d.open.length ? `<section class="card"><h2>這週的遊戲準備中</h2><p class="muted small" style="margin-top:4px">${d.upcoming.length ? '下一款「' + esc(d.upcoming[0].title) + '」' + U.date(d.upcoming[0].startAt) + ' 開放。' : '新遊戲上架時，會在 Mia 的官方 LINE 通知你。'}</p></section>` : '';
   const ill = d.theme && /^data:image\/(png|webp|jpeg);base64,/.test(d.theme.illustration || '') ? `<img class="ill" src="${d.theme.illustration}" alt="" aria-hidden="true">` : '';
-  const html = `<div class="stack">
+  const html = `<div class="stack">${Maint.bar(d.maint)}
     ${guest ? `<div class="notice" role="note"><span>${esc(d.notice.guest)}</span><button data-login>用 LINE 帳號遊玩</button></div>` : ''}
     ${ill}${pins}${covers}${none}
     ${d.upcoming.length && d.open.length ? `<p class="small muted" style="text-align:center">下週預告：${esc(d.upcoming[0].typeName)}「${esc(d.upcoming[0].title)}」${U.date(d.upcoming[0].startAt)} 開放</p>` : ''}
     ${d.past.length ? `<section class="card"><h2>過去的遊戲</h2><div class="list">${d.past.map(g => `<a class="li" href="#/g/${esc(g.id)}"><span class="t">${esc(g.title)}<small>${esc(g.week ? g.week + '・' : '')}已收起</small></span><span class="r">${g.mine ? (g.scored ? '最佳 ' : '結果 ') + bestText(g.mine, g.scored, g.max) : '沒玩過'}</span></a>`).join('')}</div></section>` : ''}
   </div>`;
-  Layout.mount(html, 'lobby', d.notice.privacy);
+  Layout.mount(html, 'lobby', d.notice.privacy); Maint.bindBar();
 }
 function bestText(m, scored, max) {
   if (!m) return '';
@@ -527,13 +584,13 @@ function pageClosed(g) {
 function shareUrl(ref, gameId) { return SITE + '?from=share' + (ref ? '&ref=' + encodeURIComponent(ref) : '') + (gameId ? '#/g/' + encodeURIComponent(gameId) : ''); }
 function shareText() {
   const { r, g } = Play.last;
-  if (r.type === 'quiz') return `我在 Mia 小遊戲「${g.title}」測出「${r.result.title}」，你呢？`;
+  if (r.type === 'quiz') return `我在 Mia 療癒小時光「${g.title}」測出「${r.result.title}」，你呢？`;
   if (r.type === 'trivia') return `我在「${g.title}」答對 ${r.score}/${r.max}${r.rank ? '，目前第 ' + r.rank + ' 名' : ''}，來挑戰我！`;
   return `「${g.title}」我選了「${r.result.title}」，你呢？`;
 }
 function inviteText() {
   const { g } = Play.last, intro = (g.intro || '').split(/[。！？\n]/)[0];
-  return `來玩 Mia 小遊戲「${g.title}」` + (intro ? '\n' + intro : '');
+  return `來玩 Mia 療癒小時光「${g.title}」` + (intro ? '\n' + intro : '');
 }
 async function doShare(kind) {
   const { r, g } = Play.last, url = shareUrl(r.shareRef, g.id), text = shareText(), invite = inviteText();
@@ -551,7 +608,7 @@ async function shareImage(text, url) {
   x.fillStyle = c.line || 'rgba(181,82,59,.16)'; for (let yy = 30; yy < H; yy += 54) for (let xx = (yy / 54 % 2) * 27 + 30; xx < W; xx += 54) { x.beginPath(); x.arc(xx, yy, 3, 0, 7); x.fill(); }
   const ink = c.ink || '#3B302A', acc = c.accentInk || c.primary || '#8A3A24', sub = c.sub || '#6E6159';
   const pg = x.createRadialGradient(140, 170, 4, 160, 190, 60); pg.addColorStop(0, '#fff'); pg.addColorStop(.45, '#C4DAF3'); pg.addColorStop(1, '#56709F'); x.fillStyle = pg; x.beginPath(); x.arc(160, 190, 46, 0, 7); x.fill();
-  x.fillStyle = ink; x.font = '600 76px "Cormorant Garamond",serif'; x.textBaseline = 'middle'; x.fillText('Mia', 230, 192); x.font = '700 50px "Noto Sans TC",sans-serif'; x.fillText('小遊戲', 375, 196);
+  x.fillStyle = ink; x.font = '600 76px "Cormorant Garamond",serif'; x.textBaseline = 'middle'; x.fillText('Mia', 230, 192); x.font = '700 50px "Noto Sans TC",sans-serif'; x.fillText('療癒小時光', 375, 196);
   x.textAlign = 'center';
   const card = (y, h) => { x.fillStyle = c.card || 'rgba(255,255,255,.86)'; rr(x, 90, y, W - 180, h, 48); x.fill(); };
   card(420, 1000);
@@ -634,6 +691,7 @@ async function pageThemes() {
 }
 
 function pageError(e) {
+  if (Maint.on) return;
   Layout.mount(`<section class="card" style="text-align:center"><h2>暫時打不開</h2><p class="muted" style="margin:6px 0 12px">${esc(e.message || '請稍後再試')}</p><button class="btn" data-retry>再試一次</button></section>`, '');
   $('[data-retry]').addEventListener('click', route);
 }

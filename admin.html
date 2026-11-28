@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>互動後台｜Mia 小遊戲</title>
+<title>互動後台｜Mia 療癒小時光</title>
 <meta name="robots" content="noindex">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -85,6 +85,7 @@ tr:last-child td{border-bottom:0}
 .tgimg{width:72px;height:128px;border-radius:10px;border:1px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;font-size:9px;text-align:center;padding:4px}
 .tgimg b{font-family:var(--serif);font-size:13px}.tgimg i{font-style:normal;border-radius:999px;padding:1px 6px;font-size:8px}
 @media (max-width:860px){.tg4{grid-template-columns:1fr 1fr}.tg3{grid-template-columns:1fr}}
+.imr{border-top:1px solid var(--line);padding:10px 0}.imr:first-of-type{border-top:0}.imr.bad b{color:var(--bad)}
 .tabs{display:flex;gap:4px;flex-wrap:wrap;margin:-4px 0 14px;border-bottom:1px solid var(--line)}
 .tabs a{min-height:40px;display:inline-flex;align-items:center;padding:0 14px;text-decoration:none;color:var(--sub);font-weight:700;font-size:14px;border-bottom:3px solid transparent;margin-bottom:-1px}
 .tabs a.on{color:var(--pri2);border-bottom-color:var(--pri)}
@@ -236,19 +237,19 @@ const App = {
     const u = Session.user() || {};
     $('#app').innerHTML = `<div class="A"><aside class="side" aria-label="後台選單"><a class="logo" href="#/"><span class="pearl" aria-hidden="true"></span><span><b>Mia</b><small>互動後台</small></span></a>
       <nav class="nav">${NAV.map(([h, l]) => `<a href="${h}" class="${on === h ? 'on' : ''}"${on === h ? ' aria-current="page"' : ''}>${l}</a>`).join('')}</nav>
-      <div class="sw"><a href="${esc(CFG.PLAY_URL)}"${IS_DEMO ? "" : " target=\"_blank\" rel=\"noopener\""}>→ 打開小遊戲</a><a href="${esc(CFG.MAIN_ADMIN_URL)}">→ 預約後台</a><a href="${esc(CFG.CARE_ADMIN_URL)}">→ 陪伴後台</a><span class="small muted" style="padding:4px 12px">${esc(u.displayName || '')}・管理員</span></div></aside>
+      <div class="sw"><a href="${esc(CFG.PLAY_URL)}"${IS_DEMO ? "" : " target=\"_blank\" rel=\"noopener\""}>→ 打開療癒小時光</a><a href="${esc(CFG.MAIN_ADMIN_URL)}">→ 預約後台</a><a href="${esc(CFG.CARE_ADMIN_URL)}">→ 陪伴後台</a><span class="small muted" style="padding:4px 12px">${esc(u.displayName || '')}・管理員</span></div></aside>
       <main class="main"><div class="ph"><h1>${esc(title)}</h1>${IS_DEMO ? '<span class="demo">展示模式</span>' : ''}${tools || ''}</div>${inner}</main></div>`;
     window.scrollTo(0, 0);
   },
   loading(title, on) { this.mount(title, '<div class="spin" role="status"><i></i><span class="sr">載入中</span></div>', on); },
   login(msg) {
     const forb = msg === 'forbidden' && Session.hasOwn();
-    $('#app').innerHTML = `<div class="login"><span class="pearl" style="margin:0 auto;width:40px;height:40px"></span><h1 style="font-family:var(--serif);font-size:22px">Mia 小遊戲・互動後台</h1>
+    $('#app').innerHTML = `<div class="login"><span class="pearl" style="margin:0 auto;width:40px;height:40px"></span><h1 style="font-family:var(--serif);font-size:22px">Mia 療癒小時光・互動後台</h1>
       ${forb ? `<p>這個 LINE 帳號還不是互動後台的管理員。第一次使用請輸入<b>開通碼</b>（部署步驟第一步執行 setup 時顯示的 8 個字）。</p>
         <div class="f" style="text-align:left"><label for="sc">開通碼</label><input id="sc" class="in" autocomplete="off" placeholder="例如 3F9A1C2B"></div><span class="err" id="se" role="alert"></span>
         <button class="btn" data-reg>開通</button><button class="btn l" data-out>換一個帳號</button>`
       : `<p class="muted">${esc(msg && msg !== 'forbidden' ? msg : '已經登入預約後台的話，會直接認得你。')}</p>
-        ${IS_DEMO ? '<button class="btn" data-demo="shared">展示：已登入預約後台的 Mia</button><button class="btn l" data-demo="own">展示：用小遊戲自己的 LINE 登入</button>' : '<button class="btn" data-line>用 LINE 登入</button>'}
+        ${IS_DEMO ? '<button class="btn" data-demo="shared">展示：已登入預約後台的 Mia</button><button class="btn l" data-demo="own">展示：用療癒小時光自己的 LINE 登入</button>' : '<button class="btn" data-line>用 LINE 登入</button>'}
         <p class="small muted">也可以先登入<a href="${esc(CFG.MAIN_ADMIN_URL)}">預約後台</a>，再回到這裡。</p>`}
       ${IS_DEMO && forb ? '<p class="small muted">展示用開通碼：DEMO1234</p>' : ''}</div>`;
     $$('[data-demo]').forEach(b => b.addEventListener('click', () => {
@@ -273,9 +274,10 @@ const App = {
 const SRC = { line: 'LINE', ig: 'IG', booking: '預約網站', care: '陪伴網站', share: '別人分享', direct: '直接開啟' };
 async function pOverview() {
   App.loading('本週總覽', '#/');
-  let o, a; try { [o, a] = await Promise.all([api.call('adminOverview'), api.call('adminAnalytics', {})]); } catch (e) { return App.fail(e, '本週總覽', '#/'); }
+  let o, a, mt; try { [o, a, mt] = await Promise.all([api.call('adminOverview'), api.call('adminAnalytics', {}), api.call('adminMaint', {}).catch(() => null)]); } catch (e) { return App.fail(e, '本週總覽', '#/'); }
+  const mtBar = mt && mt.maint.phase !== 'none' ? `<div class="card" style="background:var(--warnbg);border-color:#E7C77A"><b>${mt.maint.phase === 'on' ? '維護中：客人現在看到交通錐畫面' : '已預告維護'}</b><span class="small">　${tpShow(mt.maint.start)}${mt.maint.end ? ' – ' + tpShow(mt.maint.end) : ''}　<a href="#/settings">到設定調整</a></span></div>` : '';
   const open = o.open.length ? o.open.map(g => `<tr><td><b>${esc(g.title)}</b><br><span class="small muted">${esc(g.week || '')}・${esc(g.typeName)}</span></td><td>${U.d(g.startAt)} – ${U.d(g.endAt)}</td><td class="num">${g.plays}</td><td class="num">${g.players}</td><td><div class="acts"><a class="btn s l" href="#/game/${esc(g.id)}">數據</a><a class="btn s l" href="#/edit/${esc(g.id)}">編輯</a></div></td></tr>`).join('') : '<tr><td colspan="5" class="muted">這週沒有開放中的遊戲。到「遊戲清單」新增或排定上架。</td></tr>';
-  App.mount('本週總覽', `
+  App.mount('本週總覽', `${mtBar}
     <div class="k4"><div class="k"><span>本週遊玩次數</span><b>${o.week.plays}</b></div><div class="k"><span>本週玩家</span><b>${o.week.players}</b></div><div class="k"><span>LINE 帳號遊玩比例</span><b>${o.week.lineRate}%</b></div><div class="k"><span>本週新朋友</span><b>${o.week.newPlayers}</b></div></div>
     <div class="card"><h2>開放中的遊戲<a class="r" href="#/games">全部遊戲</a></h2><div class="tw"><table><thead><tr><th>遊戲</th><th>開放期間</th><th>次數</th><th>人數</th><th></th></tr></thead><tbody>${open}</tbody></table></div></div>
     <div class="two">${srcCard(a)}${heatCard(a)}</div>
@@ -425,11 +427,11 @@ function makePrompt(g, m) {
   const lines = [];
   if (g.type === 'quiz') {
     const rs = Object.keys(c.results || {});
-    lines.push(`請幫我做一款 Mia 小遊戲的「測驗」，沿用「${g.title}」的框架：`, `・${n} 題，每題 ${op} 個選項，每個選項對應一種結果`, `・${rs.length} 種結果，每種有名稱、一段 40 字內的溫柔建議、一個代表色（色碼）`, '・結果用「選最多的那一種」決定，同分時取第一個');
+    lines.push(`請幫我做一款 Mia 療癒小時光的「測驗」，沿用「${g.title}」的框架：`, `・${n} 題，每題 ${op} 個選項，每個選項對應一種結果`, `・${rs.length} 種結果，每種有名稱、一段 40 字內的溫柔建議、一個代表色（色碼）`, '・結果用「選最多的那一種」決定，同分時取第一個');
   } else if (g.type === 'trivia') {
-    lines.push(`請幫我做一款 Mia 小遊戲的「問答」，沿用「${g.title}」的框架：`, `・${n} 題，每題 ${op} 個選項，只有一個正確答案`, '・每題附一句答案說明（30 字內）', '・難度：大部分人能答對一半以上，有一兩題需要想一下');
+    lines.push(`請幫我做一款 Mia 療癒小時光的「問答」，沿用「${g.title}」的框架：`, `・${n} 題，每題 ${op} 個選項，只有一個正確答案`, '・每題附一句答案說明（30 字內）', '・難度：大部分人能答對一半以上，有一兩題需要想一下');
   } else {
-    lines.push(`請幫我做一款 Mia 小遊戲的「心情投票」，沿用「${g.title}」的框架：`, `・${n} 題，每題 ${op} 個選項，選完看大家的比例`, '・投完顯示一句溫暖的話');
+    lines.push(`請幫我做一款 Mia 療癒小時光的「心情投票」，沿用「${g.title}」的框架：`, `・${n} 題，每題 ${op} 個選項，選完看大家的比例`, '・投完顯示一句溫暖的話');
   }
   lines.push('・語氣：溫柔、像朋友聊天，不說教，不提醫療或診斷', '・開場說明一句話');
   if (qs[0] && qs[0].q) lines.push(`・參考原本的第一題：「${qs[0].q}」`);
@@ -449,7 +451,8 @@ async function pTemplates() {
     <td><div class="acts"><button class="btn s l" data-copy="${esc(t.id)}">複製成新遊戲</button><button class="btn s l" data-seq="${esc(t.id)}">做續集</button><button class="btn s l" data-prompt="${esc(t.id)}">製作指令</button><button class="btn s g" data-exp="${esc(t.id)}">匯出</button></div></td></tr>`).join('');
   App.mount('範本庫', `<div class="card"><p class="small muted" style="margin-bottom:10px">每款遊戲都會自動留在這裡。<b>熱門</b>：參與人數、完成率、重玩率、分享率、帶來新朋友，任兩項排在前 25%（至少 ${d.minGamesForHot} 款有人玩過才開始標）。☆ 是你自己加的星號。</p>
     <div class="tw"><table><thead><tr><th>遊戲</th><th>類型</th><th>狀態</th><th>人數</th><th>完成率</th><th>重玩</th><th>分享率</th><th>新朋友</th><th>標記</th><th></th></tr></thead><tbody>${rows || '<tr><td colspan="10" class="muted">還沒有遊戲</td></tr>'}</tbody></table></div></div>`, '#/templates',
-    '<button class="btn l" data-imp>匯入</button><button class="btn l" data-expall>全部匯出</button>');
+    '<a class="btn" href="#/import">從 Excel 匯入</a><button class="btn l" data-xlsx>匯出 Excel</button><button class="btn g" data-imp>匯入 JSON</button><button class="btn g" data-expall>JSON 匯出</button>');
+  $('[data-xlsx]').addEventListener('click', () => impExport().catch(errToast));
   const byId = {}; items.forEach(t => byId[t.id] = t);
   $$('[data-star]').forEach(b => b.addEventListener('click', async () => { try { await api.call('adminStarGame', { gameId: b.dataset.star, starred: b.dataset.v === '1' }); pTemplates(); } catch (e) { errToast(e); } }));
   const copy = async (id, mode) => { try { const r = await api.call('adminCopyGame', { gameId: id, mode }); toast(mode === 'sequel' ? '已建立續集草稿' : '已複製成草稿'); location.hash = '#/edit/' + r.game.id; } catch (e) { errToast(e); } };
@@ -771,7 +774,7 @@ function tgRender() {
       <div class="tgs ${G.source === 'image' ? 'on' : ''}"><b>從圖片</b><span class="small muted">上傳照片或插畫，自動抽出顏色。圖片不會上傳。</span><label class="tgdrop" for="tgimg">${G.swatches ? G.swatches.map(h => `<i style="background:${h}"></i>`).join('') : '點一下選擇圖片'}</label><input type="file" id="tgimg" accept="image/*" class="sr"></div>
       <div class="tgs ${G.source === 'name' ? 'on' : ''}"><b>從主題名稱</b><label class="small muted" for="tgname">主題名稱</label><input id="tgname" class="in" maxlength="20" value="${esc(G.name)}"><span class="small">${G.hits.length ? '讀到：<b>' + G.hits.map(esc).join('、') + '</b>' : ''}</span><button class="btn s l" data-gen="name">照名稱配色</button></div>
       <div class="tgs ${G.source === 'random' ? 'on' : ''}"><b>隨機配一組</b><span class="small muted">喜歡其中某個顏色就在下面鎖起來，再按只換其他的。</span><button class="btn s l" data-gen="random">隨機產生</button></div>
-      <div class="tgs ${G.source === 'code' ? 'on' : ''}"><b>貼上主題碼</b><span class="small muted">請任何 Claude 對話「給我 Mia 小遊戲主題碼」，複製貼上。</span><textarea id="tgcode" class="in" rows="2" placeholder="MIA-THEME:{…}"></textarea><button class="btn s l" data-gen="code">套用主題碼</button></div>
+      <div class="tgs ${G.source === 'code' ? 'on' : ''}"><b>貼上主題碼</b><span class="small muted">請任何 Claude 對話「給我 Mia 療癒小時光主題碼」，複製貼上。</span><textarea id="tgcode" class="in" rows="2" placeholder="MIA-THEME:{…}"></textarea><button class="btn s l" data-gen="code">套用主題碼</button></div>
     </div>${G.msg ? `<p class="err" style="margin-top:8px">${esc(G.msg)}</p>` : ''}</div>
     <div class="card"><h2><span class="tgn">2</span>挑一個版本</h2><div class="tg3">${vcards}</div>
       <div class="acts" style="margin-top:10px">${[['again', '再產生 3 個'], ['warm', '偏暖一點'], ['cool', '偏冷一點'], ['light', '淡一點'], ['rich', '濃一點']].map(([k, l]) => `<button class="btn s l" data-adj="${k}">${l}</button>`).join('')}</div></div>
@@ -790,7 +793,7 @@ function tgRender() {
         <div class="row"><div class="f"><label for="tgname2">主題名稱</label><input id="tgname2" class="in" maxlength="20" value="${esc(G.name)}"></div><div class="f"><label for="tgkind">取得方式</label><select id="tgkind" class="in">${[['basic', '基本（每個人都有）'], ['reward', '獎勵'], ['limited', '限定']].map(([k, l]) => `<option value="${k}" ${G.kind === k ? 'selected' : ''}>${l}</option>`).join('')}</select></div></div>
         <div class="f"><label for="tghow">條件說明（給客人看）</label><input id="tghow" class="in" value="${esc(G.how)}" placeholder="例如：倒數撕日曆：撕滿 31 頁"></div>
         <div class="row"><div class="f"><label for="tgrule">達成哪個稱號就送這個主題</label><select id="tgrule" class="in"><option value="">之後再到「稱號與獎勵」設定</option>${ruleOpts}</select></div>${G.kind === 'reward' ? `<div class="f" style="flex:0 0 140px"><label for="tgprice">兌換點數（0＝不能兌換）</label><input id="tgprice" class="in" type="number" min="0" value="${G.price}"></div>` : ''}</div>
-        <div class="tgshare"><div class="tgimg" style="background:linear-gradient(180deg,${C.bg1},${C.bg3})"><span style="color:${C.title}">${esc(G.name || '新主題')}</span><b style="color:${C.accentInk}">晨霧藍</b><i style="background:${C.primary};color:${C.onPrimary}">Mia 小遊戲</i></div><span class="small muted">分享成績圖會用這組顏色</span></div>
+        <div class="tgshare"><div class="tgimg" style="background:linear-gradient(180deg,${C.bg1},${C.bg3})"><span style="color:${C.title}">${esc(G.name || '新主題')}</span><b style="color:${C.accentInk}">晨霧藍</b><i style="background:${C.primary};color:${C.onPrimary}">Mia 療癒小時光</i></div><span class="small muted">分享成績圖會用這組顏色</span></div>
         <div class="acts" style="margin-top:12px"><button class="btn" data-save="上架" ${warns.some(w => w.block) ? 'disabled' : ''}>上架</button><button class="btn l" data-save="草稿">存成草稿</button><button class="btn g" data-export>匯出主題碼</button></div><span class="err" id="tgerr"></span></div></div>`, '#/themes', '<a class="btn l" href="#/themes">回主題清單</a>');
   tgBind();
 }
@@ -855,17 +858,263 @@ async function tgSave(status) {
   } catch (e) { $('#tgerr').textContent = e.message; }
 }
 
+/* ---------- Excel（.xlsx）讀寫：在瀏覽器裡做，不需要外部程式庫、檔案不上傳 ---------- */
+const XL = {
+  /* 讀：回傳 { 分頁名稱: [[儲存格,…],…] } */
+  async read(buf) {
+    const u8 = new Uint8Array(buf), dv = new DataView(buf), files = {};
+    let eocd = -1; for (let i = u8.length - 22; i >= Math.max(0, u8.length - 66000); i--) if (dv.getUint32(i, true) === 0x06054b50) { eocd = i; break; }
+    if (eocd < 0) throw new Error('這不是 Excel 檔（.xlsx），請另存成 .xlsx 再試');
+    let p = dv.getUint32(eocd + 16, true); const n = dv.getUint16(eocd + 10, true);
+    for (let k = 0; k < n; k++) {
+      const method = dv.getUint16(p + 10, true), csize = dv.getUint32(p + 20, true), nl = dv.getUint16(p + 28, true), xl = dv.getUint16(p + 30, true), cl = dv.getUint16(p + 32, true), off = dv.getUint32(p + 42, true);
+      const name = new TextDecoder().decode(u8.subarray(p + 46, p + 46 + nl)); p += 46 + nl + xl + cl;
+      if (!/^(xl\/workbook\.xml|xl\/_rels\/workbook\.xml\.rels|xl\/sharedStrings\.xml|xl\/worksheets\/[^/]+\.xml)$/.test(name)) continue;
+      const lnl = dv.getUint16(off + 26, true), lxl = dv.getUint16(off + 28, true), data = u8.subarray(off + 30 + lnl + lxl, off + 30 + lnl + lxl + csize);
+      files[name] = method === 0 ? new TextDecoder().decode(data) : await XL.inflate(data);
+    }
+    const P = s => new DOMParser().parseFromString(s || '<x/>', 'application/xml'), T = (el, t) => Array.from(el.getElementsByTagName(t));
+    const ss = T(P(files['xl/sharedStrings.xml']), 'si').map(si => T(si, 't').map(t => t.textContent).join(''));
+    const rels = {}; T(P(files['xl/_rels/workbook.xml.rels']), 'Relationship').forEach(r => { rels[r.getAttribute('Id')] = r.getAttribute('Target').replace(/^\/?xl\//, '').replace(/^\//, ''); });
+    const out = {};
+    T(P(files['xl/workbook.xml']), 'sheet').forEach(sh => {
+      const rid = sh.getAttribute('r:id') || sh.getAttributeNS('http://schemas.openxmlformats.org/officeDocument/2006/relationships', 'id'), x = files['xl/' + rels[rid]];
+      if (!x) return; const rows = [];
+      T(P(x), 'row').forEach(r => {
+        const ri = (+r.getAttribute('r') || rows.length + 1) - 1, row = rows[ri] = [];
+        T(r, 'c').forEach((c, ci) => {
+          const ref = c.getAttribute('r'), col = ref ? XL.col(ref) : ci, t = c.getAttribute('t'), v = (c.getElementsByTagName('v')[0] || {}).textContent;
+          row[col] = t === 's' ? ss[+v] : t === 'inlineStr' ? T(c, 't').map(z => z.textContent).join('') : t === 'b' ? v === '1' : v == null ? '' : (t === 'str' || t === 'e' ? v : (isNaN(+v) ? v : +v));
+        });
+      });
+      out[sh.getAttribute('name')] = Array.from(rows, r => Array.from(r || [], c => c == null ? '' : c));
+    });
+    return out;
+  },
+  col(ref) { const m = ref.match(/^[A-Z]+/)[0]; let n = 0; for (const ch of m) n = n * 26 + ch.charCodeAt(0) - 64; return n - 1; },
+  async inflate(u8) {
+    if (typeof DecompressionStream === 'undefined') throw new Error('這個瀏覽器讀不了 Excel，請改用最新版 Chrome、Edge 或 Safari，或用「貼上」');
+    const s = new Blob([u8]).stream().pipeThrough(new DecompressionStream('deflate-raw'));
+    return new TextDecoder().decode(await new Response(s).arrayBuffer());
+  },
+  /* 寫：sheets = [{ name, rows:[[…]], widths:[…] }]，第一列粗體 */
+  write(sheets) {
+    const enc = new TextEncoder(), x = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+    const cn = i => { let s = ''; i++; while (i) { const m = (i - 1) % 26; s = String.fromCharCode(65 + m) + s; i = Math.floor((i - 1) / 26); } return s; };
+    const F = {};
+    F['[Content_Types].xml'] = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>${sheets.map((s, i) => `<Override PartName="/xl/worksheets/sheet${i + 1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join('')}</Types>`;
+    F['_rels/.rels'] = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>';
+    F['xl/workbook.xml'] = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>${sheets.map((s, i) => `<sheet name="${x(s.name)}" sheetId="${i + 1}" r:id="rId${i + 1}"/>`).join('')}</sheets></workbook>`;
+    F['xl/_rels/workbook.xml.rels'] = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">${sheets.map((s, i) => `<Relationship Id="rId${i + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${i + 1}.xml"/>`).join('')}<Relationship Id="rId${sheets.length + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`;
+    F['xl/styles.xml'] = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><fonts count="2"><font><sz val="12"/><name val="Microsoft JhengHei"/></font><font><b/><sz val="12"/><name val="Microsoft JhengHei"/></font></fonts><fills count="3"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FFFDE6DB"/></patternFill></fill></fills><borders count="1"><border/></borders><cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="3"><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/><xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1"/><xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyAlignment="1"><alignment wrapText="1" vertical="top"/></xf></cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>';
+    sheets.forEach((s, i) => {
+      const cols = s.widths ? `<cols>${s.widths.map((w, j) => `<col min="${j + 1}" max="${j + 1}" width="${w}" customWidth="1"/>`).join('')}</cols>` : '';
+      const rows = s.rows.map((r, ri) => `<row r="${ri + 1}">${r.map((v, ci) => v === '' || v == null ? '' : typeof v === 'number' ? `<c r="${cn(ci)}${ri + 1}"${ri ? '' : ' s="1"'}><v>${v}</v></c>` : `<c r="${cn(ci)}${ri + 1}" t="inlineStr" s="${ri ? (s.wrap ? 2 : 0) : 1}"><is><t xml:space="preserve">${x(v)}</t></is></c>`).join('')}</row>`).join('');
+      F[`xl/worksheets/sheet${i + 1}.xml`] = `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetViews><sheetView workbookViewId="0"><pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/></sheetView></sheetViews>${cols}<sheetData>${rows}</sheetData></worksheet>`;
+    });
+    /* 不壓縮的 zip */
+    const crcT = XL._crcT || (XL._crcT = Array.from({ length: 256 }, (_, n) => { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; return c >>> 0; }));
+    const crc = b => { let c = 0xFFFFFFFF; for (let i = 0; i < b.length; i++) c = crcT[(c ^ b[i]) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; };
+    const parts = [], central = []; let off = 0;
+    Object.keys(F).forEach(name => {
+      const nb = enc.encode(name), db = enc.encode(F[name]), c = crc(db), h = new DataView(new ArrayBuffer(30));
+      h.setUint32(0, 0x04034b50, true); h.setUint16(4, 20, true); h.setUint16(6, 0x0800, true); h.setUint16(8, 0, true); h.setUint32(14, c, true); h.setUint32(18, db.length, true); h.setUint32(22, db.length, true); h.setUint16(26, nb.length, true);
+      parts.push(new Uint8Array(h.buffer), nb, db);
+      const ch = new DataView(new ArrayBuffer(46)); ch.setUint32(0, 0x02014b50, true); ch.setUint16(4, 20, true); ch.setUint16(6, 20, true); ch.setUint16(8, 0x0800, true); ch.setUint32(16, c, true); ch.setUint32(20, db.length, true); ch.setUint32(24, db.length, true); ch.setUint16(28, nb.length, true); ch.setUint32(42, off, true);
+      central.push(new Uint8Array(ch.buffer), nb); off += 30 + nb.length + db.length;
+    });
+    const csize = central.reduce((s, b) => s + b.length, 0), e = new DataView(new ArrayBuffer(22));
+    e.setUint32(0, 0x06054b50, true); e.setUint16(8, Object.keys(F).length, true); e.setUint16(10, Object.keys(F).length, true); e.setUint32(12, csize, true); e.setUint32(16, off, true);
+    return new Blob(parts.concat(central, [new Uint8Array(e.buffer)]), { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+  },
+  /* CSV 或從試算表複製的表格（Tab 分隔） */
+  text(s) {
+    s = String(s || '').replace(/^﻿/, ''); const tab = s.split('\n')[0].includes('\t'), sep = tab ? '\t' : ',', rows = []; let row = [], cur = '', q = false;
+    for (let i = 0; i < s.length; i++) {
+      const ch = s[i];
+      if (q) { if (ch === '"') { if (s[i + 1] === '"') { cur += '"'; i++; } else q = false; } else cur += ch; continue; }
+      if (ch === '"' && cur === '') q = true; else if (ch === sep) { row.push(cur); cur = ''; } else if (ch === '\n' || ch === '\r') { if (ch === '\r' && s[i + 1] === '\n') i++; row.push(cur); rows.push(row); row = []; cur = ''; } else cur += ch;
+    }
+    if (cur !== '' || row.length) { row.push(cur); rows.push(row); }
+    return rows.filter(r => r.some(c => String(c).trim() !== ''));
+  }
+};
+
+/* ================= 從 Excel 匯入題目／匯出 Excel ================= */
+const IMP = { games: null, existing: [] };
+const IMP_TYPES = { '測驗': 'quiz', '問答': 'trivia', '投票': 'poll', '心情投票': 'poll', quiz: 'quiz', trivia: 'trivia', poll: 'poll' };
+const IMP_TNAME = { quiz: '測驗', trivia: '問答', poll: '心情投票' };
+function impTemplate() {
+  return [
+    { name: '說明', widths: [100], wrap: true, rows: [['怎麼填（看完可以不用管這一頁，匯入時會自動略過）'],
+      ['1. 「遊戲」分頁：一列一款遊戲。類型填「測驗」「問答」或「投票」。開放、收起時間可以空白，匯入後再到後台設定（空白的話預設下週一開放、再下週一收起）。'],
+      ['2. 「題目」分頁：一列一題，用「遊戲名稱」對到哪一款。選項可以 2–6 個，沒用到的格子空著就好。'],
+      ['3. 問答：「答案」填正確的是第幾個選項（1–6），也可以直接填那個選項的文字。「解說」會在看答案時出現。'],
+      ['4. 測驗：「對應結果」照選項順序填結果名稱，用頓號隔開，例如「晨霧藍、暖陽橘、森林綠、月光紫」。結果的說明寫在「結果」分頁。'],
+      ['5. 投票：「答案」「對應結果」都不用填。「遊戲」分頁的「投完說的話」會在投完後出現。'],
+      ['6. 一個檔案可以放好幾款遊戲。匯入後一律是草稿，到「遊戲清單」確認後再勾「公開」。'],
+      ['7. 不要改第一列的欄位名稱；分頁順序和名稱可以改。']] },
+    { name: '遊戲', widths: [26, 10, 10, 18, 18, 40, 30], rows: [['遊戲名稱', '類型', '週次', '開放時間', '收起時間', '開場說明', '投完說的話'],
+      ['你的療癒色彩是什麼？', '測驗', '第 5 週', '2026/12/7 00:00', '2026/12/14 00:00', '憑直覺回答 4 個小問題，看看此刻最能陪伴你的是哪一種顏色。', ''],
+      ['七大脈輪小問答', '問答', '第 6 週', '', '', '答得越多、用時越短，排名越前面。', ''],
+      ['這週的你，像哪一種天氣？', '投票', '加碼', '', '', '選一個最接近的，看看大家這週的心情。', '謝謝你的分享，照顧好自己。']] },
+    { name: '題目', widths: [24, 6, 36, 16, 16, 16, 16, 12, 12, 8, 34, 30], wrap: true, rows: [['遊戲名稱', '題號', '題目', '選項1', '選項2', '選項3', '選項4', '選項5', '選項6', '答案', '對應結果', '解說'],
+      ['你的療癒色彩是什麼？', 1, '週末早上醒來，你最想先做什麼？', '再賴床一下', '拉開窗簾曬太陽', '出門走走', '泡杯茶寫日記', '', '', '', '晨霧藍、暖陽橘、森林綠、月光紫', ''],
+      ['你的療癒色彩是什麼？', 2, '哪一種聲音最讓你放鬆？', '海浪聲', '朋友的笑聲', '風吹過樹葉', '頌缽或鋼琴', '', '', '', '晨霧藍、暖陽橘、森林綠、月光紫', ''],
+      ['七大脈輪小問答', 1, '和「表達、說出真實想法」最有關的脈輪是？', '臍輪', '喉輪', '眉心輪', '太陽神經叢', '', '', 2, '', '喉輪位在喉嚨，和溝通、表達有關。'],
+      ['這週的你，像哪一種天氣？', 1, '這週的你，像哪一種天氣？', '晴朗', '多雲', '陣雨', '颱風天', '彩虹', '', '', '', '']] },
+    { name: '結果', widths: [24, 14, 50, 12], wrap: true, rows: [['遊戲名稱', '結果名稱', '說明', '顏色'],
+      ['你的療癒色彩是什麼？', '晨霧藍', '你最近需要的是安靜的空白時間。', '#6F8FC7'], ['你的療癒色彩是什麼？', '暖陽橘', '你的能量需要一點溫度來點亮。', '#E39A5B'],
+      ['你的療癒色彩是什麼？', '森林綠', '你正在努力把生活整理好。', '#6FA582'], ['你的療癒色彩是什麼？', '月光紫', '你的內在有很多想被聽見的聲音。', ''] ]}
+  ];
+}
+/* 把試算表裡的一張表轉成「欄位名稱 → 值」的列 */
+function impTable(rows) {
+  const norm = s => String(s == null ? '' : s).replace(/\s+/g, '').replace(/[（(].*?[)）]/g, '');
+  const hi = rows.findIndex(r => r.some(c => ['遊戲名稱', '題目', '結果名稱'].includes(norm(c)))); if (hi < 0) return null;
+  const head = rows[hi].map(norm);
+  return { head, rows: rows.slice(hi + 1).map((r, i) => { const o = { _row: hi + i + 2 }; head.forEach((h, j) => { if (h) o[h] = typeof r[j] === 'string' ? r[j].trim() : r[j]; }); return o; }).filter(o => head.some(h => h && o[h] !== '' && o[h] != null)) };
+}
+function impTime(v) {
+  if (v === '' || v == null) return '';
+  if (typeof v === 'number') { const w = new Date(Math.round((v - 25569) * 86400000)), z = n => String(n).padStart(2, '0'); return `${w.getUTCFullYear()}-${z(w.getUTCMonth() + 1)}-${z(w.getUTCDate())}T${z(w.getUTCHours())}:${z(w.getUTCMinutes())}:00+08:00`; }   /* Excel 的日期數字＝台北時間 */
+  const m = String(v).trim().match(/^(\d{4})[\/\-.](\d{1,2})[\/\-.](\d{1,2})(?:[ T]+(\d{1,2}):(\d{2}))?/);
+  if (!m) return 'bad';
+  return `${m[1]}-${m[2].padStart(2, '0')}-${m[3].padStart(2, '0')}T${(m[4] || '0').padStart(2, '0')}:${m[5] || '00'}:00+08:00`;
+}
+/* sheets：{ 分頁: rows }，回傳每款遊戲（含錯誤、提醒） */
+function impBuild(sheets) {
+  const T = Object.keys(sheets).map(n => impTable(sheets[n])).filter(Boolean);
+  const qT = T.find(t => t.head.includes('題目')), gT = T.find(t => t.head.includes('類型') && !t.head.includes('題目')), rT = T.find(t => t.head.includes('結果名稱'));
+  if (!qT) throw new Error('找不到「題目」那一欄。請用後台下載的範本，第一列的欄位名稱不要改');
+  const games = {}, order = [], G = name => { if (!games[name]) { games[name] = { title: name, info: {}, qs: [], results: [], errors: [], warns: [] }; order.push(name); } return games[name]; };
+  (gT ? gT.rows : []).forEach(r => { const n = String(r['遊戲名稱'] || '').trim(); if (n) G(n).info = r; });
+  qT.rows.forEach(r => { const n = String(r['遊戲名稱'] || '').trim() || '（沒有填遊戲名稱）'; const g = G(n); g.qs.push(r); if (!g.info['類型'] && r['類型']) g.info = Object.assign({}, r, g.info); });
+  (rT ? rT.rows : []).forEach(r => { const n = String(r['遊戲名稱'] || '').trim(); if (n && games[n]) games[n].results.push(r); });
+  return order.map(n => {
+    const g = games[n], info = g.info, E = g.errors, W = g.warns;
+    if (n === '（沒有填遊戲名稱）') E.push('有題目沒有填「遊戲名稱」');
+    if (!g.qs.length) { E.push('「題目」分頁裡沒有這款遊戲的題目'); return g; }
+    let type = IMP_TYPES[String(info['類型'] || '').trim()];
+    if (info['類型'] && !type) E.push(`類型「${info['類型']}」看不懂，請填「測驗」「問答」或「投票」`);
+    if (!type) type = g.qs.some(q => q['答案'] !== '' && q['答案'] != null) ? 'trivia' : g.qs.some(q => q['對應結果']) ? 'quiz' : 'poll';
+    g.type = type;
+    const qs = g.qs.slice().sort((a, b) => (+a['題號'] || 0) - (+b['題號'] || 0)), results = {}, rkey = {};
+    const addR = name => { if (!rkey[name]) { const k = 'r' + (Object.keys(rkey).length + 1); rkey[name] = k; const rr = g.results.find(x => String(x['結果名稱']).trim() === name) || {}; const col = String(rr['顏色'] || '').trim(); results[k] = { title: name, text: String(rr['說明'] || ''), color: /^#[0-9a-f]{6}$/i.test(col) ? col : '' }; if (!rr['說明']) W.push(`結果「${name}」還沒有說明`); } return rkey[name]; };
+    const questions = qs.map((q, i) => {
+      const at = `第 ${i + 1} 題（Excel 第 ${q._row} 列）`, text = String(q['題目'] || '').trim();
+      const opts = [1, 2, 3, 4, 5, 6].map(k => q['選項' + k]).filter(v => v !== '' && v != null).map(v => String(v).trim());
+      if (!text) E.push(at + '沒有題目');
+      if (opts.length < 2) E.push(at + '選項少於 2 個');
+      if (type === 'trivia') {
+        const a = q['答案']; let ai = -1;
+        if (typeof a === 'number' || /^\d+$/.test(String(a).trim())) ai = +a - 1; else if (/^[A-Fa-f]$/.test(String(a).trim())) ai = String(a).trim().toUpperCase().charCodeAt(0) - 65; else if (a) ai = opts.indexOf(String(a).trim());
+        if (a === '' || a == null) E.push(at + '沒有填答案'); else if (ai < 0 || ai >= opts.length) E.push(at + `答案「${a}」對不到選項`);
+        return { q: text, options: opts, answer: Math.max(0, ai), explain: String(q['解說'] || '') };
+      }
+      if (type === 'quiz') {
+        const rs = String(q['對應結果'] || '').split(/[、,，\/|；;]/).map(s => s.trim()).filter(Boolean);
+        if (!rs.length) E.push(at + '沒有填對應結果'); else if (rs.length !== opts.length) E.push(at + `有 ${opts.length} 個選項，但對應結果有 ${rs.length} 個`);
+        return { q: text, options: opts.map((t, j) => ({ t, r: rs[j] ? addR(rs[j]) : '' })) };
+      }
+      return { q: text, options: opts };
+    });
+    const st = impTime(info['開放時間']), en = impTime(info['收起時間']);
+    if (st === 'bad' || en === 'bad') E.push('開放或收起時間看不懂，請寫成「2026/12/7 00:00」');
+    else if (st && en && new Date(en) <= new Date(st)) E.push('收起時間要比開放時間晚');
+    else if ((st && !en) || (!st && en)) W.push('開放、收起時間只填了一個，匯入後預設下週開放，請到後台確認');
+    g.out = { title: n, type, week: String(info['週次'] || ''), startAt: st && en && st !== 'bad' && en !== 'bad' ? st : '', endAt: st && en && st !== 'bad' && en !== 'bad' ? en : '',
+      config: Object.assign({ intro: String(info['開場說明'] || ''), questions }, type === 'quiz' ? { results } : {}, type === 'poll' && info['投完說的話'] ? { thanks: String(info['投完說的話']) } : {}) };
+    const old = IMP.existing.filter(x => x.title === n);
+    g.same = old[0] || null; g.mode = 'new';
+    if (g.same) g.mode = (+g.same.plays || 0) > 0 ? 'copy' : 'update';
+    return g;
+  });
+}
+async function pImport() {
+  App.loading('從 Excel 匯入題目', '#/templates');
+  try { IMP.existing = (await api.call('adminGames')).items.filter(g => g.type !== 'module'); } catch (e) { return App.fail(e, '從 Excel 匯入題目', '#/templates'); }
+  IMP.games = null; impRender();
+}
+function impRender(msg) {
+  const gs = IMP.games, ok = gs ? gs.filter(g => !g.errors.length) : [];
+  const row = (g, i) => `<div class="imr ${g.errors.length ? 'bad' : ''}"><div class="acts" style="align-items:center">${g.errors.length ? '<span class="chip" style="background:var(--badbg);color:var(--bad)">要修改</span>' : '<span class="chip c-open">可以匯入</span>'}<b>${esc(g.title)}</b><span class="small muted">${g.type ? IMP_TNAME[g.type] + '・' : ''}${g.qs.length} 題${g.out && g.out.config.results ? '・' + Object.keys(g.out.config.results).length + ' 個結果' : ''}${g.out && g.out.startAt ? '・' + U.d(g.out.startAt) + ' 開放' : ''}</span></div>
+      ${g.errors.map(e => `<div class="small err">✕ ${esc(e)}</div>`).join('')}${g.warns.map(e => `<div class="small" style="color:var(--warn)">！${esc(e)}</div>`).join('')}
+      ${!g.errors.length && g.same ? (g.mode === 'copy' && (+g.same.plays || 0) > 0 ? `<div class="small" style="color:var(--warn)">已經有同名遊戲，而且有人玩過，所以會另存成新遊戲（舊的不動）</div>` : `<div class="acts small" style="align-items:center;margin-top:4px">已經有同名遊戲：<label class="sw2"><input type="radio" name="m${i}" value="update" ${g.mode === 'update' ? 'checked' : ''} data-mode="${i}"> 更新題目</label><label class="sw2"><input type="radio" name="m${i}" value="copy" ${g.mode === 'copy' ? 'checked' : ''} data-mode="${i}"> 另存成新遊戲</label></div>`) : ''}</div>`;
+  App.mount('從 Excel 匯入題目', `
+    <div class="card"><h2>1. 準備檔案</h2><div class="acts"><button class="btn l" data-tpl>下載 Excel 範本</button><label class="btn" for="impf">選擇檔案（.xlsx／.csv）</label><input type="file" id="impf" accept=".xlsx,.csv,.tsv,.txt" class="sr"></div>
+      <p class="small muted" style="margin:10px 0 4px">也可以在 Excel 或 Google 試算表，把「題目」那張表（含第一列欄位名稱）選起來複製，貼到下面：</p>
+      <textarea id="imppaste" class="in" rows="4" placeholder="貼上表格"></textarea><button class="btn s l" style="margin-top:6px" data-paste>讀取貼上的表格</button>
+      <p class="small muted" style="margin-top:8px">檔案只在你的瀏覽器裡讀取檢查，按「匯入」才會送出。${msg ? `<span class="err"> ${esc(msg)}</span>` : ''}</p></div>
+    ${gs ? `<div class="card"><h2>2. 檢查結果：${gs.length} 款遊戲，${ok.length} 款可以匯入</h2>${gs.map(row).join('')}
+      <div class="acts" style="margin-top:12px;align-items:center"><button class="btn" data-go ${ok.length ? '' : 'disabled'}>匯入 ${ok.length} 款（存成草稿）</button><span class="small muted">要修改的那幾款不會匯入；改好 Excel 再上傳一次就好。</span></div></div>` : ''}`, '#/templates', '<a class="btn l" href="#/templates">回範本庫</a>');
+  $('[data-tpl]').addEventListener('click', () => impDownload(XL.write(impTemplate()), 'Mia療癒小時光-題目範本.xlsx'));
+  $('#impf').addEventListener('change', async e => { const f = e.target.files[0]; if (!f) return; try { const sheets = /\.xlsx$/i.test(f.name) ? await XL.read(await f.arrayBuffer()) : { 題目: XL.text(await f.text()) }; IMP.games = impBuild(sheets); impRender(); } catch (er) { impRender(er.message || '這個檔案讀不出來'); } });
+  $('[data-paste]').addEventListener('click', () => { try { IMP.games = impBuild({ 題目: XL.text($('#imppaste').value) }); impRender(); } catch (er) { impRender(er.message); } });
+  $$('[data-mode]').forEach(r => r.addEventListener('change', () => { IMP.games[+r.dataset.mode].mode = r.value; }));
+  const go = $('[data-go]'); if (go) go.addEventListener('click', async () => {
+    const list = IMP.games.filter(g => !g.errors.length).map(g => Object.assign({}, g.out, { mode: g.mode === 'update' ? 'update' : 'new', id: g.mode === 'update' && g.same ? g.same.id : '' }));
+    go.disabled = true;
+    try { const r = await api.call('adminImportSheet', { games: list }); toast(`已匯入 ${r.made.length + r.updated.length} 款（草稿）`); location.hash = '#/games'; }
+    catch (e) { go.disabled = false; errToast(e); }
+  });
+}
+function impDownload(blob, name) { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1000); }
+/* 匯出成同一份 Excel 格式，改好可以再匯入 */
+async function impExport(ids) {
+  const d = await api.call('adminExportGames', ids ? { ids } : {}), t = impTemplate();
+  const games = d.games.filter(g => g.type !== 'module' && (g.config.questions || []).length);
+  const seen = {}; games.forEach(g => { seen[g.title] = (seen[g.title] || 0) + 1; if (seen[g.title] > 1) g.title = g.title + '（' + seen[g.title] + '）'; });   /* 同名的遊戲匯出時加編號，避免題目混在一起 */
+  const fmt = iso => { if (!iso) return ''; const x = new Date(new Date(iso).getTime() + 8 * 3600e3); return `${x.getUTCFullYear()}/${x.getUTCMonth() + 1}/${x.getUTCDate()} ${String(x.getUTCHours()).padStart(2, '0')}:${String(x.getUTCMinutes()).padStart(2, '0')}`; };
+  t[1].rows = [t[1].rows[0]].concat(games.map(g => [g.title, IMP_TNAME[g.type] || '', g.week || '', fmt(g.startAt), fmt(g.endAt), g.config.intro || '', g.config.thanks || '']));
+  t[2].rows = [t[2].rows[0]]; t[3].rows = [t[3].rows[0]];
+  games.forEach(g => {
+    const rs = g.config.results || {};
+    (g.config.questions || []).forEach((q, i) => {
+      const o = (q.options || []).map(x => typeof x === 'string' ? x : x.t); while (o.length < 6) o.push('');
+      t[2].rows.push([g.title, i + 1, q.q].concat(o.slice(0, 6), [g.type === 'trivia' ? (+q.answer || 0) + 1 : '', g.type === 'quiz' ? (q.options || []).map(x => (rs[x.r] || {}).title || x.r).join('、') : '', q.explain || '']));
+    });
+    Object.keys(rs).forEach(k => t[3].rows.push([g.title, rs[k].title || k, rs[k].text || '', rs[k].color || '']));
+  });
+  impDownload(XL.write(t), 'Mia療癒小時光-題目匯出.xlsx');
+}
+
 /* ================= 設定 ================= */
+/* ----- 維護公告 ----- */
+const tpLocal = iso => { if (!iso) return ''; const d = new Date(new Date(iso).getTime() + 8 * 3600e3); return d.toISOString().slice(0, 16); };
+const tpIso = v => v ? v + ':00+08:00' : '';
+const tpShow = iso => iso ? tpLocal(iso).replace('T', ' ').replace(/-/g, '/') : '';
+function maintCard(m) {
+  const st = m.phase === 'on' ? `<span class="chip" style="background:var(--warnbg);color:var(--warn)">維護中</span> ${m.end ? '到 ' + tpShow(m.end) : '沒有設定結束時間'}` : m.phase === 'notice' ? `<span class="chip c-up">預告中</span> ${tpShow(m.start)} – ${tpShow(m.end)}` : (m.start && m.end ? `<span class="chip c-draft">已排定</span> ${tpShow(m.start)} – ${tpShow(m.end)}` : '<span class="chip c-open">正常開放</span>');
+  const now = new Date(Date.now() + 8 * 3600e3), plus = h => new Date(now.getTime() + h * 3600e3).toISOString().slice(0, 13) + ':00';
+  return `<div class="card" id="mtc"><h2>維護公告<span class="r">${st}</span></h2>
+    <p class="small muted" style="margin-bottom:10px">維護中客人會看到交通錐＋「維護中」掛牌和預計完成時間；你自己（管理員）照常可以打開網站。到了結束時間自動恢復。</p>
+    <div class="row"><div class="f"><label for="mt1">開始</label><input id="mt1" type="datetime-local" class="in" value="${esc(m.phase !== 'none' || m.start ? tpLocal(m.start) : plus(3))}"></div>
+      <div class="f"><label for="mt2">預計結束</label><input id="mt2" type="datetime-local" class="in" value="${esc(m.end ? tpLocal(m.end) : plus(4))}"></div>
+      <div class="f" style="flex:0 0 150px"><label for="mt3">提前幾小時預告</label><input id="mt3" type="number" min="0" max="72" class="in" value="${esc(m.notice != null ? m.notice : 12)}"></div></div>
+    <div class="f"><label for="mt4">想說的話（可空白，60 字內）</label><input id="mt4" class="in" maxlength="60" value="${esc(m.msgSaved || '')}" placeholder="例如：加上新遊戲中"></div>
+    <div class="acts"><button class="btn" data-mt="schedule">排定</button><button class="btn l" data-mt="now">現在立刻開始維護</button>${m.phase !== 'none' || (m.start && m.end) ? '<button class="btn d" data-mt="end">結束維護／取消排定</button>' : ''}</div>
+    <span class="err" id="mte"></span></div>`;
+}
+function bindMaint() {
+  $$('[data-mt]').forEach(b => b.addEventListener('click', async () => {
+    const op = b.dataset.mt, data = { op, start: tpIso($('#mt1').value), end: tpIso($('#mt2').value), notice: +$('#mt3').value, msg: $('#mt4').value.trim() };
+    if (op === 'now') { data.start = ''; if (!(await modal('現在立刻開始維護', `<p>按下後客人馬上會看到「維護中」的畫面${data.end ? '，到 ' + esc(tpShow(data.end)) + ' 自動恢復' : ''}。你自己照常可以使用網站。</p>`, [{ l: '取消', v: null, c: 'l' }, { l: '開始維護', v: 1 }]))) return; }
+    try { const r = await api.call('adminMaint', data); toast(op === 'end' ? '已結束維護' : op === 'now' ? '已開始維護' : '已排定'); $('#mtc').outerHTML = maintCard(r.maint); bindMaint(); }
+    catch (e) { $('#mte').textContent = e.message; }
+  }));
+}
 async function pSettings() {
   App.loading('設定', '#/settings');
-  let d; try { d = await api.call('adminSettings'); } catch (e) { return App.fail(e, '設定', '#/settings'); }
+  let d, mt; try { [d, mt] = await Promise.all([api.call('adminSettings'), api.call('adminMaint', {})]); } catch (e) { return App.fail(e, '設定', '#/settings'); }
   const s = d.settings, P = CFG.PLAY_URL;
-  App.mount('設定', `<div class="card"><h2>客人看到的文字</h2>
+  App.mount('設定', `${maintCard(mt.maint)}<div class="card"><h2>客人看到的文字</h2>
       <div class="f"><label for="s1">訪客提醒</label><textarea id="s1">${esc(s.guestNotice || '')}</textarea></div>
       <div class="f"><label for="s2">資料說明（大廳最下方）</label><textarea id="s2">${esc(s.privacyNote || '')}</textarea></div>
       <button class="btn" data-save>儲存</button></div>
     <div class="card"><h2>入口網址（用來統計從哪裡來）</h2><div class="tw"><table><thead><tr><th>放在哪裡</th><th>網址</th><th></th></tr></thead><tbody>${[['LINE 圖文選單、LINE 訊息', 'line'], ['IG 貼文、限動、個人簡介', 'ig'], ['預約網站（網站 A）', 'booking'], ['陪伴網站（網站 B）', 'care']].map(([n, k]) => `<tr><td>${n}</td><td><code style="font-size:12px;word-break:break-all">${esc(P)}?from=${k}</code></td><td><button class="btn s l" data-cp="${esc(P)}?from=${k}">複製</button></td></tr>`).join('')}</tbody></table></div><p class="small muted" style="margin-top:6px">客人分享出去的連結會自動帶 <code>?from=share</code>。</p></div>
     <div class="card"><h2>備份與匯出</h2><div class="acts"><button class="btn l" data-csv="plays">本週明細 CSV</button><button class="btn l" data-csv="archive">封存明細 CSV</button><a class="btn l" href="#/templates">範本庫匯出</a></div><p class="small muted" style="margin-top:6px">CSV 可以用 Excel 或 Google 試算表打開。試算表本身也在你的 Google 雲端硬碟。</p></div>`, '#/settings');
+  bindMaint();
   $('[data-save]').addEventListener('click', async () => { try { await api.call('adminSaveSettings', { settings: { guestNotice: $('#s1').value.trim(), privacyNote: $('#s2').value.trim() } }); toast('已儲存'); } catch (e) { errToast(e); } });
   $$('[data-cp]').forEach(b => b.addEventListener('click', () => navigator.clipboard.writeText(b.dataset.cp).then(() => toast('已複製'), () => toast('請手動複製', 'err'))));
   $$('[data-csv]').forEach(b => b.addEventListener('click', async () => { try { const r = await api.call('adminExport', { table: b.dataset.csv }); U.dl('mia-play-' + b.dataset.csv + '.csv', '﻿' + r.csv, 'text/csv'); } catch (e) { errToast(e); } }));
@@ -1041,6 +1290,7 @@ function route() {
   if (h === '#/themes') return pThemes();
   if ((m = h.match(/^#\/theme-new(?:\/(.+))?/))) return pThemeNew(m[1] ? decodeURIComponent(m[1]) : '');
   if (h === '#/settings') return pSettings();
+  if (h === '#/import') return pImport();
   if ((m = h.match(/^#\/cal(?:\/(\w+))?/))) return pCal(m[1]);
   return pOverview();
 }
