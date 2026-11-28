@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>2026 最後 31 天・倒數撕日曆｜Mia 小遊戲</title>
+<title>2026 最後 31 天・倒數撕日曆｜Mia 療癒小時光</title>
 <meta name="theme-color" content="#FDE6DB">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="年末撕日曆">
@@ -435,7 +435,7 @@ const U = {
 };
 function toast(msg, kind) { const t = document.createElement('div'); t.className = 'toast' + (kind === 'err' ? ' err' : ''); t.setAttribute('role', 'status'); t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 3400); }
 class ApiError extends Error { constructor(c, m, d) { super(m || '系統忙碌中，請稍後再試'); this.code = c; this.data = d; } }
-const errToast = e => toast((e && e.message) || '系統忙碌中，請稍後再試', 'err');
+const errToast = e => (typeof Maint !== 'undefined' && Maint.on) ? null : toast((e && e.message) || '系統忙碌中，請稍後再試', 'err');
 function modal(title, html, acts, onOpen) {
   return new Promise(res => {
     const bg = document.createElement('div'); bg.className = 'mb';
@@ -457,6 +457,59 @@ const Session = {
 };
 const Guest = { id() { let g = U.ls.get('miaplay.guest'); if (!g) { g = U.rid(16); U.ls.set('miaplay.guest', g); } return g; } };
 const Entry = { get() { try { return JSON.parse(U.ss.get('miaplay.entry') || 'null') || { source: 'direct', ref: '' }; } catch (e) { return { source: 'direct', ref: '' }; } } };
+/* ---------- 維護中：交通錐＋掛牌（大廳、遊戲、撕日曆共用） ---------- */
+const Maint = {
+  on: false, timer: null,
+  fmt(iso) { if (!iso) return ''; const d = new Date(new Date(iso).getTime() + 8 * 3600e3), W = '日一二三四五六'; return (d.getUTCMonth() + 1) + '/' + d.getUTCDate() + '（' + W[d.getUTCDay()] + '）' + String(d.getUTCHours()).padStart(2, '0') + ':' + String(d.getUTCMinutes()).padStart(2, '0'); },
+  hm(iso) { const d = new Date(new Date(iso).getTime() + 8 * 3600e3); return String(d.getUTCHours()).padStart(2, '0') + ':' + String(d.getUTCMinutes()).padStart(2, '0'); },
+  css: `.mt{min-height:100vh;display:flex;flex-direction:column;align-items:center;text-align:center;padding:40px 20px 30px;gap:12px;font-family:'Noto Sans TC',system-ui,sans-serif;color:#3B302A;background:linear-gradient(180deg,#FFF4EE,#FDE6DB 60%,#F8D3C3)}
+.mt .art{display:flex;align-items:flex-end;justify-content:center;margin:10px 0 4px}.mt .art svg{max-width:46vw;height:auto}
+.mt h1{font-family:'Noto Serif TC',serif;font-size:24px;color:#5A4632}.mt p{color:#6E6159;font-size:14.5px;line-height:1.7}
+.mt .tm{background:#fff;border:1px solid #EBD9CF;border-radius:14px;padding:10px 20px}.mt .tm b{display:block;font-size:21px;color:#8A3A24}
+.mt button{min-height:46px;padding:0 28px;border-radius:999px;border:0;background:#B5523B;color:#fff;font:700 15px 'Noto Sans TC',sans-serif;cursor:pointer}
+.mt .lk{font-size:13px;color:#6E6159}.mt .lk a{color:#8A3A24}
+@keyframes mtw{0%,100%{transform:rotate(-2deg)}50%{transform:rotate(2deg)}}.mt .sign{animation:mtw 3s ease-in-out infinite;transform-origin:50% 10%}
+@media (prefers-reduced-motion:reduce){.mt .sign{animation:none}}
+.mtbar{display:flex;gap:10px;align-items:center;background:repeating-linear-gradient(135deg,#FFF3C4 0 14px,#FFE9A8 14px 28px);border:1.5px solid #E7B94A;border-radius:14px;padding:10px 12px;color:#5E4512;font-size:13px;line-height:1.55}
+.mtbar b{display:block}.mtbar button{margin-left:auto;font-weight:700;color:#5E4512;text-decoration:underline;white-space:nowrap;background:none;border:0;cursor:pointer;min-height:36px}
+.mtadm{background:#2F2A27;color:#FFE9A8;font-size:13px;font-weight:700;text-align:center;padding:6px 10px}`,
+  cone(w) { return `<svg width="${w || 120}" viewBox="0 0 150 170" aria-hidden="true"><ellipse cx="75" cy="160" rx="60" ry="7" fill="rgba(90,46,34,.15)"/><rect x="20" y="146" width="110" height="14" rx="4" fill="#E06A3B"/><path d="M60 18 Q75 8 90 18 L118 146 H32 Z" fill="#F07D45"/><path d="M53 52 H97 L103 78 H47 Z" fill="#FFF4EE"/><path d="M42 102 H108 L113 124 H37 Z" fill="#FFF4EE"/><path d="M66 20 Q70 16 74 18 L60 140 H48 Z" fill="#fff" opacity=".18"/></svg>`; },
+  sign(t1, t2) { return `<svg class="sign" width="160" viewBox="0 0 190 170" aria-hidden="true"><path d="M40 165 L70 20 M150 165 L120 20" stroke="#C9A35A" stroke-width="6" stroke-linecap="round"/><path d="M95 18 L60 44 M95 18 L130 44" stroke="#8A7466" stroke-width="2"/><circle cx="95" cy="16" r="5" fill="#8A7466"/><rect x="34" y="44" width="122" height="66" rx="12" fill="#fff" stroke="#B5523B" stroke-width="3"/><text x="95" y="76" text-anchor="middle" font-family="Noto Serif TC,serif" font-size="23" font-weight="700" fill="#8A3A24">${t1}</text><text x="95" y="99" text-anchor="middle" font-family="Noto Sans TC,sans-serif" font-size="12" fill="#6E6159">${t2}</text></svg>`; },
+  style() { if (!document.getElementById('mtcss')) { const s = document.createElement('style'); s.id = 'mtcss'; s.textContent = this.css; document.head.appendChild(s); } },
+  links() { const L = [[CFG.CARE_URL, 'Mia 陪伴'], [CFG.LINE_OA_ID ? 'https://line.me/R/ti/p/' + encodeURIComponent(CFG.LINE_OA_ID) : '', '官方 LINE']].filter(x => x[0]); return L.length ? `<span class="lk">等待的時候，可以先去 ${L.map(([u, t]) => `<a href="${esc(u)}" target="_blank" rel="noopener">${t}</a>`).join('・')}</span>` : ''; },
+  /* m：後端回傳的維護資料；updating：後端暫時連不到（正在換程式） */
+  show(m, updating) {
+    if (this.on) return; this.on = true; this.style(); document.querySelectorAll('.mb,.toast,.ghost').forEach(x => x.remove());
+    const end = m && m.end ? this.fmt(m.end) : '';
+    document.getElementById('app').innerHTML = `<main class="mt" role="main"><div class="art">${this.sign(updating ? '更新中' : '維護中', updating ? '馬上就好' : '整理一下，馬上回來')}${this.cone(118)}</div>
+      <h1>${updating ? '正在更新' : '正在整理中'}</h1>
+      <p>${updating ? 'Mia 療癒小時光正在更新，<br>過幾分鐘再試試，好了會自動回來。' : 'Mia 療癒小時光在做一點小整理，<br>你的紀錄、糖罐和稱號都好好的。'}</p>
+      ${m && m.msg ? `<p>${esc(m.msg)}</p>` : ''}${end && !updating ? `<div class="tm"><span style="font-size:12.5px;color:#6E6159">預計完成</span><b>${end}</b></div>` : ''}
+      <button type="button" data-mtr>重新整理看看</button>${this.links()}</main>`;
+    document.querySelector('[data-mtr]').addEventListener('click', () => location.reload());
+    window.scrollTo(0, 0);
+    /* 定時再問一次：維護結束或後端恢復就自動回到原本的頁面 */
+    const every = updating ? 30000 : 60000;
+    this.timer = setInterval(async () => { try { const ok = await this.ping(); if (ok) location.reload(); } catch (e) { } }, every);
+  },
+  async ping() {
+    if (IS_DEMO) { const r = await MOCK.call('ping', {}, ''); return r.maint.phase !== 'on'; }
+    const r = await fetch(CFG.PLAY_GAS_URL, { method: 'POST', redirect: 'follow', body: JSON.stringify({ action: 'ping', token: '', data: {} }) });
+    const j = await r.json(); return !!(j.ok && j.data && (!j.data.maint || j.data.maint.phase !== 'on'));
+  },
+  /* 大廳用：開始前的預告條、管理員看到的維護中提示 */
+  bar(m) {
+    this.style(); if (!m) return '';
+    if (m.phase === 'on' && m.admin) return `<div class="mtadm" role="status">維護中・只有管理員看得到網站${m.end ? '（到 ' + this.fmt(m.end) + '）' : ''}</div>`;
+    if (m.phase !== 'notice') return '';
+    let seen = ''; try { seen = localStorage.getItem('miaplay.maintSeen') || ''; } catch (e) { }
+    if (seen === m.start) return '';
+    const day = this.fmt(m.start).replace(/\s?\d\d:\d\d$/, '');
+    return `<div class="mtbar" role="note">${this.cone(28)}<span><b>${day} ${this.hm(m.start)}–${this.hm(m.end)} 網站維護</b>這段時間暫停遊玩，紀錄都會好好保留${m.msg ? '・' + esc(m.msg) : ''}</span><button type="button" data-mtok="${esc(m.start)}">知道了</button></div>`;
+  },
+  bindBar() { const b = document.querySelector('[data-mtok]'); if (b) b.addEventListener('click', () => { try { localStorage.setItem('miaplay.maintSeen', b.dataset.mtok); } catch (e) { } b.closest('.mtbar').remove(); }); }
+};
+
 const api = {
   async call(action, data, opts) {
     const token = Session.token(); data = Object.assign({ guestId: Guest.id() }, data || {});
@@ -467,7 +520,8 @@ const api = {
       const j = await r.json(); if (!j.ok) throw new ApiError(j.error && j.error.code, j.error && j.error.message, j.error && j.error.data);
       return j.data;
     } catch (e) {
-      if (!(e instanceof ApiError)) e = new ApiError('INTERNAL', '無法連線，請稍後再試');
+      if (!(e instanceof ApiError)) { if (navigator.onLine !== false && !IS_DEMO) Maint.show(null, true); e = new ApiError('INTERNAL', '無法連線，請稍後再試'); }
+      if (e.code === 'MAINTENANCE') Maint.show(e.data || {});
       if (['AUTH_EXPIRED', 'AUTH_INVALID', 'AUTH_REQUIRED'].includes(e.code) && token && !(opts && opts.retried)) { Session.drop(); toast('LINE 登入已過期，先用訪客身分'); return api.call(action, data, { retried: true }); }
       throw e;
     }
@@ -491,7 +545,7 @@ const LineAuth = {
 };
 function demoLogin() {
   modal('展示：切換身分', `<p class="small mut">展示模式不會連線 LINE。</p>`, [
-    { l: '陳映彤（已在預約網站登入過）', v: 'c' }, { l: '林小晴（第一次來，用小遊戲自己的登入）', v: 'f' }, { l: '訪客', v: 'g', c: 'btn2' }, { l: '取消', v: null, c: 'btn2' }]).then(v => {
+    { l: '陳映彤（已在預約網站登入過）', v: 'c' }, { l: '林小晴（第一次來，用療癒小時光自己的登入）', v: 'f' }, { l: '訪客', v: 'g', c: 'btn2' }, { l: '取消', v: null, c: 'btn2' }]).then(v => {
     if (!v) return; U.ls.del(Session.own); U.ls.del(Session.shared); U.ss.del('miaplay.skip');
     if (v === 'c') U.ls.set(Session.shared, JSON.stringify({ token: 'demo-customer', user: DEMO_USERS['demo-customer'], expiresAt: '2999-01-01T00:00:00Z' }));
     if (v === 'f') U.ls.set(Session.own, JSON.stringify({ token: 'demo-friend', user: DEMO_USERS['demo-friend'], expiresAt: '2999-01-01T00:00:00Z' }));
@@ -591,7 +645,7 @@ const contentOf = e => e ? (e.content != null ? e.content : ((Local.get(e.page) 
 function header() {
   const unread = S.d ? S.d.entries.filter(e => e.unread).length : 0;
   const b = (v, l) => `<button data-go="${v}" class="${S.view === v ? 'on' : ''}"${S.view === v ? ' aria-current="page"' : ''}>${l}${v === 'jar' && unread ? '<span class="dot" aria-label="有新的悄悄話"></span>' : ''}</button>`;
-  return `<header class="hd"><div class="wrap"><a class="back" href="${HOME}" aria-label="回 Mia 小遊戲大廳"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a><b>年末撕日曆</b>${IS_DEMO ? '<button class="demo" data-demo>展示</button>' : ''}
+  return `<header class="hd"><div class="wrap"><a class="back" href="${HOME}" aria-label="回 Mia 療癒小時光大廳"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></a><b>年末撕日曆</b>${IS_DEMO ? '<button class="demo" data-demo>展示</button>' : ''}
     <nav>${b('today', '今天')}${b('jar', '糖罐')}${b('wall', '心聲牆')}</nav></div></header>`;
 }
 function footer() {
@@ -599,6 +653,7 @@ function footer() {
   return `<footer class="ft"><div class="wrap">${L.map(([u, t]) => `<a href="${esc(u)}" target="_blank" rel="noopener">${t}</a>`).join('・')}</div></footer>`;
 }
 function mount(inner) {
+  if (Maint.on) return;
   document.body.classList.remove('goldbg'); $$('.tipx').forEach(t => t.remove());
   $('#app').innerHTML = header() + `<main><div class="wrap">${inner}</div></main>${footer()}`;
   $$('[data-go]').forEach(b => b.addEventListener('click', () => go(b.dataset.go)));
@@ -897,7 +952,7 @@ async function couponImage(c) {
   x.fillStyle = '#B5523B'; x.font = '800 260px "Nunito",sans-serif'; x.fillText(String(c.amount), W / 2, 860); x.font = '700 60px "Noto Sans TC",sans-serif'; x.fillText('元', W / 2 + 250, 860);
   x.fillStyle = '#8A4A39'; x.font = '800 80px "Nunito",sans-serif'; x.fillText(c.code, W / 2, 1010);
   x.fillStyle = '#6E6159'; x.font = '500 40px "Noto Sans TC",sans-serif'; x.fillText('可用於：' + c.plans, W / 2, 1100); x.fillText('效期至 ' + String(c.expiresAt).replace(/-/g, '/') + '・可轉送・認券不認人', W / 2, 1170);
-  x.font = '500 38px "Noto Sans TC",sans-serif'; x.fillText('預約時出示券號，一張券只能用一次', W / 2, 1420); x.fillText('2026 最後 31 天・倒數撕日曆', W / 2, 1490);
+  x.font = '500 38px "Noto Sans TC",sans-serif'; x.fillText('預約時出示券號，一張券只能用一次', W / 2, 1420); x.fillText('2026 最後 31 天・倒數撕日曆', W / 2, 1490); x.fillText('Mia 療癒小時光', W / 2, 1550);
   const blob = await new Promise(r => cv.toBlob(r, 'image/png')), src = URL.createObjectURL(blob), file = new File([blob], c.code + '.png', { type: 'image/png' });
   const canFile = navigator.canShare && navigator.canShare({ files: [file] });
   const v = await modal('你的折抵券', `<img src="${src}" alt="折抵券 ${esc(c.code)}" style="width:min(64vw,240px);margin:0 auto;border-radius:12px;box-shadow:0 6px 20px rgba(0,0,0,.15)"><p class="tiny mut" style="text-align:center">在 LINE 裡打開時，請長按圖片儲存</p>`,
